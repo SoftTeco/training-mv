@@ -27,7 +27,7 @@ jobs:
     steps:
     - id: set_owner_lowercase
       name: set_owner_lowercase
-      run: echo "owner=$(${{ github.repository_owner }},," >> $GITHUB_OUTPUT
+      run: echo "owner=$(${{ github.repository_owner }},,)" >> $GITHUB_OUTPUT
 
     - name: docker build
       working-directory: docker-github-runner-linux/
