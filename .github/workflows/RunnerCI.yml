@@ -26,6 +26,7 @@ jobs:
 
     steps:
     - id: set_owner_lowercase
+      name: set_owner_lowercase
       run: echo "owner=$(${{ github.repository_owner }},," >> $GITHUB_OUTPUT
       uses: actions/checkout@v3
 
