@@ -1,0 +1,43 @@
+name: Docker Image CD dev
+on:
+  workflow_run:
+    workflows: ["Docker Image CI"]
+    types:
+      - completed
+
+jobs:
+  set_latest_image:
+    runs-on:
+      - self-hosted
+      - label-1
+    outputs:
+      output_version_js: ${{ steps.js.outputs.version }}
+      output_version_wp: ${{ steps.wp.outputs.version }}
+    steps:
+    - uses: actions/checkout@v2
+
+    - id: js
+      run: echo "version=`echo ${{ secrets.GH_TOKEN }} | ./ghcr-prune-2.py -t --container crash-js-app --dry-run | awk '{print $5}' | head -n 1 | sed 's/\[\x27//' | sed 's/\x27,//' | sed 's/\x27]//'`" >> $GITHUB_OUTPUT
+
+    - id: wp
+      run: echo "version=`echo ${{ secrets.GH_TOKEN }} | ./ghcr-prune-2.py -t --container wordpress --dry-run | awk '{print $5}' | head -n 1 | sed 's/\[\x27//' | sed 's/\x27,//' | sed 's/\x27]//'`" >> $GITHUB_OUTPUT
+
+  environment_deploy:
+    runs-on:
+      - self-hosted
+      - label-1
+    needs: [set_latest_image]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build docker-compose
+      env:
+        ENVIRONMENT: dev
+        DB_USER: ${{ secrets.WORDPRESS_DB_USER_DEV }}
+        DB_PASSWORD: ${{ secrets.WORDPRESS_DB_PASSWORD_DEV }}
+        DB_NAME: ${{ secrets.WORDPRESS_DB_NAME_DEV }}
+        WORDPRESS_DB_PORT: 8001
+        JS_APP_PORT: 3000
+        MYSQL_DB_PORT: 3307
+        LATEST_JS_IMAGE: ${{ needs.set_latest_image.outputs.output_version_js}}
+        LATEST_WP_IMAGE: ${{ needs.set_latest_image.outputs.output_version_wp}}
+      run: docker-compose -f docker-compose.yaml -p test_dev up -d

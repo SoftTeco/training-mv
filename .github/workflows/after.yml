@@ -1,0 +1,18 @@
+name: Post CD pipeline for containers
+on:
+  workflow_run:
+    workflows: ["Docker Image CD prod"]
+    types:
+      - completed
+
+jobs:
+  use_scripts_to_set_ports_for_js_app:
+    runs-on: self-hosted
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Use script for dev container
+      run: ./script_for_adding_endpoint_port_to_dev_app.sh
+
+    - name: Use script for prod container
+      run: ./script_for_adding_endpoint_port_to_prod_app.sh

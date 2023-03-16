@@ -1,0 +1,57 @@
+version: '3.3'
+services:
+#dev:
+  db:
+    image: mysql:5.7
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: always
+    container_name: wp_db_js_db_${ENVIRONMENT}
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD} 
+      MYSQL_DATABASE: ${DB_NAME} 
+      MYSQL_USER: ${DB_USER} 
+      MYSQL_PASSWORD: ${DB_PASSWORD} 
+    ports: 
+      - '${MYSQL_DB_PORT}:3306'
+
+    networks:
+      - wpsite
+  # Wordpress
+  wordpress:
+    depends_on:
+      - db
+    image: ghcr.io/isostheneia94/wordpress:${LATEST_WP_IMAGE}
+    container_name: wp_db_js_wordpress_${ENVIRONMENT}
+    environment:
+      WORDPRESS_DB_HOST: db
+
+      WORDPRESS_DB_USER: ${DB_USER} 
+      WORDPRESS_DB_PASSWORD: ${DB_PASSWORD} 
+      WORDPRESS_DB_NAME: ${DB_NAME} 
+
+    ports:
+      - '${WORDPRESS_DB_PORT}:80' 
+    restart: always
+    volumes:
+      - wordpress_data:/var/www/html
+    networks:
+      - wpsite
+  # Js app
+  app:
+    image: ghcr.io/isostheneia94/crash-js-app:${LATEST_JS_IMAGE}
+    container_name: wp_db_js_app_${ENVIRONMENT}
+    restart: always
+    ports:
+      - ${JS_APP_PORT}:3000
+    #entrypoint: ["./script_for_adding_endpoint_port_to_${ENVIRONMENT}_app.sh"]
+    #command: ./script_for_adding_endpoint_port_to_${ENVIRONMENT}_app.sh 
+
+networks:
+  wpsite:
+volumes:
+  db_data:
+    name: db_data_${ENVIRONMENT}
+    #external: true
+  wordpress_data:
+    name: wordpress_data_${ENVIRONMENT}

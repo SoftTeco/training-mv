@@ -1,0 +1,14 @@
+# Specify a base image
+#FROM node:16.18.0
+FROM node:16-alpine
+
+#Install some dependencies
+
+WORKDIR /usr/app/test51
+#DELETE ONBUILD OPTION
+COPY client/ /usr/app/test51
+RUN npm install
+
+#Set up a default command
+CMD [ "npm","run","dev" ]
+#-------------------------------------------

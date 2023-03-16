@@ -1,0 +1,83 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "compose" ]
+    paths:
+      - '**/Dockerfile.**'
+  pull_request:
+    branches: [ "compose" ]
+
+jobs:
+  pre_build_set_variables:
+    runs-on: self-hosted
+
+    outputs:
+      output_tag: ${{ steps.tag_js_wp.outputs.tag }}
+     
+    steps:
+      - id: tag_js_wp
+        run: echo "tag=$(date +"%Y.%m.%d.%H.%M.%S")-${{ github.run_id }}" >> $GITHUB_OUTPUT
+  
+  build_images:
+    runs-on: self-hosted
+    needs: pre_build_set_variables
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Build the wordpress Docker image
+      run: docker build --file Dockerfile.wordpress --tag ghcr.io/isostheneia94/wordpress:${{ needs.pre_build_set_variables.outputs.output_tag }} .
+
+    - name: Build the crash-js-app Docker image
+      run: docker build --file Dockerfile.crash-js-app --tag ghcr.io/isostheneia94/crash-js-app:${{ needs.pre_build_set_variables.outputs.output_tag }} .
+
+  login_and_push_to_container_registry:
+    runs-on: self-hosted
+    needs: [pre_build_set_variables, build_images]
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Login to container registry
+      run: echo ${{ secrets.GH_TOKEN }} | docker login ghcr.io -u mvrbtsk --password-stdin
+
+    - name: Push to container registry js image
+      run: docker push ghcr.io/isostheneia94/crash-js-app:${{ needs.pre_build_set_variables.outputs.output_tag }}
+
+    - name: Push to container registry wordpress image
+      run: docker push ghcr.io/isostheneia94/wordpress:${{ needs.pre_build_set_variables.outputs.output_tag }}
+
+  delete_old_images_from_github_container_registry:
+    runs-on: self-hosted
+    needs: [pre_build_set_variables, build_images, login_and_push_to_container_registry]
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Use script for deleting 11-th image in container registry js
+      run: echo ${{ secrets.GH_TOKEN }} | ./ghcr-prune-2.py -t --container crash-js-app --number 10
+
+    - name: Use script for deleting 11-th image in container registry wp
+      run: echo ${{ secrets.GH_TOKEN }} | ./ghcr-prune-2.py -t --container wordpress --number 10
+
+  trivy_secure:
+    runs-on: self-hosted
+    needs: [pre_build_set_variables, build_images, login_and_push_to_container_registry, delete_old_images_from_github_container_registry]
+    steps:
+    - name: Run Trivy to js-app image
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: 'ghcr.io/isostheneia94/crash-js-app:${{ needs.pre_build_set_variables.outputs.output_tag }}'
+        format: 'table'
+        #exit-code: '1'
+        ignore-unfixed: true
+        vuln-type: 'os,library'
+        severity: 'CRITICAL,HIGH'
+
+    - name: Run trivy to WordPress image
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: 'ghcr.io/isostheneia94/wordpress:${{ needs.pre_build_set_variables.outputs.output_tag }}'
+        format: 'table'
+        #exit-code: '1'
+        ignore-unfixed: true
+        vuln-type: 'os,library'
+        severity: 'CRITICAL,HIGH'
