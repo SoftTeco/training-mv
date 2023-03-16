@@ -1,0 +1,20 @@
+FROM node:16-alpine as build
+
+#ENV wrkdr_path /usr/app/k8s/test103
+ENV dir /app-stage-30/
+COPY client/package.json ${dir}
+WORKDIR ${dir}
+RUN npm install 
+COPY client/. ${dir}
+RUN npm run dev & sleep 5; kill -INT %+
+########################################
+FROM node:16-alpine
+ENV dir /app-stage-30/
+WORKDIR /usr/app
+
+COPY --from=build ${dir}/node_modules /usr/app/node_modules
+COPY --from=build ${dir}/package.json /usr/app/package.json
+COPY --from=build ${dir}/.next /usr/app/.next
+COPY --from=build ${dir}/pages/index.js /usr/app/pages/index.js
+
+CMD ["npm", "run", "dev"]

@@ -1,0 +1,16 @@
+{
+  "private": true,
+  "proxy": "http://wp-db-js-wordpress-service.k8s-${ENVIRONMENT}.svc.cluster.local:8000/graphql",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@apollo/client": "^3.5.10",
+    "graphql": "^16.3.0",
+    "next": "latest",
+    "react": "^18",
+    "react-dom": "^18"
+  }
+}

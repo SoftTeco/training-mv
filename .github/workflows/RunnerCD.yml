@@ -1,0 +1,63 @@
+name: CD for runner as container
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_name:
+        required: true
+        type: string
+        default: 'ghcr.io/isostheneia94/docker-github-runner-lin:4.92'
+
+jobs:
+  pre:
+    runs-on: self-hosted
+    outputs:
+      output_repo_name: ${{ steps.repository_name.outputs.repository }}
+     
+    steps:
+      - id: repository_name
+        run: echo "repository=`echo ${{ github.repository }} | sed 's/[a-z1-9]*[\//\]//'`" >> $GITHUB_OUTPUT
+
+  terraform_pulling_images:
+    needs: [pre]
+    runs-on: self-hosted
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: use terraform init for docker images
+      working-directory: docker-github-runner-linux/
+      run: terraform init
+
+    - name: use terraform plan for docker images
+      working-directory: docker-github-runner-linux/
+      env:
+        TF_VAR_github_host: ${{ github.repository_owner }}
+        TF_VAR_runner_image: ${{ inputs.image_name }}
+        GITHUB_ACCESS_TOKEN: ${{ secrets.GH_TOKEN }}
+      run: terraform plan -var "github_access_token=${GITHUB_ACCESS_TOKEN}"
+
+    - name: use terraform apply for docker images
+      working-directory: docker-github-runner-linux/
+      env:
+        TF_VAR_github_host: ${{ github.repository_owner }}
+        TF_VAR_runner_image: ${{ inputs.image_name }}
+        GITHUB_ACCESS_TOKEN: ${{ secrets.GH_TOKEN }}
+      run: terraform apply -auto-approve -var "github_access_token=${GITHUB_ACCESS_TOKEN}"
+
+  docker_build:
+    runs-on: self-hosted
+    needs: [pre, terraform_pulling_images]
+    steps:
+    - uses: actions/checkout@v3
+    - name: docker run container
+      working-directory: docker-github-runner-linux/
+      run: docker run -v /var/run/docker.sock:/var/run/docker.sock -e GH_TOKEN=${{ secrets.GH_TOKEN }} -e GH_OWNER=${{ github.repository_owner }} -e GH_REPOSITORY=${{ needs.pre.outputs.output_repo_name}} --name=containered-runner-${{ github.run_number }} -d ${{ inputs.image_name }}
+
+  connect_to_cluster_network:
+    runs-on: self-hosted
+    needs: [pre, terraform_pulling_images, docker_build]
+    steps:
+    - uses: actions/checkout@v3
+    - name: docker network connect
+      run: docker network connect minikube containered-runner-${{ github.run_number }}
+      
