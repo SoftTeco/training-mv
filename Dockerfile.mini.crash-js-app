@@ -1,0 +1,5 @@
+FROM node:16-alpine as build
+
+#ENV wrkdr_path /usr/app/k8s/test102
+WORKDIR /app/k8s/test2
+COPY client/ /app/k8s/test2

@@ -1,0 +1,40 @@
+FROM node:16-alpine as build
+
+#ENV wrkdr_path /usr/app/k8s/test103
+COPY client/package.json /app-stage-1/
+WORKDIR /app-stage-1
+
+RUN npm install 
+#--production
+
+COPY client/. /app-stage-1
+
+#RUN apk --no-cache add curl
+
+#RUN curl -sfL https://install.goreleaser.com/github.com/tj/node-prune.sh | /bin/sh -s -- -b /usr/local/bin
+
+#RUN /usr/local/bin/node-prune
+
+RUN npm run dev & sleep 5; kill -INT %+
+
+#CMD ["npm","run","dev"]
+
+#RUN ls -la /app-stage-1
+
+FROM node:16-alpine
+
+WORKDIR /usr/app
+
+COPY --from=build /app-stage-1/node_modules /usr/app/node_modules
+
+COPY --from=build /app-stage-1/package.json /usr/app/package.json
+
+#RUN mkdir /usr/app/.next
+
+#RUN ls -la /usr/app/
+
+COPY --from=build /app-stage-1/.next /usr/app/.next
+
+COPY --from=build /app-stage-1/pages/index.js /usr/app/pages/index.js
+
+CMD ["npm", "run", "dev"]

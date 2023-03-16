@@ -1,0 +1,60 @@
+name: Kubernetes pods CD dev
+on:
+  workflow_dispatch:
+    inputs:
+      js_image_number:
+        required: true
+        type: number
+        default: 1
+      wp_image_number:
+        required: true
+        type: number
+        default: 1
+
+jobs:
+ # here version number convert to tag_version
+  set_image:
+    runs-on:
+      - self-hosted
+    outputs:
+      output_version_js: ${{ steps.js.outputs.version }}
+      output_version_wp: ${{ steps.wp.outputs.version }}
+    steps:
+    
+    - uses: actions/checkout@v2
+
+    - id: js
+      run: echo "version=`echo ${{ secrets.GH_TOKEN }} | ./ghcr-prune-2.py -t --container crash-js-app --number 10 --dry-run | awk '{print $5}' | head -n ${{ inputs.js_image_number }} | tail -n 1 | sed 's/\[\x27//' | sed 's/\x27,//' | sed 's/\x27]//'`" >> $GITHUB_OUTPUT
+
+    - id: wp
+      run: echo "version=`echo ${{ secrets.GH_TOKEN }} | ./ghcr-prune-2.py -t --container wordpress --number 10 --dry-run | awk '{print $5}' | head -n ${{ inputs.wp_image_number }} | tail -n 1 | sed 's/\[\x27//' | sed 's/\x27,//' | sed 's/\x27]//'`" >> $GITHUB_OUTPUT
+
+  environment_deploy:
+    runs-on:
+      - self-hosted
+    needs: [set_image]
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build kubernetes deployment
+      env:
+        COUNT_REPLICAS: 2
+        ENVIRONMENT: 'dev'
+        DB_USER: ${{ secrets.WORDPRESS_DB_USER_DEV }}
+        DB_PASSWORD: ${{ secrets.WORDPRESS_DB_PASSWORD_DEV }}
+        DB_NAME: ${{ secrets.WORDPRESS_DB_NAME_DEV }}
+        MYSQL_K8S_PORT: 30165
+        WORDPRESS_K8S_PORT: 30166
+        JS_APP_K8S_PORT: 30167
+        WP_IMAGE: ${{ needs.set_image.outputs.output_version_wp}}
+        JS_IMAGE: ${{ needs.set_image.outputs.output_version_js}}
+      run: for f in $(find kubernetes_wp_db_js/ -regex '.*\.yaml'); do envsubst < $f | kubectl apply -f -; done
+
+  CD_prod_trigger:
+    runs-on: self-hosted
+    needs: [environment_deploy]
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: run CD
+      run: gh workflow run CD_prod.yml -f js_image_number_prod=1 -f wp_image_number_prod=1 

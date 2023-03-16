@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wp-db-js-app-deployment
+  namespace: k8s-${ENVIRONMENT}
+  labels:
+    app: js-application
+spec:
+  selector:
+    matchLabels:
+      project: wp-db-js-app-${ENVIRONMENT}
+  replicas: ${COUNT_REPLICAS}
+  template:
+    metadata:
+      labels:
+        project: wp-db-js-app-${ENVIRONMENT}
+    spec:
+      containers:
+        - name: wp-db-js-app-${ENVIRONMENT}
+          image: ghcr.io/isostheneia94/crash-js-app:${JS_IMAGE}
+          env:
+          - name: ENVIRONMENT
+            value: ${ENVIRONMENT}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wp-db-js-app-service
+  namespace: k8s-${ENVIRONMENT}
+  labels:
+    env: ${ENVIRONMENT}
+    owner: MaxVerbitskiy
+spec:
+  selector:
+    project: wp-db-js-app-${ENVIRONMENT}
+  ports:
+    - name      : app-listener
+      protocol  : TCP
+      port      : 80
+      targetPort: 3000
+      nodePort  : ${JS_APP_K8S_PORT}
+  type: NodePort
