@@ -1,0 +1,9 @@
+FROM node:16-alpine
+
+WORKDIR /usr/app/k8s/test102
+
+COPY client/ /usr/app/k8s/test102
+
+RUN npm install
+
+CMD [ "npm","run","dev" ]
