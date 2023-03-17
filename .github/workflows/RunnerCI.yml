@@ -20,20 +20,7 @@ jobs:
   docker_build:
     runs-on: self-hosted
 
-    #outputs:
-      #output_owner: ${{ steps.set_owner.owner }}
-      #output_owner_lowercase: ${{ steps.set_owner_lowercase.owner_lc }}
-      #output_runner_container_ip: ${{ steps.runner_container_ip.ip }}
-
     steps:
-    #- id: set_owner
-      #name: set_owner
-      #run: echo "owner=${{ github.repository_owner }}" >> $GITHUB_OUTPUT
-
-    #- id: set_owner_lowercase
-      #name: set_owner_lowercase
-      #run: echo "owner_lc=${${{outputs.output_owner}},,}" >> $GITHUB_OUTPUT
-
     - id: string
       uses: ASzc/change-string-case-action@v5
       with:
@@ -42,7 +29,6 @@ jobs:
     - id: step2
       name: docker build
       working-directory: docker-github-runner-linux/
-      #run: export owner=${{ github.repository_owner}} && export owner_lc=${owner,,} && docker build --file Dockerfile --build-arg RUNNER_VERSION=${{ inputs.runner_version }} --build-arg TERRAFORM_VERSION=${{ inputs.terraform_version }} --tag ghcr.io/${owner_lc}/docker-github-runner-lin:5.${{ github.run_number }} .
       run: docker build --file Dockerfile --build-arg RUNNER_VERSION=${{ inputs.runner_version }} --build-arg TERRAFORM_VERSION=${{ inputs.terraform_version }} --tag ghcr.io/${{ steps.string.outputs.lowercase }}/docker-github-runner-lin:5.${{ github.run_number }} .
 
 
@@ -56,7 +42,7 @@ jobs:
       #run: echo ${{ secrets.GH_TOKEN }} | docker login ghcr.io -u mvrbtsk --password-stdin
 
     - name: Push to container registry docker-github-runner-lin image
-      run: docker push ghcr.io/${{ needs.docker_build.outputs.output_owner_lowercase }}/docker-github-runner-lin:5.${{ github.run_number }}
+      run: docker push ghcr.io/${{ needs.docker_build.steps.string.outputs.lowercase }}/docker-github-runner-lin:5.${{ github.run_number }}
 
   delete_old_images_from_github_container_registry:
     runs-on: self-hosted
@@ -74,7 +60,7 @@ jobs:
     - name: Run Trivy to docker-github-runner-lin image
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: 'ghcr.io/${{ needs.docker_build.outputs.output_owner_lowercase }}/docker-github-runner-lin:5.${{ github.run_number }}'
+        image-ref: 'ghcr.io/${{ needs.docker_build.steps.string.outputs.lowercase }}/docker-github-runner-lin:5.${{ github.run_number }}'
         format: 'table'
         #exit-code: '1'
         ignore-unfixed: true
