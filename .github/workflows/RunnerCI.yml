@@ -32,7 +32,7 @@ jobs:
 
     - id: set_owner_lowercase
       name: set_owner_lowercase
-      run: echo "owner_lc=$(needs.docker_build.outputs.output_owner,,)" >> $GITHUB_OUTPUT
+      run: echo "owner_lc=$(${{needs.docker_build.outputs.output_owner}},,)" >> $GITHUB_OUTPUT
 
     - name: docker build
       working-directory: docker-github-runner-linux/
