@@ -1,5 +1,8 @@
 name: CI for runner as container
 
+permissions:
+  packages: write
+
 on:
   workflow_dispatch:
     inputs:
