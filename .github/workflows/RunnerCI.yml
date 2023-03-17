@@ -54,7 +54,7 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Use script for deleting 11-th image in container registry docker-github-runner-lin
-      run: echo ${{ secrets.GH_TOKEN }} | ./ghcr-prune-2.py -t --container docker-github-runner-lin --number 10
+      run: echo ${{ secrets.GITHUB_TOKEN }} | ./ghcr-prune-2.py -t --container docker-github-runner-lin --number 10
 
   trivy_secure:
     runs-on: self-hosted
