@@ -36,8 +36,8 @@ jobs:
 
     - id: string
       uses: ASzc/change-string-case-action@v5
-        with:
-          string: ${{ github.repository_owner }}
+      with:
+        string: ${{ github.repository_owner }}
 
     - id: step2
       name: docker build
