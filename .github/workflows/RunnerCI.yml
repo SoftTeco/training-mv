@@ -43,7 +43,7 @@ jobs:
       #run: echo ${{ secrets.GH_TOKEN }} | docker login ghcr.io -u mvrbtsk --password-stdin
 
     - name: Push to container registry docker-github-runner-lin image
-      run: docker push ghcr.io/${{ github.repository_owner }}/docker-github-runner-lin:5.${{ github.run_number }}
+      run: docker push ghcr.io/${owner_lc}/docker-github-runner-lin:5.${{ github.run_number }}
 
   delete_old_images_from_github_container_registry:
     runs-on: self-hosted
@@ -61,7 +61,7 @@ jobs:
     - name: Run Trivy to docker-github-runner-lin image
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: 'ghcr.io/${{ github.repository_owner }}/docker-github-runner-lin:5.${{ github.run_number }}'
+        image-ref: 'ghcr.io/${owner_lc}/docker-github-runner-lin:5.${{ github.run_number }}'
         format: 'table'
         #exit-code: '1'
         ignore-unfixed: true
