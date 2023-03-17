@@ -9,7 +9,10 @@ name: Kubernetes pods CI
     #branches: [ "main" ]
 
 on:
-  workflow_dispatch:    
+  #workflow_dispatch:
+  push:
+    branches:
+      - 'mxm_vrbtskiy_main'
 
 jobs:
   pre_build_set_variables:
