@@ -28,7 +28,7 @@ jobs:
      
     steps:
       - id: tag_js_wp
-        run: echo "tag=$(date +"%Y.%m.%d.%H.%M.%S")-${{ github.run_id }}" >> $GITHUB_OUTPUT
+        run: echo "tag=$(date +"%Y.%m.%d.%H.%M.%S")" #-${{ github.run_id }}" >> $GITHUB_OUTPUT
 
       - id: namespace_number
         run: echo "tag=$(date +"%d%H%M")" >> $GITHUB_OUTPUT
