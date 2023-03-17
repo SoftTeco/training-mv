@@ -16,18 +16,6 @@ on:
         required: true
         type: string
         default: '1.3.9'
-  push:
-    branches:
-      - 'mxm_vrbtskiy_main'
-    inputs:
-      runner_version:
-        required: true
-        type: string
-        default: '2.303.0'
-      terraform_version:
-        required: true
-        type: string
-        default: '1.3.9'
       #image_version_after_point:
         #required: true
         #type: number
