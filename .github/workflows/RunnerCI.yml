@@ -20,24 +20,30 @@ jobs:
   docker_build:
     runs-on: self-hosted
 
-    outputs:
-      output_owner: ${{ steps.set_owner.owner }}
-      output_owner_lowercase: ${{ steps.set_owner_lowercase.owner_lc }}
-      output_runner_container_ip: ${{ steps.runner_container_ip.ip }}
+    #outputs:
+      #output_owner: ${{ steps.set_owner.owner }}
+      #output_owner_lowercase: ${{ steps.set_owner_lowercase.owner_lc }}
+      #output_runner_container_ip: ${{ steps.runner_container_ip.ip }}
 
     steps:
-    - id: set_owner
-      name: set_owner
-      run: echo "owner=${{ github.repository_owner }}" >> $GITHUB_OUTPUT
+    #- id: set_owner
+      #name: set_owner
+      #run: echo "owner=${{ github.repository_owner }}" >> $GITHUB_OUTPUT
 
-    - id: set_owner_lowercase
-      name: set_owner_lowercase
-      run: echo "owner_lc=${${{outputs.output_owner}},,}" >> $GITHUB_OUTPUT
+    #- id: set_owner_lowercase
+      #name: set_owner_lowercase
+      #run: echo "owner_lc=${${{outputs.output_owner}},,}" >> $GITHUB_OUTPUT
 
-    - name: docker build
+    - id: string
+      uses: ASzc/change-string-case-action@v5
+        with:
+          string: ${{ github.repository_owner }}
+
+    - id: step2
+      name: docker build
       working-directory: docker-github-runner-linux/
       #run: export owner=${{ github.repository_owner}} && export owner_lc=${owner,,} && docker build --file Dockerfile --build-arg RUNNER_VERSION=${{ inputs.runner_version }} --build-arg TERRAFORM_VERSION=${{ inputs.terraform_version }} --tag ghcr.io/${owner_lc}/docker-github-runner-lin:5.${{ github.run_number }} .
-      run: docker build --file Dockerfile --build-arg RUNNER_VERSION=${{ inputs.runner_version }} --build-arg TERRAFORM_VERSION=${{ inputs.terraform_version }} --tag ghcr.io/${{ needs.docker_build.outputs.output_owner_lowercase }}/docker-github-runner-lin:5.${{ github.run_number }} .
+      run: docker build --file Dockerfile --build-arg RUNNER_VERSION=${{ inputs.runner_version }} --build-arg TERRAFORM_VERSION=${{ inputs.terraform_version }} --tag ghcr.io/${{ steps.string.outputs.lowercase }}/docker-github-runner-lin:5.${{ github.run_number }} .
 
 
   login_and_push_to_container_registry:
