@@ -44,8 +44,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Login to container registry
-      run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+    #- name: Login to container registry
+      #run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
     - name: Push to container registry docker-github-runner-lin image
       run: docker push ghcr.io/${{ needs.docker_build.outputs.output_owner_lowercase }}/docker-github-runner-lin:5.${{ github.run_number }}
