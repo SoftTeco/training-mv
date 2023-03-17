@@ -93,4 +93,4 @@ jobs:
     - name: run CD
       env: 
         NAMESPACE_EXTENDED_NUMBER: ${{ inputs.namespace_extended_number}}
-      run: gh workflow run CD_prod.yml -f js_image_prod=2023.02.28.14.16.01-4292369971 -f wp_image_prod=2023.02.10.14.23.00-4143421464 -f namespace_extended_number=${NAMESPACE_EXTENDED_NUMBER} f runner_container_ip=${{ inputs.runner_container_ip }}
+      run: gh workflow run main_cd_prod.yml -f js_image_prod=2023.02.28.14.16.01-4292369971 -f wp_image_prod=2023.02.10.14.23.00-4143421464 -f namespace_extended_number=${NAMESPACE_EXTENDED_NUMBER} f runner_container_ip=${{ inputs.runner_container_ip }}

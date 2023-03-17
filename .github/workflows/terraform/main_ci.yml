@@ -107,4 +107,4 @@ jobs:
       env:
         NAMESPACE_EXTENDED_NUMBER: ${{ needs.pre_build_set_variables.outputs.output_number_k8s_namespace }}
       #run: gh workflow run CD.yml -f js_image_number=1 -f wp_image_number=3
-      run: gh workflow run CD.yml -f js_image_dev=2023.02.28.14.16.01-4292369971 -f wp_image_dev=2023.02.10.14.23.00-4143421464 -f namespace_extended_number=${NAMESPACE_EXTENDED_NUMBER} -f runner_container_ip=${{needs.pre_build_set_variables.outputs.output_runner_container_ip}}
+      run: gh workflow run main_cd_dev.yml -f js_image_dev=2023.02.28.14.16.01-4292369971 -f wp_image_dev=2023.02.10.14.23.00-4143421464 -f namespace_extended_number=${NAMESPACE_EXTENDED_NUMBER} -f runner_container_ip=${{needs.pre_build_set_variables.outputs.output_runner_container_ip}}
