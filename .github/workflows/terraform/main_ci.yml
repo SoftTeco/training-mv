@@ -23,21 +23,28 @@ jobs:
     outputs:
       output_tag: ${{ steps.tag_js_wp.outputs.tag }}
       output_number_k8s_namespace: ${{ steps.namespace_number.outputs.tag }}
-      output_runner_container_id: ${{ steps.runner_container_id.id }}
-      output_runner_container_ip: ${{ steps.runner_container_ip.ip }}
+      output_owner_lowercase: ${{ steps.string.outputs.lowercase }}
+      #output_runner_container_id: ${{ steps.runner_container_id.id }}
+      #output_runner_container_ip: ${{ steps.runner_container_ip.ip }}
      
     steps:
+      - id: string
+        uses: ASzc/change-string-case-action@v5
+        with:
+          string: ${{ github.repository_owner }}
+
+
       - id: tag_js_wp
-        run: echo "tag=$(date +"%Y.%m.%d.%H.%M.%S")" #-${{ github.run_id }}" >> $GITHUB_OUTPUT
+        run: echo "tag=$(date +"%Y.%m.%d.%H.%M.%S")-${{ github.run_id }}" >> $GITHUB_OUTPUT
 
       - id: namespace_number
         run: echo "tag=$(date +"%d%H%M")" >> $GITHUB_OUTPUT
 
-      - id: runner_container_id
-        run: echo "id=$(docker ps -a | grep runner | awk '{print $1}' | head -n 1)" >> $GITHUB_OUTPUT
+      #- id: runner_container_id
+        #run: echo "id=$(docker ps -a | grep runner | awk '{print $1}' | head -n 1)" >> $GITHUB_OUTPUT
 
-      - id: runner_container_ip
-        run: echo "ip=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${{ needs.pre_build_set_variables.outputs.output_runner_container_id }})" >> $GITHUB_OUTPUT
+      #- id: runner_container_ip
+        #run: echo "ip=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${{ needs.pre_build_set_variables.outputs.output_runner_container_id }})" >> $GITHUB_OUTPUT
   
   build_images:
     runs-on: self-hosted
@@ -46,10 +53,10 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Build the wordpress Docker image
-      run: docker build --file Dockerfile.wordpress --tag ghcr.io/softteco/wordpress:${{ needs.pre_build_set_variables.outputs.output_tag }} .
+      run: docker build --file Dockerfile.wordpress --tag ghcr.io/${{ needs.pre_build_set_variables.outputs.output_owner_lowercase }}/wordpress:${{ needs.pre_build_set_variables.outputs.output_tag }} .
 
     - name: Build the crash-js-app Docker image
-      run: docker build --file Dockerfile.optimized.crash-js-app --tag ghcr.io/${{ github.repository_owner }}/crash-js-app:${{ needs.pre_build_set_variables.outputs.output_tag }} .
+      run: docker build --file Dockerfile.optimized.crash-js-app --tag ghcr.io/${{ needs.pre_build_set_variables.outputs.output_owner_lowercase }}/crash-js-app:${{ needs.pre_build_set_variables.outputs.output_tag }} .
 
   login_and_push_to_container_registry:
     runs-on: self-hosted
@@ -58,13 +65,13 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Login to container registry
-      run: echo ${{ secrets.GH_TOKEN }} | docker login ghcr.io -u mvrbtsk --password-stdin
+      run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u mvrbtsk --password-stdin #${{ needs.pre_build_set_variables.outputs.output_owner_lowercase }} --password-stdin #mvrbtsk --password-stdin
 
     - name: Push to container registry js image
-      run: docker push ghcr.io/${{ github.repository_owner }}/crash-js-app:${{ needs.pre_build_set_variables.outputs.output_tag }}
+      run: docker push ghcr.io/${{ needs.pre_build_set_variables.outputs.output_owner_lowercase }}/crash-js-app:${{ needs.pre_build_set_variables.outputs.output_tag }}
 
     - name: Push to container registry wordpress image
-      run: docker push ghcr.io/${{ github.repository_owner }}/wordpress:${{ needs.pre_build_set_variables.outputs.output_tag }}
+      run: docker push ghcr.io/${{ needs.pre_build_set_variables.outputs.output_owner_lowercase }}/wordpress:${{ needs.pre_build_set_variables.outputs.output_tag }}
 
   delete_old_images_from_github_container_registry:
     runs-on: self-hosted
@@ -73,10 +80,10 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Use script for deleting 11-th image in container registry js
-      run: echo ${{ secrets.GH_TOKEN }} | ./ghcr-prune-2.py -t --container crash-js-app --number 10
+      run: echo ${{ secrets.GITHUB_TOKEN }} | ./ghcr-prune-2.py -t --container crash-js-app --number 10
 
     - name: Use script for deleting 11-th image in container registry wp
-      run: echo ${{ secrets.GH_TOKEN }} | ./ghcr-prune-2.py -t --container wordpress --number 10
+      run: echo ${{ secrets.GITHUB_TOKEN }} | ./ghcr-prune-2.py -t --container wordpress --number 10
 
   trivy_secure:
     runs-on: self-hosted
@@ -85,7 +92,7 @@ jobs:
     - name: Run Trivy to js-app image
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: 'ghcr.io/${{ github.repository_owner }}/crash-js-app:${{ needs.pre_build_set_variables.outputs.output_tag }}'
+        image-ref: 'ghcr.io/${{ needs.pre_build_set_variables.outputs.output_owner_lowercase }}/crash-js-app:${{ needs.pre_build_set_variables.outputs.output_tag }}'
         format: 'table'
         #exit-code: '1'
         ignore-unfixed: true
@@ -95,7 +102,7 @@ jobs:
     - name: Run trivy to WordPress image
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: 'ghcr.io/${{ github.repository_owner }}/wordpress:${{ needs.pre_build_set_variables.outputs.output_tag }}'
+        image-ref: 'ghcr.io/${{ needs.pre_build_set_variables.outputs.output_owner_lowercase }}/wordpress:${{ needs.pre_build_set_variables.outputs.output_tag }}'
         format: 'table'
         #exit-code: '1'
         ignore-unfixed: true
@@ -112,4 +119,4 @@ jobs:
       env:
         NAMESPACE_EXTENDED_NUMBER: ${{ needs.pre_build_set_variables.outputs.output_number_k8s_namespace }}
       #run: gh workflow run CD.yml -f js_image_number=1 -f wp_image_number=3
-      run: gh workflow run main_cd_dev.yml -f js_image_dev=2023.02.28.14.16.01-4292369971 -f wp_image_dev=2023.02.10.14.23.00-4143421464 -f namespace_extended_number=${NAMESPACE_EXTENDED_NUMBER} -f runner_container_ip=${{needs.pre_build_set_variables.outputs.output_runner_container_ip}}
+      run: gh workflow run main_cd_dev.yml -f js_image_dev=2023.02.28.14.16.01-4292369971 -f wp_image_dev=2023.02.10.14.23.00-4143421464 -f namespace_extended_number=${NAMESPACE_EXTENDED_NUMBER} #-f runner_container_ip=${{needs.pre_build_set_variables.outputs.output_runner_container_ip}}
