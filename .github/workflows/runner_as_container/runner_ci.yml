@@ -1,12 +1,7 @@
 name: CI for runner as container
 
-permissions:
-  packages: write
-
 on:
-  push:
-    branches:
-      - 'mxm_vrbtskiy_main'
+  workflow_dispatch:
     inputs:
       runner_version:
         required: true
@@ -37,6 +32,8 @@ jobs:
     - id: step_docker_build
       name: docker build
       working-directory: docker-github-runner-linux/
+      env:
+        DOCKER_TOKEN: ${{ secrets.DOCKER_CONFIG_GHCR_AUTH }}
       run: docker build --file Dockerfile --build-arg RUNNER_VERSION=${{ inputs.runner_version }} --build-arg TERRAFORM_VERSION=${{ inputs.terraform_version }} --tag ghcr.io/${{ steps.string.outputs.lowercase }}/docker-github-runner-lin:5.${{ github.run_number }} .
 
 

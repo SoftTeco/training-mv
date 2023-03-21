@@ -40,7 +40,8 @@ jobs:
       - id: namespace_number
         run: echo "tag=$(date +"%d%H%M")" >> $GITHUB_OUTPUT
 
-      #- id: runner_container_id
+      #- id: install_packages
+        #run: sudo apt-get install software-properties-common -y && sudo apt-add-repository universe -y && sudo apt-get update && sudo apt-get install python3-pip -y && sudo pip3 install python-dateutil && sudo pip3 install requests
         #run: echo "id=$(docker ps -a | grep runner | awk '{print $1}' | head -n 1)" >> $GITHUB_OUTPUT
 
       #- id: runner_container_ip
@@ -60,12 +61,29 @@ jobs:
 
   login_and_push_to_container_registry:
     runs-on: self-hosted
+    permissions:
+      contents: read
+      packages: write
+
     needs: [pre_build_set_variables, build_images]
     steps:
-    - uses: actions/checkout@v3
+    #- uses: actions/checkout@v3
 
-    - name: Login to container registry
-      run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u mvrbtsk --password-stdin #${{ needs.pre_build_set_variables.outputs.output_owner_lowercase }} --password-stdin #mvrbtsk --password-stdin
+    #- name: Login to container registry
+      #env:
+        #DOCKER_TOKEN: ${{ secrets.DOCKER_CONFIG_GHCR_AUTH }}
+      #run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u softteco --password-stdin #${{ needs.pre_build_set_variables.outputs.output_owner_lowercase }} --password-stdin #mvrbtsk --password-stdin
+
+    - name: Log in to the Container registry
+      uses: docker/login-action@v2.1.0
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }} #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 #${{ secrets.ISOSTHENEIA94_PAT }} #${{ secrets.GITHUB_TOKEN }}
+
+    #- name: Log in to registry
+      # This is where you will update the personal access token to GITHUB_TOKEN
+      #run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u softteco --password-stdin
 
     - name: Push to container registry js image
       run: docker push ghcr.io/${{ needs.pre_build_set_variables.outputs.output_owner_lowercase }}/crash-js-app:${{ needs.pre_build_set_variables.outputs.output_tag }}
@@ -76,14 +94,15 @@ jobs:
   delete_old_images_from_github_container_registry:
     runs-on: self-hosted
     needs: [pre_build_set_variables, build_images, login_and_push_to_container_registry]
+    #working-directory: .github/actions/
     steps:
     - uses: actions/checkout@v3
 
     - name: Use script for deleting 11-th image in container registry js
-      run: echo ${{ secrets.GITHUB_TOKEN }} | ./ghcr-prune-2.py -t --container crash-js-app --number 10
+      run: echo ${{ secrets.GITHUB_TOKEN }} | .github/actions/ghcr-prune-2.py -t --container crash-js-app --number 10
 
     - name: Use script for deleting 11-th image in container registry wp
-      run: echo ${{ secrets.GITHUB_TOKEN }} | ./ghcr-prune-2.py -t --container wordpress --number 10
+      run: echo ${{ secrets.GITHUB_TOKEN }} | .github/actions/ghcr-prune-2.py -t --container wordpress --number 10
 
   trivy_secure:
     runs-on: self-hosted
@@ -109,14 +128,15 @@ jobs:
         vuln-type: 'os,library'
         severity: 'CRITICAL,HIGH'
 
-  CD_trigger:
-    runs-on: self-hosted
-    needs: [pre_build_set_variables, trivy_secure]
-    steps:
-    - uses: actions/checkout@v3
+  #CD_trigger:
+    #runs-on: self-hosted
+    #needs: [pre_build_set_variables, trivy_secure]
+    #steps:
+    #- uses: actions/checkout@v3
 
-    - name: run CD
-      env:
-        NAMESPACE_EXTENDED_NUMBER: ${{ needs.pre_build_set_variables.outputs.output_number_k8s_namespace }}
+    #- name: run CD
+      #working-directory: .github/workflows/terraform
+      #env:
+        #NAMESPACE_EXTENDED_NUMBER: ${{ needs.pre_build_set_variables.outputs.output_number_k8s_namespace }}
       #run: gh workflow run CD.yml -f js_image_number=1 -f wp_image_number=3
-      run: gh workflow run main_cd_dev.yml -f js_image_dev=2023.02.28.14.16.01-4292369971 -f wp_image_dev=2023.02.10.14.23.00-4143421464 -f namespace_extended_number=${NAMESPACE_EXTENDED_NUMBER} #-f runner_container_ip=${{needs.pre_build_set_variables.outputs.output_runner_container_ip}}
+      #run: gh workflow run main_cd_dev.yml -f js_image_dev=2023.02.28.14.16.01-4292369971 -f wp_image_dev=2023.02.10.14.23.00-4143421464 -f namespace_extended_number=${NAMESPACE_EXTENDED_NUMBER} #-f runner_container_ip=${{needs.pre_build_set_variables.outputs.output_runner_container_ip}}
