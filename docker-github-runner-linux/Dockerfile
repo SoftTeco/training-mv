@@ -10,7 +10,7 @@ LABEL BaseImage="ubuntu:18.04"
 LABEL RunnerVersion=${RUNNER_VERSION}
 LABEL TerraformVersion=${TERRAFORM_VERSION}
 LABEL test="test"
-LABEL new="test"
+LABEL new="test2"
 
 # update the base packages + add a non-sudo user
 RUN apt-get update -y && apt-get upgrade -y && useradd -m docker && apt-get install sudo
