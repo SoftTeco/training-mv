@@ -20,7 +20,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='List versions of a GHCR container image you own, and '
         'optionally delete (prune) old, untagged versions.')
-    parser.add_argument('--token', '-t', action='store_true',
+    parser.add_argument('--token', '-t',
                         help='ask for token input instead of using the '
                         'GHCR_TOKEN environment variable')
     parser.add_argument('--container', default='crash-js-app',
@@ -50,7 +50,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.token:
-        token = getpass.getpass('Enter Token: ')
+        token = args.token #getpass.getpass('Enter Token: ')
     elif 'GHCR_TOKEN' in os.environ:
         token = os.environ['GHCR_TOKEN']
     else:

@@ -96,13 +96,16 @@ jobs:
     needs: [pre_build_set_variables, build_images, login_and_push_to_container_registry]
     #working-directory: .github/actions/
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v2
+
+    - name: install dependencies
+      run: sudo apt-get update && sudo apt-get install python3-pip -y && sudo pip3 install python-dateutil && sudo pip3 install requests
 
     - name: Use script for deleting 11-th image in container registry js
-      run: echo ${{ secrets.GITHUB_TOKEN }} | .github/actions/ghcr-prune-2.py -t --container crash-js-app --number 10
+      run: .github/actions/ghcr-prune-3.py --token ${{secrets.GITHUB_TOKEN}} --container crash-js-app --org softteco --number 10
 
     - name: Use script for deleting 11-th image in container registry wp
-      run: echo ${{ secrets.GITHUB_TOKEN }} | .github/actions/ghcr-prune-2.py -t --container wordpress --number 10
+      run: .github/actions/ghcr-prune-3.py --token ${{secrets.GITHUB_TOKEN}} --container wordpress --org softteco --number 10
 
   trivy_secure:
     runs-on: self-hosted
