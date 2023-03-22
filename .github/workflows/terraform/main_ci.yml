@@ -67,7 +67,7 @@ jobs:
 
     needs: [pre_build_set_variables, build_images]
     steps:
-    #- uses: actions/checkout@v3
+    - uses: actions/checkout@v3
 
     #- name: Login to container registry
       #env:
@@ -98,8 +98,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: install dependencies
-      run: sudo apt-get update && sudo apt-get install python3-pip -y && sudo pip3 install python-dateutil && sudo pip3 install requests
+    #- name: install dependencies
+      #run: sudo apt-get update && sudo apt-get install python3-pip -y && sudo pip3 install python-dateutil && sudo pip3 install requests
 
     - name: Use script for deleting 11-th image in container registry js
       run: .github/actions/ghcr-prune-3.py --token ${{secrets.GITHUB_TOKEN}} --container crash-js-app --org softteco --number 10

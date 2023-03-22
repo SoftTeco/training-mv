@@ -28,7 +28,7 @@ variable "js_image" {}
 
 variable "namespace_extended_name_number" {}
 
-variable "runner_container_ip" {}
+#variable "runner_container_ip" {}
 
 variable "js_target_port" {}
 

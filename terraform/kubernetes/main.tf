@@ -13,11 +13,13 @@ terraform {
 
 provider "kubernetes" {
   #load_config_file       = false
-  host =  "${var.host}"
+  host = "${var.host}" #"https://192.168.67.2:8443"
 
   client_certificate = "${var.client_certificate}"
   client_key = "${var.client_key}"
   cluster_ca_certificate = "${var.cluster_ca_certificate}"
+  #token = "${var.github_access_token}"
+  #config_path = "~/.kube/config"
 }
 
 provider "docker" {

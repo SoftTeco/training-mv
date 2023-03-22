@@ -5,26 +5,30 @@ on:
       js_image_dev:
         required: true
         type: string
-        default: '2023.02.28.14.16.01-4292369971'
+        default: '2023.03.20.14.56.45-1'
       wp_image_dev:
         required: true
         type: string
-        default: '2023.02.10.14.23.00-4143421464'
+        default: '2023.03.21.13.20.35-1'
       namespace_extended_number:
         required: true
         type: string
         default: '010000'
-      runner_container_ip:
-        required: true
-        type: string
-        default: '172.17.0.0'
+      #runner_container_ip:
+        #required: true
+        #type: string
+        #default: '172.17.0.0'
 
 jobs:
   environment_deploy:
     runs-on:
       - self-hosted
+    environment: dev
+
     steps:
     - uses: actions/checkout@v3
+    #- name: Set variable
+      #run: echo "NUMBER=$(date +"%d%H%M")" >> $GITHUB_ENV
 
     - name: Build kubernetes deployment / init
       working-directory: ./terraform/kubernetes
@@ -35,7 +39,7 @@ jobs:
       env:
         TF_VAR_replicas: 2
         TF_VAR_environment: 'dev'
-        TF_VAR_github_host: 'isostheneia94'
+        TF_VAR_github_host: 'softteco' #'isostheneia94'
         DB_USER: ${{ secrets.WORDPRESS_DB_USER_DEV }}
         DB_PASSWORD: ${{ secrets.WORDPRESS_DB_PASSWORD_DEV }}
         DB_NAME: ${{ secrets.WORDPRESS_DB_NAME_DEV }}
@@ -43,8 +47,8 @@ jobs:
         TF_VAR_js_image: ${{ inputs.js_image_dev }}
         CLIENT_CERTIFICATE: ${{ secrets.K8S_CLIENT_CERTIFICATE }} 
         CLIENT_KEY: ${{ secrets.K8S_CLIENT_KEY }}
-        CLUSTER_CA_CERTIFICATE: ${{ secrets.K8S_CLUSTER_CA_CERTIFICATE_2 }}
-        GITHUB_CONNECT_TOKEN: ${{ secrets.GH_TOKEN }}
+        CLUSTER_CA_CERTIFICATE: ${{ secrets.K8S_CLUSTER_CA_CERTIFICATE }}
+        GITHUB_CONNECT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         TF_VAR_namespace_extended_name_number: ${{ inputs.namespace_extended_number}}
         HOST: ${{ secrets.K8S_HOST_ADDRESS }}
         DOCKER_CONFIG_GHCR_AUTH: ${{ secrets.DOCKER_CONFIG_GHCR_AUTH }}
@@ -54,7 +58,7 @@ jobs:
         TF_VAR_js_target_port: 3000
         TF_VAR_mysql_deploy_port: 3306
         TF_VAR_mysql_target_port: 3306
-        TF_VAR_runner_container_ip: ${{ inputs.runner_container_ip }}
+        #TF_VAR_runner_container_ip: ${{ inputs.runner_container_ip }}
       run: terraform plan -var "db_user=${DB_USER}" -var "db_password=${DB_PASSWORD}" -var "db_name=${DB_NAME}" -var "client_certificate=${CLIENT_CERTIFICATE}" -var "client_key=${CLIENT_KEY}" -var "cluster_ca_certificate=${CLUSTER_CA_CERTIFICATE}" -var "github_access_token=${GITHUB_CONNECT_TOKEN}" -var "host=${HOST}" -var "docker_config_ghcr_auth=${DOCKER_CONFIG_GHCR_AUTH}"
 
     - name: Build kubernetes deployment / apply
@@ -62,7 +66,7 @@ jobs:
       env:
         TF_VAR_replicas: 2
         TF_VAR_environment: 'dev'
-        TF_VAR_github_host: 'isostheneia94'
+        TF_VAR_github_host: 'softteco' #'isostheneia94'
         DB_USER: ${{ secrets.WORDPRESS_DB_USER_DEV }}
         DB_PASSWORD: ${{ secrets.WORDPRESS_DB_PASSWORD_DEV }}
         DB_NAME: ${{ secrets.WORDPRESS_DB_NAME_DEV }}
@@ -70,8 +74,8 @@ jobs:
         TF_VAR_js_image: ${{ inputs.js_image_dev }}
         CLIENT_CERTIFICATE: ${{ secrets.K8S_CLIENT_CERTIFICATE }}
         CLIENT_KEY: ${{ secrets.K8S_CLIENT_KEY }}
-        CLUSTER_CA_CERTIFICATE: ${{ secrets.K8S_CLUSTER_CA_CERTIFICATE_2 }}
-        GITHUB_CONNECT_TOKEN: ${{ secrets.GH_TOKEN }}
+        CLUSTER_CA_CERTIFICATE: ${{ secrets.K8S_CLUSTER_CA_CERTIFICATE}}
+        GITHUB_CONNECT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         TF_VAR_namespace_extended_name_number: ${{ inputs.namespace_extended_number}}
         HOST: ${{ secrets.K8S_HOST_ADDRESS }}
         DOCKER_CONFIG_GHCR_AUTH: ${{ secrets.DOCKER_CONFIG_GHCR_AUTH }}
@@ -81,16 +85,17 @@ jobs:
         TF_VAR_js_target_port: 3000
         TF_VAR_mysql_deploy_port: 3306
         TF_VAR_mysql_target_port: 3306
-        TF_VAR_runner_container_ip: ${{ inputs.runner_container_ip }}
+        #TF_VAR_runner_container_ip: ${{ inputs.runner_container_ip }}
       run: terraform apply -auto-approve -var "db_user=${DB_USER}" -var "db_password=${DB_PASSWORD}" -var "db_name=${DB_NAME}" -var "client_certificate=${CLIENT_CERTIFICATE}" -var "client_key=${CLIENT_KEY}" -var "cluster_ca_certificate=${CLUSTER_CA_CERTIFICATE}" -var "github_access_token=${GITHUB_CONNECT_TOKEN}" -var "host=${HOST}" -var "docker_config_ghcr_auth=${DOCKER_CONFIG_GHCR_AUTH}"
 
-  CD_prod_trigger:
-    runs-on: self-hosted
-    needs: [environment_deploy]
-    steps:
-    - uses: actions/checkout@v3
+  #CD_prod_trigger:
+    #runs-on: self-hosted
+    #environment: dev
+    #needs: [environment_deploy]
+    #steps:
+    #- uses: actions/checkout@v3
 
-    - name: run CD
-      env: 
-        NAMESPACE_EXTENDED_NUMBER: ${{ inputs.namespace_extended_number}}
-      run: gh workflow run main_cd_prod.yml -f js_image_prod=2023.02.28.14.16.01-4292369971 -f wp_image_prod=2023.02.10.14.23.00-4143421464 -f namespace_extended_number=${NAMESPACE_EXTENDED_NUMBER} f runner_container_ip=${{ inputs.runner_container_ip }}
+    #- name: run CD
+      #env: 
+        #NAMESPACE_EXTENDED_NUMBER: ${{ inputs.namespace_extended_number}}
+      #run: gh workflow run main_cd_prod.yml -f js_image_prod=2023.02.28.14.16.01-4292369971 -f wp_image_prod=2023.02.10.14.23.00-4143421464 -f namespace_extended_number=${NAMESPACE_EXTENDED_NUMBER} f runner_container_ip=${{ inputs.runner_container_ip }}
