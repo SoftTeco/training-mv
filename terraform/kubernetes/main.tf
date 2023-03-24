@@ -13,21 +13,27 @@ terraform {
 
 provider "kubernetes" {
   #load_config_file       = false
-  host = "${var.host}" #"https://192.168.67.2:8443"
-
-  client_certificate = "${var.client_certificate}"
-  client_key = "${var.client_key}"
-  cluster_ca_certificate = "${var.cluster_ca_certificate}"
+  #host = "${var.host}"
+  host = "https://192.168.58.2:8443"
+  #host="https://192.168.58.2:8443"
+  #client_certificate = "${var.client_certificate}"
+  #client_key = "${var.client_key}"
+  client_certificate = file("/root/.minikube/profiles/minikube-2/client.crt")
+  client_key = file("/root/.minikube/profiles/minikube-2/client.key")
+  #cluster_ca_certificate = "${var.cluster_ca_certificate}"
+  #cluster_ca_certificate = base64decode("${var.cluster_ca_certificate}")
+  cluster_ca_certificate = file("/root/.minikube/ca.crt")
   #token = "${var.github_access_token}"
-  #config_path = "~/.kube/config"
+  #config_path = "/root/config"
+  #config_context_cluster = "minikube-2"
 }
 
 provider "docker" {
   host = "unix:///var/run/docker.sock"
   registry_auth {
     address  = "ghcr.io"
-    username = "${var.github_host}"
-    password = "${var.github_access_token}"
+    username = "softteco" #"${var.github_host}"
+    password = "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" #"${var.github_access_token}"
   }
 }
 
@@ -37,46 +43,59 @@ provider "docker" {
   #ssh_opts = ["-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null"]
 #}
 
-#terraform {
-  #required_providers {
-    #yandex = {
-      #source = "yandex-cloud/yandex"
-    #}
-  #}
-  #required_version = ">= 0.13"
-#}
-
-#provider "yandex" {
-  #zone = "ru-central1-b"
-#}
-
 resource "kubernetes_secret" "ghcr_auth" {
   metadata {
     name = "github-container-registry-config-${var.namespace_extended_name_number}"
     namespace = "${kubernetes_namespace.terraform-k8s.metadata.0.name}"
   }
   data = {
-    ".dockerconfigjson" = "${var.docker_config_ghcr_auth}"
+    ".dockerconfigjson" = "${file("/root/.docker/config.json")}" #"${var.docker_config_ghcr_auth}"
   }
   type = "kubernetes.io/dockerconfigjson"
 }
 
 data "docker_registry_image" "crash-js-app" {
   name = "ghcr.io/${var.github_host}/crash-js-app:${var.js_image}"
+  #name = "ghcr.io/softteco/crash-js-app:2023.03.20.14.56.45-1"
+  #insecure_skip_verify = true
 }
 
 data "docker_registry_image" "wordpress" {
   name = "ghcr.io/${var.github_host}/wordpress:${var.wp_image}"
+  #name = "ghcr.io/softteco/wordpress:2023.03.21.13.20.35-1"
+  #insecure_skip_verify = true
 }
 
-resource "docker_image" "crash-js-app" {
-  name          = data.docker_registry_image.crash-js-app.name
-  pull_triggers = [data.docker_registry_image.crash-js-app.sha256_digest]
+data "docker_registry_image" "mysql" {
+  name = "mysql:${var.db_image}"
+  #insecure_skip_verify = true
 }
 
-resource "docker_image" "wordpress" {
+#resource "docker_image" "crash-js-app" {
+  #name          = data.docker_registry_image.crash-js-app.name
+  #pull_triggers = [data.docker_registry_image.crash-js-app.sha256_digest]
+#}
+
+#resource "docker_image" "wordpress" {
+  #name          = data.docker_registry_image.wordpress.name
+  #pull_triggers = [data.docker_registry_image.wordpress.sha256_digest]
+#}
+
+#resource "docker_image" "mysql" {
+  #name          = "mysql:5.7" #data.docker_registry_image.mysql.name
+  #pull_triggers = [data.docker_registry_image.mysql.sha256_digest]
+#}
+
+data "docker_image" "wordpress" {
   name          = data.docker_registry_image.wordpress.name
-  pull_triggers = [data.docker_registry_image.wordpress.sha256_digest]
+}
+
+data "docker_image" "crash-js-app" {
+  name          = data.docker_registry_image.crash-js-app.name
+}
+
+data "docker_image" "mysql" {
+  name          = data.docker_registry_image.mysql.name
 }
 
 resource "kubernetes_namespace" "terraform-k8s" {
@@ -187,7 +206,7 @@ resource "kubernetes_deployment" "wp-db-js-wordpress-deployment-" {
         }
         container {
           #image = "ghcr.io/${var.github_host}/wordpress:${var.wp_image}"
-          image = "${docker_image.wordpress.name}"
+          image = "${data.docker_image.wordpress.name}"
           name  = "wp-db-js-wordpress-${var.environment}"
           env {
             name = "WORDPRESS_DB_HOST"
@@ -236,8 +255,12 @@ resource "kubernetes_deployment" "wp-db-js-mysql-deployment" {
         }
       }
       spec {
+        image_pull_secrets {
+          name = "${kubernetes_secret.ghcr_auth.metadata.0.name}"
+        }
         container {
-          image = "mysql:5.7"
+          #image = "registry.hub.docker.com/mysql:5.7"
+          image = "${data.docker_image.mysql.name}"
           name  = "wp-db-js-mysql-${var.environment}"
           env {
             name  = "MYSQL_ROOT_PASSWORD"
@@ -291,7 +314,7 @@ resource "kubernetes_deployment" "wp-db-js-app-deployment" {
         }
         container {
           #image = "ghcr.io/${var.github_host}/crash-js-app:${var.js_image}"
-          image = "${docker_image.crash-js-app.name}"
+          image = "${data.docker_image.crash-js-app.name}"
           name  = "wp-db-js-app-${var.environment}"
           env {
             name  = "ENVIRONMENT"

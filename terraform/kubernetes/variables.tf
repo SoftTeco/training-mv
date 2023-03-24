@@ -10,7 +10,9 @@ variable "db_password" {sensitive = true}
 
 variable "db_name" {sensitive = true}
 
-variable "host" {sensitive = true}
+#variable "host" {sensitive = true}
+
+variable "host" {}
 
 variable "github_access_token" {sensitive = true}
 
@@ -25,6 +27,8 @@ variable "environment" {}
 variable "wp_image" {}
 
 variable "js_image" {}
+
+variable "db_image" {}
 
 variable "namespace_extended_name_number" {}
 

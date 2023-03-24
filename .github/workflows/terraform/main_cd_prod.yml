@@ -83,5 +83,5 @@ jobs:
         TF_VAR_mysql_deploy_port: 3306
         TF_VAR_mysql_target_port: 3306
         #TF_VAR_runner_container_ip: ${{ inputs.runner_container_ip }}
-      run: terraform apply -auto-approve -var "db_user=${DB_USER}" -var "db_password=${DB_PASSWORD}" -var "db_name=${DB_NAME}" -var "client_certificate=${CLIENT_CERTIFICATE}" -var "client_key=${CLIENT_KEY}" -var "cluster_ca_certificate=${CLUSTER_CA_CERTIFICATE}" -var "github_access_token=${GITHUB_CONNECT_TOKEN}" -var "host=${HOST}" -var "docker_config_ghcr_auth=${DOCKER_CONFIG_GHCR_AUTH}"
+      run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u isostheneia94 --password-stdin && terraform apply -auto-approve -var "db_user=${DB_USER}" -var "db_password=${DB_PASSWORD}" -var "db_name=${DB_NAME}" -var "client_certificate=${CLIENT_CERTIFICATE}" -var "client_key=${CLIENT_KEY}" -var "cluster_ca_certificate=${CLUSTER_CA_CERTIFICATE}" -var "github_access_token=${GITHUB_CONNECT_TOKEN}" -var "host=${HOST}" -var "docker_config_ghcr_auth=${DOCKER_CONFIG_GHCR_AUTH}"
 
