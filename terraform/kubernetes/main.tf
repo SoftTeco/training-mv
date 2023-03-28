@@ -13,16 +13,16 @@ terraform {
 
 provider "kubernetes" {
   #load_config_file       = false
-  #host = "${var.host}"
-  host = "https://192.168.58.2:8443"
+  host = "${var.host}"
+  #host = "https://192.168.58.2:8443"
   #host="https://192.168.58.2:8443"
-  #client_certificate = "${var.client_certificate}"
-  #client_key = "${var.client_key}"
-  client_certificate = file("/root/.minikube/profiles/minikube-2/client.crt")
-  client_key = file("/root/.minikube/profiles/minikube-2/client.key")
-  #cluster_ca_certificate = "${var.cluster_ca_certificate}"
+  client_certificate = "${var.client_certificate}"
+  client_key = "${var.client_key}"
+  #client_certificate = file("/root/.minikube/profiles/minikube-2/client.crt")
+  #client_key = file("/root/.minikube/profiles/minikube-2/client.key")
+  cluster_ca_certificate = "${var.cluster_ca_certificate}"
   #cluster_ca_certificate = base64decode("${var.cluster_ca_certificate}")
-  cluster_ca_certificate = file("/root/.minikube/ca.crt")
+  #cluster_ca_certificate = file("/root/.minikube/ca.crt")
   #token = "${var.github_access_token}"
   #config_path = "/root/config"
   #config_context_cluster = "minikube-2"
@@ -32,8 +32,8 @@ provider "docker" {
   host = "unix:///var/run/docker.sock"
   registry_auth {
     address  = "ghcr.io"
-    username = "softteco" #"${var.github_host}"
-    password = "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" #"${var.github_access_token}"
+    username = "${var.github_host}"
+    password = "${var.github_access_token}"
   }
 }
 
