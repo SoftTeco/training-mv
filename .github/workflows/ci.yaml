@@ -11,7 +11,7 @@ on:
       - "feature/**"
 
 jobs:
-  pre-build:
+  pre_build:
     #runs-on: self-hosted
     runs-on: ubuntu-latest
 
