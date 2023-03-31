@@ -11,25 +11,80 @@ on:
       - "feature/**"
 
 jobs:
+  pre-build:
+    #runs-on: self-hosted
+    runs-on: ubuntu-latest
+
+    outputs:
+      output_tag: ${{ steps.tag_wp.outputs.tag }}
+
+    steps:
+      - id: tag_wp
+        run: echo "tag=$(date +"%Y.%m.%d.%H.%M.%S")-${{ github.run_id }}" >> $GITHUB_OUTPUT
+
   build:
     runs-on: ubuntu-latest
+    needs: pre_build
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+    - uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "lts/*"
+    - name: Build the wordpress Docker image
+      working-directory: wordpress
+      run: docker build --file Dockerfile --tag ghcr.io/${{ github.repository_owner}}/wordpress:${{ needs.pre_build_set_variables.outputs.output_tag }} .
 
-      - name: Setup semantic-release
-        shell: bash
-        run: npm install -g semantic-release @semantic-release/changelog -D
+  login_and_push_to_container_registry:
+    runs-on: ubuntu-latest
+    needs: [pre_build, build]
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Login to container registry
+      run: echo ${{ secrets.GH_TOKEN }} | docker login ghcr.io -u softteco --password-stdin
+    
+    - name: Push to container registry wordpress image
+      run: docker push ghcr.io/${{ github.repository_owner }}/wordpress:${{ needs.pre_build_set_variables.outputs.output_tag }}
+    
+  delete_old_images_from_github_container_registry:
+    runs-on: ubuntu-latest
+    needs: [pre_build, build, login_and_push_to_container_registry]
+    steps:
+    - uses: actions/checkout@v3
+  
+    - name: Use script for deleting 11-th image in container registry wp
+      run: echo ${{ secrets.GH_TOKEN }} | ./ghcr-prune-3.py -t --container wordpress --number 10
 
-      - name: Run semantic-release
-        run: npx semantic-release
-        shell: bash
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  trivy_secure:
+    runs-on: ubuntu-latest
+    needs: [pre_build, build, login_and_push_to_container_registry, delete_old_images_from_github_container_registry]
+    steps:
+    - name: Run trivy to WordPress image
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: 'ghcr.io/${{ github.repository_owner }}/wordpress:${{ needs.pre_build_set_variables.outputs.output_tag }}'
+        format: 'table'
+        #exit-code: '1'
+        ignore-unfixed: true
+        vuln-type: 'os,library'
+        severity: 'CRITICAL,HIGH'
+
+  #build:
+    #steps:
+      #- name: Checkout Code
+        #uses: actions/checkout@v3
+        #with:
+          #fetch-depth: 0
+
+      #- name: Setup Node.js
+        #uses: actions/setup-node@v3
+        #with:
+          #node-version: "lts/*"
+
+      #- name: Setup semantic-release
+        #shell: bash
+        #run: npm install -g semantic-release @semantic-release/changelog -D
+
+      #- name: Run semantic-release
+        #run: npx semantic-release
+        #shell: bash
+        #env:
+          #GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
