@@ -17,7 +17,7 @@ jobs:
 
     outputs:
       output_tag: ${{ steps.tag_wp.outputs.tag }}
-      output_owner_lc: ${{ steps.ownerlowercase.outputs.owner_lc }}
+      output_owner_lc: ${{ steps.owner_lowercase.outputs.owner_lc }}
 
     steps:
       - id: tag_wp
