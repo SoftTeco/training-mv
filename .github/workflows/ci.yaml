@@ -17,10 +17,14 @@ jobs:
 
     outputs:
       output_tag: ${{ steps.tag_wp.outputs.tag }}
+      output_owner_lc: ${{ steps.ownerlowercase.outputs.owner_lc }}
 
     steps:
       - id: tag_wp
         run: echo "tag=$(date +"%Y.%m.%d.%H.%M.%S")-${{ github.run_id }}" >> $GITHUB_OUTPUT
+
+      - id: owner_lowercase
+        run: echo "owner_lc=${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]'" >> $GITHUB_OUTPUT
 
   build:
     runs-on: ubuntu-latest
@@ -30,7 +34,7 @@ jobs:
 
     - name: Build the wordpress Docker image
       working-directory: wordpress
-      run: docker build --file Dockerfile --tag ghcr.io/${{ github.repository_owner}}/wordpress:${{ needs.pre_build_set_variables.outputs.output_tag }} .
+      run: docker build --file Dockerfile --tag ghcr.io/${{ needs.pre_build_set_variables.outputs.output_owner_lc }}/wordpress:${{ needs.pre_build_set_variables.outputs.output_tag }} .
 
   login_and_push_to_container_registry:
     runs-on: ubuntu-latest
@@ -42,7 +46,7 @@ jobs:
       run: echo ${{ secrets.GH_TOKEN }} | docker login ghcr.io -u softteco --password-stdin
     
     - name: Push to container registry wordpress image
-      run: docker push ghcr.io/${{ github.repository_owner }}/wordpress:${{ needs.pre_build_set_variables.outputs.output_tag }}
+      run: docker push ghcr.io/${{ needs.pre_build_set_variables.outputs.output_owner_lc }}/wordpress:${{ needs.pre_build_set_variables.outputs.output_tag }}
     
   delete_old_images_from_github_container_registry:
     runs-on: ubuntu-latest
@@ -60,7 +64,7 @@ jobs:
     - name: Run trivy to WordPress image
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: 'ghcr.io/${{ github.repository_owner }}/wordpress:${{ needs.pre_build_set_variables.outputs.output_tag }}'
+        image-ref: 'ghcr.io/${{ needs.pre_build_set_variables.outputs.output_owner_lc }}/wordpress:${{ needs.pre_build_set_variables.outputs.output_tag }}'
         format: 'table'
         #exit-code: '1'
         ignore-unfixed: true
