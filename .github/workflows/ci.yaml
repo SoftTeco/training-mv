@@ -11,7 +11,7 @@ on:
       - "feature/**"
 
 jobs:
-  build_semantic:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -34,14 +34,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  build_with_secure:
+  generate_version:
     runs-on: self-hosted
     steps:
     - uses: actions/checkout@v3
-    - name: Image Tag generate
-      run: echo "tag=$(date +"%Y.%m.%d.%H.%M.%S")-${{ github.run_id }}" >> $GITHUB_ENV
+    #- name: Image Tag generate
+      #run: echo "tag=$(date +"%Y.%m.%d.%H.%M.%S")-${{ github.run_id }}" >> $GITHUB_ENV
     - name: Set owner lowercase
-      run: echo "OWNER_LOWERCASE=$(./owner_lowercase.sh ${{ github.repository_owner }})" >> $GITHUB_ENV
+      #run: echo "OWNER_LOWERCASE=$(./owner_lowercase.sh ${{ github.repository_owner }})" >> $GITHUB_ENV
+      run: echo "OWNER_LOWERCASE=${{ github.repository_owner }} | awk '{print tolower($0)}'"
     - name: WP Docker Image Build
       working-directory: wordpress
       run: docker build --tag ghcr.io/${{ env.OWNER_LOWERCASE }}/wordpress:${{ env.tag }} .
@@ -58,24 +59,26 @@ jobs:
       tag: ${{ env.tag }}
       own_lc: ${{ env.OWNER_LOWERCASE }}
   
-  log_push_regitsry:
+  push:
     runs-on: self-hosted
-    needs:  [build_with_secure]
+    needs:  [generate_version]
     steps:
     - uses: actions/checkout@v3
     
     - name: Login to ghcr.io
-      run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u softteco --password-stdin
+      run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
     
     - name: Push to ghcr.io WP image
-      run: docker push ghcr.io/${{ needs.build_with_secure.outputs.own_lc }}/wordpress:${{ needs.build_with_secure.outputs.tag }}
+      run: docker push ghcr.io/${{ needs.generate_version.outputs.own_lc }}/wordpress:${{ needs.generate_version.outputs.tag }}
     
   cleanup:
     runs-on: self-hosted
-    needs: [build_with_secure, log_push_regitsry]
+    needs: [generate_version, push]
     steps:
     - uses: actions/checkout@v3
   
     - name: Cleanup unnecessary images
       working-directory: .github/actions
-      run: ./ghcr-prune-3.py --container wordpress --number 10 --token ${{ secrets.GITHUB_TOKEN }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: ./ghcr-prune-3.py --container wordpress --number 10
