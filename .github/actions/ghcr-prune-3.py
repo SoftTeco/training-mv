@@ -20,16 +20,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='List versions of a GHCR container image you own, and '
         'optionally delete (prune) old, untagged versions.')
-    #parser.add_argument('--token', '-t', action='store_true',
-                        #help='ask for token input instead of using the '
-                        #'GHCR_TOKEN environment variable')
     parser.add_argument('--container', default='crash-js-app',
                         help='name of the container image')
     parser.add_argument('--verbose', '-v', action='store_true',
                         help='print extra debug info')
-    #parser.add_argument('--prune-age', type=float, metavar='DAYS',
-                        #default=None,
-                        #help='delete untagged images older than DAYS days')
     parser.add_argument('--dry-run', '-n', action='store_true',
                         help='do not actually prune images, just list which '
                         'would be pruned')
@@ -49,12 +43,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     token = args.token
-    #if args.token:
-        #token = getpass.getpass('Enter Token: ')
-    #elif 'GHCR_TOKEN' in os.environ:
-        #token = os.environ['GITHUB_TOKEN']
-    #else:
-        #raise ValueError('missing authentication token')
 
     s = requests.Session()
     s.headers.update({'Authorization': f'token {token}',
@@ -83,13 +71,3 @@ if __name__ == "__main__":
                              f'container/{args.container}/versions/{v["id"]}')
                 r.raise_for_status()
                 print(f'deleted {v["id"]}')
-
-        # prune old tagged images if requested
-        #if del_before is not None and created < del_before \
-            #if args.dry_run:
-                #print(f'would delete {v["id"]}')
-            #else:
-                #r = s.delete(f'https://api.github.com/user/packages/'
-                             #f'container/{args.container}/versions/{v["id"]}')
-                #r.raise_for_status()
-                #print(f'deleted {v["id"]}')
