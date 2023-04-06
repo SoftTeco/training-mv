@@ -7,7 +7,7 @@ import os
 import requests
 from datetime import datetime, timedelta
 
-__author__ = "Max VeRBiTSKiy"
+__author__ = "Maxim Verbitskiy"
 __version__ = "0.1"
 __copyright__ = "Copyright (C) 2021 Fiona Klute"
 __license__ = "MIT"
@@ -30,8 +30,8 @@ if __name__ == "__main__":
     parser.add_argument('--number', type=int, metavar='COUNT', 
                         default=None,
                         help='delete all images instead of COUNT last')
-    parser.add_argument('--token', '-t',
-                        help='add a github token to connect')
+    #parser.add_argument('--token', '-t',
+                        #help='add a github token to connect')
 
     # enable bash completion if argcomplete is available
     try:
@@ -42,7 +42,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    token = args.token
+    #token = args.token
+    token = os.environ.get('GITHUB_TOKEN')
 
     s = requests.Session()
     s.headers.update({'Authorization': f'token {token}',
