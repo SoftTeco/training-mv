@@ -40,8 +40,8 @@ jobs:
     - uses: actions/checkout@v3
       name: Checking out of repository
 
-    - name: Image Tag generate
-      run: echo "tag=$(date +"%Y.%m.%d.%H.%M.%S")-${{ github.run_id }}" >> $GITHUB_ENV
+    - name: Set Image Version
+      run: echo "tag=`echo $(git describe --tags --abbrev=0)`" >> $GITHUB_ENV
 
     - name: Set owner lowercase
       run: echo "OWNER_LOWERCASE=${{ github.repository_owner }}" | awk '{print tolower($0)}' >> $GITHUB_ENV
