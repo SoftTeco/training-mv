@@ -38,14 +38,17 @@ jobs:
     runs-on: self-hosted
     steps:
     - uses: actions/checkout@v3
-    #- name: Image Tag generate
-      #run: echo "tag=$(date +"%Y.%m.%d.%H.%M.%S")-${{ github.run_id }}" >> $GITHUB_ENV
+      name: Checking out of repository
+
+    - name: Image Tag generate
+      run: echo "tag=$(date +"%Y.%m.%d.%H.%M.%S")-${{ github.run_id }}" >> $GITHUB_ENV
+
     - name: Set owner lowercase
-      #run: echo "OWNER_LOWERCASE=$(./owner_lowercase.sh ${{ github.repository_owner }})" >> $GITHUB_ENV
-      run: echo "OWNER_LOWERCASE=${{ github.repository_owner }} | awk '{print tolower($0)}'"
+      run: echo "OWNER_LOWERCASE=${{ github.repository_owner }}" | awk '{print tolower($0)}' >> $GITHUB_ENV
+
     - name: WP Docker Image Build
       working-directory: wordpress
-      run: docker build --tag ghcr.io/${{ env.OWNER_LOWERCASE }}/wordpress:${{ env.tag }} .
+      run: docker build --tag ghcr.io/${{ env.owner_lowercase }}/wordpress:${{ env.tag }} .
 
     - name: WP Image Trivy Secure
       uses: aquasecurity/trivy-action@master
@@ -64,6 +67,7 @@ jobs:
     needs:  [generate_version]
     steps:
     - uses: actions/checkout@v3
+      name: Checking out of repository
     
     - name: Login to ghcr.io
       run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
@@ -76,6 +80,7 @@ jobs:
     needs: [generate_version, push]
     steps:
     - uses: actions/checkout@v3
+      name: Checking out of repository
   
     - name: Cleanup unnecessary images
       working-directory: .github/actions
