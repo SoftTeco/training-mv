@@ -40,27 +40,30 @@ jobs:
     - uses: actions/checkout@v3
       name: Checking out of repository
 
-    - name: Get only image
-      run: echo ::set-env name=TAG::$(echo $GITHUB_REF | cut -d / -f 3)
+    #- name: Get only image
+      #run: echo ::set-env name=TAG::$(echo $GITHUB_REF | cut -d / -f 3)
+
+    - name: Set owner lowercase
+      run: echo "tag=$(git tag -l --sort=version:refname | tail -n 1)" >> $GITHUB_ENV
 
     - name: Set owner lowercase
       run: echo "OWNER_LOWERCASE=${{ github.repository_owner }}" | awk '{print tolower($0)}' >> $GITHUB_ENV
 
     - name: WP Docker Image Build
       working-directory: wordpress
-      run: docker build --tag ghcr.io/${{ env.owner_lowercase }}/wordpress:${{ env.TAG }} .
+      run: docker build --tag ghcr.io/${{ env.owner_lowercase }}/wordpress:${{ env.tag }} .
 
     - name: WP Image Trivy Secure
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: 'ghcr.io/${{ env.OWNER_LOWERCASE }}/wordpress:${{  env.TAG  }}'
+        image-ref: 'ghcr.io/${{ env.OWNER_LOWERCASE }}/wordpress:${{  env.tag  }}'
         format: 'table'
         ignore-unfixed: true
         vuln-type: 'os,library'
         severity: 'CRITICAL,HIGH'
     outputs:
       own_lc: ${{ env.OWNER_LOWERCASE }}
-      tag: ${{ env.TAG }}
+      tag: ${{ env.tag }}
   
   push:
     runs-on: self-hosted
