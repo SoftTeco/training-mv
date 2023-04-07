@@ -44,7 +44,7 @@ jobs:
       #run: echo ::set-env name=TAG::$(echo $GITHUB_REF | cut -d / -f 3)
 
     - name: Set owner lowercase
-      run: echo "tag=$(git tag -l --sort=version:refname | tail -n 1)" >> $GITHUB_ENV
+      run: echo "tag=$(git tag | sort -V | tail -n 1)" >> $GITHUB_ENV
 
     - name: Set owner lowercase
       run: echo "OWNER_LOWERCASE=${{ github.repository_owner }}" | awk '{print tolower($0)}' >> $GITHUB_ENV
