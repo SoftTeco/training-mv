@@ -11,7 +11,7 @@ on:
       - "feature/**"
 
 jobs:
-  build:
+  generate_version:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -34,33 +34,37 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  generate_version:
+  build:
     runs-on: self-hosted
     steps:
     - uses: actions/checkout@v3
       name: Checking out of repository
+
+    - name: Get only image
+      run: echo ::set-env name=TAG::$(echo $GITHUB_REF | cut -d / -f 3)
 
     - name: Set owner lowercase
       run: echo "OWNER_LOWERCASE=${{ github.repository_owner }}" | awk '{print tolower($0)}' >> $GITHUB_ENV
 
     - name: WP Docker Image Build
       working-directory: wordpress
-      run: docker build --tag ghcr.io/${{ env.owner_lowercase }}/wordpress:${{ github.ref_name }} .
+      run: docker build --tag ghcr.io/${{ env.owner_lowercase }}/wordpress:${{ env.TAG }} .
 
     - name: WP Image Trivy Secure
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: 'ghcr.io/${{ env.OWNER_LOWERCASE }}/wordpress:${{ github.ref_name }}'
+        image-ref: 'ghcr.io/${{ env.OWNER_LOWERCASE }}/wordpress:${{  env.TAG  }}'
         format: 'table'
         ignore-unfixed: true
         vuln-type: 'os,library'
         severity: 'CRITICAL,HIGH'
     outputs:
       own_lc: ${{ env.OWNER_LOWERCASE }}
+      tag: ${{ env.TAG }}
   
   push:
     runs-on: self-hosted
-    needs:  [generate_version]
+    needs:  [build]
     steps:
     - uses: actions/checkout@v3
       name: Checking out of repository
@@ -69,11 +73,11 @@ jobs:
       run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
     
     - name: Push to ghcr.io WP image
-      run: docker push ghcr.io/${{ needs.generate_version.outputs.own_lc }}/wordpress:${{ github.ref_name }}
+      run: docker push ghcr.io/${{ needs.build.outputs.own_lc }}/wordpress:${{ needs.build.outputs.tag }}
     
   cleanup:
     runs-on: self-hosted
-    needs: [generate_version, push]
+    needs: [build, push]
     steps:
     - uses: actions/checkout@v3
       name: Checking out of repository
