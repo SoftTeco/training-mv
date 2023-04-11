@@ -80,8 +80,8 @@ jobs:
     - uses: actions/checkout@v3
       name: Checking out of repository
   
-    - name: Cleanup unnecessary images
+    - name: Cleanup unnecessary images and install packages
       working-directory: .github/actions
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: ./ghcr-prune-3.py --container wordpress --number 10
+      run: sudo apt-get update && sudo apt-get install python3-pip -y && sudo pip3 install python-dateutil && sudo pip3 install requests && sudo sed -i -e 's/mesg n .*true/tty -s \&\& mesg n/g' /root/.profile && ./ghcr-prune-3.py --container wordpress --number 10
