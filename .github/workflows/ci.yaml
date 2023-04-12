@@ -51,7 +51,7 @@ jobs:
 
     - name: Set owner lowercase
       shell: bash
-      run: echo "OWNER_LOWERCASE=$(echo ${{ github.repository_owner }}" | awk '{print tolower($0)})' >> $GITHUB_ENV
+      run: echo "OWNER_LOWERCASE=$(echo ${{ github.repository_owner }} | awk '{print tolower($0)})'" >> $GITHUB_ENV
 
     - name: WP Docker Image Build
       shell: bash
