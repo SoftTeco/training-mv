@@ -51,7 +51,7 @@ jobs:
 
     - name: Set owner lowercase
       shell: bash
-      run: echo "OWNER_LOWERCASE=$(echo ${{ github.repository_owner }} | awk '{print tolower($0)})'" >> $GITHUB_ENV
+      run: echo "OWNER_LOWERCASE=$(echo ${{ github.repository_owner }} | awk '{print tolower($0)}')" >> $GITHUB_ENV
 
     - name: WP Docker Image Build
       shell: bash
@@ -95,8 +95,8 @@ jobs:
       run: |
         sudo apt-get update 
         sudo apt-get install python3-pip -y 
-        sudo pip3 install python-dateutil 
-        sudo pip3 install requests 
+        pip3 install python-dateutil 
+        pip3 install requests 
         sudo sed -i -e 's/mesg n .*true/tty -s \&\& mesg n/g' /root/.profile
         ./ghcr-prune-3.py --container wordpress --number 10
       #run: sudo apt-get update && sudo apt-get install python3-pip -y && sudo pip3 install python-dateutil && sudo pip3 install requests && sudo sed -i -e 's/mesg n .*true/tty -s \&\& mesg n/g' /root/.profile && ./ghcr-prune-3.py --container wordpress --number 10
