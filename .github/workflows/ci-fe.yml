@@ -9,7 +9,8 @@ on:
     branches:
       - "main"
       - "feature/**"
-   
+    paths:
+      - frontend/**
 
 jobs:
   generate_version:
