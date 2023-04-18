@@ -5,6 +5,8 @@ on:
     types: [opened, synchronize]
     branches:
       - "main"
+    paths:
+      - frontend/**
   push:
     branches:
       - "main"
@@ -58,8 +60,10 @@ jobs:
       env:
         APP_PORT: 3002
         API_URL: http://localhost:8003/graphql
-      run: docker build --build-arg APP_PORT=${APP_PORT} --build-arg API_URL=${API_URL} --tag ghcr.io/${{ env.OWNER_LOWERCASE }}/front-end:${{ env.RELEASE_VERSION }} .
-      working-directory: wordpress
+      run: >
+        docker build --build-arg APP_PORT=${APP_PORT} --build-arg API_URL=${API_URL}
+        --tag ghcr.io/${{ env.OWNER_LOWERCASE }}/front-end:${{ env.RELEASE_VERSION }} .
+      working-directory: frontend
       
     - name: NextJS App Image Trivy Secure
       uses: aquasecurity/trivy-action@master
