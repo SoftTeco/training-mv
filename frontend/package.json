@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start -p $(grep PORT .env.local | cut -d '=' -f2)",
+    "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
