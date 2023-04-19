@@ -2,9 +2,8 @@ FROM node:16
 
 WORKDIR /app
 
-ENV APP_PORT=3002
-ENV API_PORT=8003
-ENV NEXT_PUBLIC_API_URL=http://localhost:${API_PORT}/graphql
+ENV NEXT_PUBLIC_API_PORT=8003
+ENV NEXT_PUBLIC_API_URL=http://localhost:${NEXT_PUBLIC_API_PORT}/graphql
 
 COPY package.json /app
 COPY yarn.lock /app
