@@ -21,7 +21,8 @@ export default function Home({ posts }) {
         resp.posts.nodes.map((node,index) => <div key={index}>{node.title}</div>)
  ) : (
    <div>Loading</div>
-)}
+)
+}
     <>
       <Head>
         <title>Create Next App</title>
