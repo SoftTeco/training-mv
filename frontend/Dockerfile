@@ -9,8 +9,6 @@ COPY jsconfig.json /app
 COPY next.config.js /app
 COPY src /app/src
 COPY public /app/public
-COPY lib /app/lib
-COPY hooks /app/hooks
 
 RUN yarn run build
 
@@ -25,7 +23,6 @@ COPY --from=build /app/.next /usr/app/.next
 COPY --from=build /app/src/pages/index.js /usr/app/src/pages/index.js
 COPY --from=build /app/src/styles/ /usr/app/src/styles/
 COPY --from=build /app/public /usr/app/public/
-COPY --from=build /app/lib /usr/app/lib/
 
 CMD yarn run start
 
