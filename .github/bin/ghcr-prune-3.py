@@ -72,4 +72,3 @@ if __name__ == "__main__":
                              f'container/{args.container}/versions/{v["id"]}')
                 r.raise_for_status()
                 print(f'deleted {v["id"]}')
-
