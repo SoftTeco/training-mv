@@ -5,6 +5,7 @@ import dateutil.parser
 import getpass
 import os
 import requests
+import numpy
 from datetime import datetime, timedelta
 
 __author__ = "Maxim Verbitskiy"
@@ -57,7 +58,7 @@ if __name__ == "__main__":
         print(f'{r.headers["x-ratelimit-remaining"]} requests remaining '
               f'until {reset}')
         print(versions)
-        
+
     array_of_index_and_datetime_creation = []
 
     for index, v in enumerate(versions):
@@ -69,7 +70,6 @@ if __name__ == "__main__":
         array_of_index_and_datetime_creation.insert(0,index+1)
         array_of_index_and_datetime_creation.insert(0,v["id"])
         array_of_index_and_datetime_creation.insert(0,created)
-        array_of_datetime.insert(0,created)
 
     array_of_index_and_datetime_creation.reverse()
     print(array_of_index_and_datetime_creation)
