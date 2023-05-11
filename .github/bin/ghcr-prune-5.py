@@ -83,13 +83,9 @@ if __name__ == "__main__":
     if len(sorted_array_of_index_and_datetime_creation) > 0 and len(sorted_array_of_index_and_datetime_creation)>args.number:
         for i in range(len(sorted_array_of_index_and_datetime_creation)-args.number):
             delete_sorted_array_of_index_and_datetime_creation.extend(sorted_array_of_index_and_datetime_creation[i+args.number])
-
-    # len/2: массивы как объекты из двух значений: id,date, при делении на 2 получаются такие спаренные объекты-массивы из длины всего большого массива
-    if len(sorted_array_of_index_and_datetime_creation) > 0 and len(sorted_array_of_index_and_datetime_creation)>args.number:
+        # len/2: массивы как объекты из двух значений: id,date, при делении на 2 получаются такие спаренные объекты-массивы из длины всего большого массива
         delete_sorted_array_of_index_and_datetime_creation = numpy.array_split(delete_sorted_array_of_index_and_datetime_creation,len(delete_sorted_array_of_index_and_datetime_creation)/2)
-
-    # Удаление всех образов из массива "удаляемых" образов
-    if len(sorted_array_of_index_and_datetime_creation) > 0 and len(sorted_array_of_index_and_datetime_creation)>args.number:
+        # Удаление всех образов из массива "удаляемых" образов
         for index, v in enumerate(delete_sorted_array_of_index_and_datetime_creation):
             if args.dry_run:
                 print(f'would delete {v[0]}')
