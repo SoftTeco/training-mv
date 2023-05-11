@@ -95,5 +95,5 @@ jobs:
       run: |
         pip3 install python-dateutil 
         pip3 install requests
-        ./ghcr-prune-3.py --container wordpress --number 10
+        ./ghcr-prune-5.py --container wordpress --number 10
       working-directory: .github/bin
