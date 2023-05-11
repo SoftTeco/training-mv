@@ -21,22 +21,18 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='List versions of a GHCR container image you own, and '
         'optionally delete (prune) old, untagged versions.')
-    parser.add_argument('--token', '-t', action='store_true',
-                        help='ask for token input instead of using the '
-                        'GHCR_TOKEN environment variable')
     parser.add_argument('--container', default='crash-js-app',
                         help='name of the container image')
     parser.add_argument('--verbose', '-v', action='store_true',
                         help='print extra debug info')
-    #parser.add_argument('--prune-age', type=float, metavar='DAYS',
-                        #default=None,
-                        #help='delete untagged images older than DAYS days')
     parser.add_argument('--dry-run', '-n', action='store_true',
                         help='do not actually prune images, just list which '
                         'would be pruned')
     parser.add_argument('--number', type=int, metavar='COUNT', 
                         default=None,
                         help='delete all images instead of COUNT last')
+    #parser.add_argument('--token', '-t',
+                        #help='add a github token to connect')
 
     # enable bash completion if argcomplete is available
     try:
@@ -47,18 +43,14 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    if args.token:
-        token = getpass.getpass('Enter Token: ')
-    elif 'GHCR_TOKEN' in os.environ:
-        token = os.environ['GHCR_TOKEN']
-    else:
-        raise ValueError('missing authentication token')
+    #token = args.token
+    token = os.environ.get('GITHUB_TOKEN')
 
     s = requests.Session()
     s.headers.update({'Authorization': f'token {token}',
                       'Accept': github_api_accept})
 
-    r = s.get(f'https://api.github.com/user/packages/'
+    r = s.get(f'https://api.github.com/orgs/softteco/packages/'
               f'container/{args.container}/versions')
     versions = r.json()
     if args.verbose:

@@ -96,5 +96,5 @@ jobs:
         pip3 install python-dateutil 
         pip3 install requests
         pip install numpy
-        ./ghcr-prune-4.py --container front-end --number 10
+        ./ghcr-prune-5.py --container front-end --number 10
       working-directory: .github/bin
