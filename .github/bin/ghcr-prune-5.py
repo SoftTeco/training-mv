@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import argparse
 import json
 import os
@@ -15,7 +16,7 @@ github_api_accept = "application/vnd.github.v3+json"
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="List versions of a GHCR container image you own, and optionally delete old, untagged versions.")
+    parser = argparse.ArgumentParser(description="List versions of a GHCR container image you own, and optionally delete (prune) old, untagged versions.")
     parser.add_argument("--container", default="front-end", help="name of the container image")
     parser.add_argument("--verbose", "-v", action="store_true", help="print extra debug info")
     parser.add_argument("--dry-run", "-n", action="store_true", help="do not actually prune images, just list which would be pruned")
