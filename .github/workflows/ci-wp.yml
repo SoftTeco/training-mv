@@ -13,8 +13,9 @@ on:
       - wordpress/**
 
 jobs:
-  generate_version:
+  get-version:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -24,76 +25,100 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "lts/*"
+          node-version: "18"
 
-      - name: Setup semantic-release
+      - name: Setup Semantic Release
         shell: bash
-        run: npm install -g semantic-release @semantic-release/changelog -D
+        run: npm install -g semantic-release @semantic-release/changelog @semantic-release/exec -D
 
-      - name: Run semantic-release
+      - name: Run Semantic Release
+        run: npx semantic-release --dry-run
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release
+
+    outputs:
+      release_version: ${{ env.RELEASE_VERSION }}
 
   build:
     runs-on: ubuntu-latest
-    needs: generate_version
+    needs: get-version
+    if: needs.get-version.outputs.release_version != ''
+
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-    - name: Get Version
-      shell: bash
-      run: echo "RELEASE_VERSION=$(git tag -l --sort=version:refname | tail -n 1)" >> $GITHUB_ENV
+      - name: Set owner lowercase
+        shell: bash
+        run: echo "OWNER_LOWERCASE=$(echo ${{ github.repository_owner }} | awk '{print tolower($0)}')" >> $GITHUB_ENV
 
-    - name: Set owner lowercase
-      shell: bash
-      run: echo "OWNER_LOWERCASE=$(echo ${{ github.repository_owner }} | awk '{print tolower($0)}')" >> $GITHUB_ENV
+      - name: WP Docker Image Build
+        shell: bash
+        run: docker build --tag ghcr.io/${{ env.OWNER_LOWERCASE }}/wordpress:${{ needs.get-version.outputs.release_version }} .
+        working-directory: wordpress
 
-    - name: WP Docker Image Build
-      shell: bash
-      run: docker build --tag ghcr.io/${{ env.OWNER_LOWERCASE }}/wordpress:${{ env.RELEASE_VERSION }} .
-      working-directory: wordpress
-      
+      - name: WP Image Trivy Secure
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: "ghcr.io/${{ env.OWNER_LOWERCASE }}/wordpress:${{ needs.get-version.outputs.release_version }}"
+          format: "table"
+          ignore-unfixed: true
+          vuln-type: "os,library"
+          severity: "CRITICAL,HIGH"
 
-    - name: WP Image Trivy Secure
-      uses: aquasecurity/trivy-action@master
-      with:
-        image-ref: 'ghcr.io/${{ env.OWNER_LOWERCASE }}/wordpress:${{ env.RELEASE_VERSION }}'
-        format: 'table'
-        ignore-unfixed: true
-        vuln-type: 'os,library'
-        severity: 'CRITICAL,HIGH'
+      - name: Login to ghcr.io
+        shell: bash
+        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
 
-    - name: Login to ghcr.io
-      shell: bash
-      run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
-    
-    - name: Push to ghcr.io WP image
-      shell: bash
-      run: docker push ghcr.io/${{ env.OWNER_LOWERCASE }}/wordpress:${{ env.RELEASE_VERSION }}
+      - name: Push to ghcr.io WP image
+        shell: bash
+        run: docker push ghcr.io/${{ env.OWNER_LOWERCASE }}/wordpress:${{ needs.get-version.outputs.release_version }}
 
-    outputs:
-      own_lc: ${{ env.OWNER_LOWERCASE }}
-      tag: ${{ env.RELEASE_VERSION }}     
+  create-release:
+    runs-on: ubuntu-latest
+    needs: [build, get-version]
 
-    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Setup Semantic Release
+        shell: bash
+        run: npm install -g semantic-release @semantic-release/changelog @semantic-release/exec -D
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      - name: Run Semantic Release
+        run: npx semantic-release
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   cleanup:
     runs-on: ubuntu-latest
-    needs: [generate_version, build]
+    needs: [build, get-version]
     steps:
-    - name: Checking out of repository
-      uses: actions/checkout@v3
-  
-    - name: Cleanup unnecessary images and install packages
-      shell: bash
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        pip3 install python-dateutil 
-        pip3 install requests
-        ./ghcr-prune-3.py --container wordpress --number 10
-      working-directory: .github/bin
+      - name: Checking out of repository
+        uses: actions/checkout@v3
+
+      - name: Cleanup unnecessary images and install packages
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pip3 install requests
+          ./ghcr-prune-5.py --container wordpress --number 10
+        working-directory: .github/bin

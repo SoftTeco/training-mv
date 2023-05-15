@@ -1,4 +1,10 @@
 module.exports = {
+  verifyRelease: [
+    {
+      path: "@semantic-release/exec",
+      cmd: "echo RELEASE_VERSION=${nextRelease.version} >> $GITHUB_ENV",
+    },
+  ],
   branches: [
     "+([0-9])?(.{+([0-9]),x}).x",
     "main",
