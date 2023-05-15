@@ -1,12 +1,7 @@
 name: front-end-ci
 
 on:
-  pull_request:
-    types: [opened, synchronize]
-    branches:
-      - "main"
-    paths:
-      - frontend/**
+  workflow_dispatch:
   push:
     branches:
       - "main"
