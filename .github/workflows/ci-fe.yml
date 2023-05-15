@@ -39,7 +39,9 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    needs: generate_version
+    needs: get-version
+    if: needs.get-version.outputs.release_version != ''
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -104,7 +106,7 @@ jobs:
 
   cleanup:
     runs-on: ubuntu-latest
-    needs: [generate_version, build]
+    needs: [build, get-version]
     steps:
       - name: Checking out of repository
         uses: actions/checkout@v3
