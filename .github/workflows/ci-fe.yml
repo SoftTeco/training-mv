@@ -15,8 +15,9 @@ on:
       - frontend/**
 
 jobs:
-  generate_version:
+  get-version:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -26,17 +27,20 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "lts/*"
+          node-version: "18"
 
-      - name: Setup semantic-release
+      - name: Setup Semantic Release
         shell: bash
-        run: npm install -g semantic-release @semantic-release/changelog -D
+        run: npm install -g semantic-release @semantic-release/changelog @semantic-release/exec -D
 
-      - name: Run semantic-release
+      - name: Run Semantic Release
+        run: npx semantic-release --dry-run
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release
+
+    outputs:
+      release_version: ${{ env.RELEASE_VERSION }}
 
   build:
     runs-on: ubuntu-latest
@@ -47,23 +51,19 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get Version
-        shell: bash
-        run: echo "RELEASE_VERSION=$(git tag -l --sort=version:refname | tail -n 1)" >> $GITHUB_ENV
-
       - name: Set owner lowercase
         shell: bash
         run: echo "OWNER_LOWERCASE=$(echo ${{ github.repository_owner }} | awk '{print tolower($0)}')" >> $GITHUB_ENV
 
       - name: NextJS App Docker Image Build with arguments
         shell: bash
-        run: docker build --tag ghcr.io/${{ env.OWNER_LOWERCASE }}/front-end:${{ env.RELEASE_VERSION }} .
+        run: docker build --tag ghcr.io/${{ env.OWNER_LOWERCASE }}/front-end:${{ needs.get-version.outputs.release_version }} .
         working-directory: frontend
 
       - name: NextJS App Image Trivy Secure
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: "ghcr.io/${{ env.OWNER_LOWERCASE }}/front-end:${{ env.RELEASE_VERSION }}"
+          image-ref: "ghcr.io/${{ env.OWNER_LOWERCASE }}/front-end:${{ needs.get-version.outputs.release_version }}"
           format: "table"
           ignore-unfixed: true
           vuln-type: "os,library"
@@ -75,11 +75,37 @@ jobs:
 
       - name: Push to ghcr.io NextJS App image
         shell: bash
-        run: docker push ghcr.io/${{ env.OWNER_LOWERCASE }}/front-end:${{ env.RELEASE_VERSION }}
+        run: docker push ghcr.io/${{ env.OWNER_LOWERCASE }}/front-end:${{ needs.get-version.outputs.release_version }}
 
-    outputs:
-      own_lc: ${{ env.OWNER_LOWERCASE }}
-      tag: ${{ env.RELEASE_VERSION }}
+  create-release:
+    runs-on: ubuntu-latest
+    needs: [build, get-version]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Setup Semantic Release
+        shell: bash
+        run: npm install -g semantic-release @semantic-release/changelog @semantic-release/exec -D
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      - name: Run Semantic Release
+        run: npx semantic-release
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   cleanup:
     runs-on: ubuntu-latest
