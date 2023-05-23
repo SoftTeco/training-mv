@@ -25,6 +25,23 @@ on:
       - "feature/**"
     paths:
       - terraform/aks/**
+    inputs:
+      node_name:
+        required: true
+        type: string
+        default: 'testnode'
+      resource_group_location:
+        required: true
+        type: string
+        default: 'westeurope'
+      node_vm_size:
+        required: true
+        type: string
+        default: 'Standard_B2ms'
+      cluster_name:
+        required: true
+        type: string
+        default: 'k8stest'
 
 jobs:
   environment_deploy:
@@ -66,4 +83,3 @@ jobs:
         TENANT_ID: ${{ secrets.MAXVRBTSK_TENANT_ID }}
         CLIENT_SECRET: ${{ secrets.MAXVRBTSK_CLIENT_SECRET }}
       run: terraform apply -auto-approve -var "client_id=${CLIENT_ID}" -var "subscription_id=${SUBSCRIPTION_ID}" -var "tenant_id=${TENANT_ID}" -var "client_secret=${CLIENT_SECRET}"
-      
