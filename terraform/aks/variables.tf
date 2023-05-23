@@ -3,13 +3,14 @@ variable "agent_count" {
 
 # The following two variable declarations are placeholder references.
 # Set the values for these variable in terraform.tfvars
-variable "aks_service_principal_app_id" {
-  sensitive = true
-}
 
-variable "aks_service_principal_client_secret" {
-  sensitive = true
-}
+#variable "aks_service_principal_app_id" {
+#  sensitive = true
+#}
+
+#variable "aks_service_principal_client_secret" {
+#  sensitive = true
+#}
 
 variable "tenant_id"{
     sensitive = true
@@ -19,9 +20,9 @@ variable "subscription_id"{
     sensitive = true
 }
 
-#variable "client_secret"{
-#    sensitive = true
-#}
+variable "client_secret"{
+    sensitive = true
+}
 
 variable "client_id"{
     sensitive = true
@@ -62,6 +63,6 @@ variable "resource_group_name_prefix" {
   description = "Prefix of the resource group name that's combined with a random ID so name is unique in your Azure subscription."
 }
 
-variable service_principal_name {
-    type = string 
-}
+#variable service_principal_name {
+#    type = string 
+#}
