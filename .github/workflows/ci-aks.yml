@@ -1,0 +1,69 @@
+name: azure-kubernetes-service-ci
+
+on:
+  workflow_dispatch:
+   inputs:
+      node_name:
+        required: true
+        type: string
+        default: 'testnode'
+      resource_group_location:
+        required: true
+        type: string
+        default: 'westeurope'
+      node_vm_size:
+        required: true
+        type: string
+        default: 'Standard_B2ms'
+      cluster_name:
+        required: true
+        type: string
+        default: 'k8stest'
+  push:
+    branches:
+      - "main"
+      - "feature/**"
+    paths:
+      - terraform/aks/**
+
+jobs:
+  environment_deploy:
+    runs-on:
+      - self-hosted
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Build kubernetes deployment / init
+      working-directory: ./terraform/aks
+      run: terraform init
+
+    - name: Build kubernetes deployment / plan
+      working-directory: ./terraform/aks
+      env:
+        TF_VAR_agent_count: 2
+        TF_VAR_dns_prefix: 'test-prefix'
+        TF_VAR_node_name: ${{ inputs.node_name }}
+        TF_VAR_node_vm_size: ${{ inputs.node_vm_size }}
+        TF_VAR_cluster_name: ${{ inputs.cluster_name }}
+        TF_VAR_resource_group_location: ${{ inputs.resource_group_location }}
+        CLIENT_ID: ${{ secrets.MAXVRBTSK_CLIENT_ID }}
+        SUBSCRIPTION_ID: ${{ secrets.MAXVRBTSK_SUBSCRIPTION_ID }}
+        TENANT_ID: ${{ secrets.MAXVRBTSK_TENANT_ID }}
+        CLIENT_SECRET: ${{ secrets.MAXVRBTSK_CLIENT_SECRET }}
+      run: terraform plan -var "client_id=${CLIENT_ID}" -var "subscription_id=${SUBSCRIPTION_ID}" -var "tenant_id=${TENANT_ID}" -var "client_secret=${CLIENT_SECRET}"
+
+    - name: Build kubernetes deployment / apply
+      working-directory: ./terraform/aks
+      env:
+        TF_VAR_agent_count: 2
+        TF_VAR_dns_prefix: 'test-prefix'
+        TF_VAR_node_name: ${{ inputs.node_name }}
+        TF_VAR_node_vm_size: ${{ inputs.node_vm_size }}
+        TF_VAR_cluster_name: ${{ inputs.cluster_name }}
+        TF_VAR_resource_group_location: ${{ inputs.resource_group_location }}
+        CLIENT_ID: ${{ secrets.MAXVRBTSK_CLIENT_ID }}
+        SUBSCRIPTION_ID: ${{ secrets.MAXVRBTSK_SUBSCRIPTION_ID }}
+        TENANT_ID: ${{ secrets.MAXVRBTSK_TENANT_ID }}
+        CLIENT_SECRET: ${{ secrets.MAXVRBTSK_CLIENT_SECRET }}
+      run: terraform apply -auto-approve -var "client_id=${CLIENT_ID}" -var "subscription_id=${SUBSCRIPTION_ID}" -var "tenant_id=${TENANT_ID}" -var "client_secret=${CLIENT_SECRET}"
+      

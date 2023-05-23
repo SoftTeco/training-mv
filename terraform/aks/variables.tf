@@ -1,5 +1,4 @@
 variable "agent_count" {
-  default = 2
 }
 
 # The following two variable declarations are placeholder references.
@@ -32,14 +31,12 @@ variable "cluster_name" {
 }
 
 variable "dns_prefix" {
-  default = "k8stest"
 }
 
 variable "node_name" {
 }
 
 variable "node_vm_size" {
-  default = "Standard_B2ms"
 }
 
 # Refer to https://azure.microsoft.com/global-infrastructure/services/?products=monitor for available Log Analytics regions.
