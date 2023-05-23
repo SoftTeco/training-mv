@@ -2,7 +2,7 @@ name: azure-kubernetes-service-ci
 
 on:
   workflow_dispatch:
-   inputs:
+    inputs:
       node_name:
         required: true
         type: string
@@ -49,6 +49,7 @@ jobs:
       - self-hosted
     steps:
     - uses: actions/checkout@v3
+      name: pre checkout
 
     - name: Build kubernetes deployment / init
       working-directory: ./terraform/aks
