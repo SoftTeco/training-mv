@@ -1,0 +1,45 @@
+name: Kubernetes pods CD prod
+on:
+  workflow_dispatch:
+
+jobs:
+  environment_deploy:
+    runs-on:
+      - self-hosted
+    steps:
+    - name: pre checkout
+      uses: actions/checkout@v3
+      
+    - name: Build kubernetes deployment / init
+      working-directory: ./terraform/kubernetes
+      run: terraform init
+
+    - name: Build kubernetes deployment / plan
+      working-directory: ./terraform/kubernetes
+      env:
+        TF_VAR_environment: 'prod'
+        DB_USER: ${{ secrets.WORDPRESS_DB_USER_PROD }}
+        DB_PASSWORD: ${{ secrets.WORDPRESS_DB_PASSWORD_PROD }}
+        DB_NAME: ${{ secrets.WORDPRESS_DB_NAME_PROD }}
+        K8S_CLIENT_CERTIFICATE: ${{ secrets.K8S_CLIENT_CERTIFICATE }} 
+        K8S_CLIENT_KEY: ${{ secrets.K8S_CLIENT_KEY }}
+        K8S_CLUSTER_CA_CERTIFICATE: ${{ secrets.K8S_CLUSTER_CA_CERTIFICATE_2 }}
+        GITHUB_CONNECT_TOKEN: ${{ secrets.GH_TOKEN }}
+        K8S_HOST: ${{ secrets.K8S_HOST_ADDRESS }}
+        DOCKER_CONFIG_GHCR_AUTH: ${{ secrets.DOCKER_CONFIG_GHCR_AUTH }}
+      run: terraform plan -var "db_user=${DB_USER}" -var "db_password=${DB_PASSWORD}" -var "db_name=${DB_NAME}" -var "client_certificate=${K8S_CLIENT_CERTIFICATE}" -var "client_key=${K8S_CLIENT_KEY}" -var "cluster_ca_certificate=${K8S_CLUSTER_CA_CERTIFICATE}" -var "github_access_token=${GITHUB_CONNECT_TOKEN}" -var "host=${K8S_HOST}" -var "docker_config_ghcr_auth=${DOCKER_CONFIG_GHCR_AUTH}"
+
+    - name: Build kubernetes deployment / apply
+      working-directory: ./terraform/kubernetes
+      env:
+        TF_VAR_environment: 'prod'
+        DB_USER: ${{ secrets.WORDPRESS_DB_USER_PROD }}
+        DB_PASSWORD: ${{ secrets.WORDPRESS_DB_PASSWORD_PROD }}
+        DB_NAME: ${{ secrets.WORDPRESS_DB_NAME_PROD }}
+        K8S_CLIENT_CERTIFICATE: ${{ secrets.K8S_CLIENT_CERTIFICATE }} 
+        K8S_CLIENT_KEY: ${{ secrets.K8S_CLIENT_KEY }}
+        K8S_CLUSTER_CA_CERTIFICATE: ${{ secrets.K8S_CLUSTER_CA_CERTIFICATE_2 }}
+        GITHUB_CONNECT_TOKEN: ${{ secrets.GH_TOKEN }}
+        K8S_HOST: ${{ secrets.K8S_HOST_ADDRESS }}
+        DOCKER_CONFIG_GHCR_AUTH: ${{ secrets.DOCKER_CONFIG_GHCR_AUTH }}
+      run: terraform apply -auto-approve -var "db_user=${DB_USER}" -var "db_password=${DB_PASSWORD}" -var "db_name=${DB_NAME}" -var "client_certificate=${K8S_CLIENT_CERTIFICATE}" -var "client_key=${K8S_CLIENT_KEY}" -var "cluster_ca_certificate=${K8S_CLUSTER_CA_CERTIFICATE}" -var "github_access_token=${GITHUB_CONNECT_TOKEN}" -var "host=${K8S_HOST}" -var "docker_config_ghcr_auth=${DOCKER_CONFIG_GHCR_AUTH}"

@@ -1,0 +1,74 @@
+name: Kubernetes pods CD dev
+on:
+  workflow_dispatch:
+
+jobs:
+  creating_tag:
+    runs-on: 
+      - ubuntu-latest
+
+    outputs:
+      k8s_ns_tag: ${{ steps.namespace_tag.outputs.tag }}
+
+    steps:
+      - id: namespace_tag
+        run: echo "tag=$(date +"%d%H%M")" >> $GITHUB_OUTPUT
+
+
+
+  environment_deploy:
+    runs-on:
+      - ubuntu-latest
+    steps:
+    - name: pre checkout
+      uses: actions/checkout@v3
+      
+    - name: Build kubernetes deployment / init
+      working-directory: ./terraform/kubernetes
+      run: terraform init
+
+    - name: Build kubernetes deployment / plan
+      working-directory: ./terraform/kubernetes
+      env:
+        TF_VAR_environment: 'dev'
+        TF_VAR_github_host: ${{ github.repository_owner }}
+        DB_USER: ${{ secrets.WORDPRESS_DB_USER_DEV }}
+        DB_PASSWORD: ${{ secrets.WORDPRESS_DB_PASSWORD_DEV }}
+        DB_NAME: ${{ secrets.WORDPRESS_DB_NAME_DEV }}
+        K8S_CLIENT_CERTIFICATE: ${{ secrets.K8S_CLIENT_CERTIFICATE }} 
+        K8S_CLIENT_KEY: ${{ secrets.K8S_CLIENT_KEY }}
+        K8S_CLUSTER_CA_CERTIFICATE: ${{ secrets.K8S_CLUSTER_CA_CERTIFICATE_2 }}
+        GITHUB_CONNECT_TOKEN: ${{ secrets.GH_TOKEN }}
+        K8S_HOST: ${{ secrets.K8S_HOST_ADDRESS }}
+        DOCKER_CONFIG_GHCR_AUTH: ${{ secrets.DOCKER_CONFIG_GHCR_AUTH }}
+        K8S_NS_TAG: ${{ needs.creating_tag.outputs.k8s_ns_tag }}
+      run: terraform plan -var "db_user=${DB_USER}" -var "db_password=${DB_PASSWORD}" -var "db_name=${DB_NAME}" -var "client_certificate=${K8S_CLIENT_CERTIFICATE}" -var "client_key=${K8S_CLIENT_KEY}" -var "cluster_ca_certificate=${K8S_CLUSTER_CA_CERTIFICATE}" -var "github_access_token=${GITHUB_CONNECT_TOKEN}" -var "host=${K8S_HOST}" -var "docker_config_ghcr_auth=${DOCKER_CONFIG_GHCR_AUTH}" -var "ns_tag=${K8S_NS_TAG}"
+
+    - name: Build kubernetes deployment / apply
+      working-directory: ./terraform/kubernetes
+      env:
+        TF_VAR_environment: 'dev'
+        TF_VAR_github_host: ${{ github.repository_owner }}
+        DB_USER: ${{ secrets.WORDPRESS_DB_USER_DEV }}
+        DB_PASSWORD: ${{ secrets.WORDPRESS_DB_PASSWORD_DEV }}
+        DB_NAME: ${{ secrets.WORDPRESS_DB_NAME_DEV }}
+        K8S_CLIENT_CERTIFICATE: ${{ secrets.K8S_CLIENT_CERTIFICATE }} 
+        K8S_CLIENT_KEY: ${{ secrets.K8S_CLIENT_KEY }}
+        K8S_CLUSTER_CA_CERTIFICATE: ${{ secrets.K8S_CLUSTER_CA_CERTIFICATE_2 }}
+        GITHUB_CONNECT_TOKEN: ${{ secrets.GH_TOKEN }}
+        K8S_HOST: ${{ secrets.K8S_HOST_ADDRESS }}
+        DOCKER_CONFIG_GHCR_AUTH: ${{ secrets.DOCKER_CONFIG_GHCR_AUTH }}
+        K8S_NS_TAG: ${{ needs.creating_tag.outputs.k8s_ns_tag }}
+      run: terraform apply -auto-approve -var "db_user=${DB_USER}" -var "db_password=${DB_PASSWORD}" -var "db_name=${DB_NAME}" -var "client_certificate=${K8S_CLIENT_CERTIFICATE}" -var "client_key=${K8S_CLIENT_KEY}" -var "cluster_ca_certificate=${K8S_CLUSTER_CA_CERTIFICATE}" -var "github_access_token=${GITHUB_CONNECT_TOKEN}" -var "host=${K8S_HOST}" -var "docker_config_ghcr_auth=${DOCKER_CONFIG_GHCR_AUTH}" -var "ns_tag=${K8S_NS_TAG}"
+      
+  CD_prod_trigger:
+    runs-on: ubuntu-latest
+    needs: [environment_deploy]
+    steps:
+    - name: pre checkout
+      uses: actions/checkout@v3
+
+    - name: run CD
+      env:
+        K8S_NS_TAG: ${{ needs.creating_tag.outputs.k8s_ns_tag }}
+      run: gh workflow run CD_prod.yml -f k8s_ns_tag=${K8S_NS_TAG}
