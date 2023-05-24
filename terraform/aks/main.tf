@@ -30,7 +30,7 @@ resource "azurerm_kubernetes_cluster" "wp-db-js_k8s" {
 
   default_node_pool {
     name       = var.aks_service_node_name
-    node_count = var.agent_count
+    node_count = var.aks_service_agent_count
     vm_size    = var.aks_service_node_vm_size
   }
 
