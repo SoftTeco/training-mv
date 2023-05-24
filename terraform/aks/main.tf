@@ -22,16 +22,16 @@ resource "random_id" "log_analytics_workspace_name_suffix" {
 }
 
 resource "azurerm_kubernetes_cluster" "wp-db-js_k8s" {
-  name                = var.cluster_name
-  location            = var.resource_group_location
+  name                = var.aks_service_cluster_name
+  location            = var.aks_service_resource_group_location
   resource_group_name = "NetworkWatcherRG"
-  dns_prefix          = "test-prefix"
+  dns_prefix          = var.aks_service_dns_prefix
   #address_space       = ["10.0.0.0/16"]
 
   default_node_pool {
-    name       = var.node_name
+    name       = var.aks_service_node_name
     node_count = var.agent_count
-    vm_size    = var.node_vm_size
+    vm_size    = var.aks_service_node_vm_size
   }
 
   identity {

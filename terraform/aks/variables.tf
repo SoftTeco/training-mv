@@ -1,17 +1,3 @@
-variable "agent_count" {
-}
-
-# The following two variable declarations are placeholder references.
-# Set the values for these variable in terraform.tfvars
-
-#variable "aks_service_principal_app_id" {
-#  sensitive = true
-#}
-
-#variable "aks_service_principal_client_secret" {
-#  sensitive = true
-#}
-
 variable "tenant_id"{
     sensitive = true
 }
@@ -28,16 +14,28 @@ variable "client_id"{
     sensitive = true
 }
 
-variable "cluster_name" {
+variable "aks_service_cluster_name" {
+    type = string
 }
 
-variable "dns_prefix" {
+variable "aks_service_dns_prefix" {
+    type = string
 }
 
-variable "node_name" {
+variable "aks_service_node_name" {
+    type = string
 }
 
-variable "node_vm_size" {
+variable "aks_service_node_vm_size" {
+    type = string
+}
+
+variable "aks_service_resource_group_location" {
+    type = string
+}
+
+variable "aks_service_agent_count" {
+    type = number
 }
 
 # Refer to https://azure.microsoft.com/global-infrastructure/services/?products=monitor for available Log Analytics regions.
@@ -54,15 +52,7 @@ variable "log_analytics_workspace_sku" {
   default = "PerGB2018"
 }
 
-variable "resource_group_location" {
-  description = "Location of the resource group."
-}
-
 variable "resource_group_name_prefix" {
   default     = "MaxVerbRG"
   description = "Prefix of the resource group name that's combined with a random ID so name is unique in your Azure subscription."
 }
-
-#variable service_principal_name {
-#    type = string 
-#}
