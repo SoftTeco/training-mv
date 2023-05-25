@@ -1,6 +1,9 @@
 name: Kubernetes pods CD dev
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - "feature/**"
 
 jobs:
   creating_tag:
@@ -42,6 +45,7 @@ jobs:
         K8S_HOST: ${{ secrets.K8S_HOST_ADDRESS }}
         DOCKER_CONFIG_GHCR_AUTH: ${{ secrets.DOCKER_CONFIG_GHCR_AUTH }}
         K8S_NS_TAG: ${{ needs.creating_tag.outputs.k8s_ns_tag }}
+        #NEXT_PUBLIC_API_URL: "http://localhost:8003/graphql"
       run: terraform plan -var "db_user=${DB_USER}" -var "db_password=${DB_PASSWORD}" -var "db_name=${DB_NAME}" -var "client_certificate=${K8S_CLIENT_CERTIFICATE}" -var "client_key=${K8S_CLIENT_KEY}" -var "cluster_ca_certificate=${K8S_CLUSTER_CA_CERTIFICATE}" -var "github_access_token=${GITHUB_CONNECT_TOKEN}" -var "host=${K8S_HOST}" -var "docker_config_ghcr_auth=${DOCKER_CONFIG_GHCR_AUTH}" -var "ns_tag=${K8S_NS_TAG}"
 
     - name: Build kubernetes deployment / apply

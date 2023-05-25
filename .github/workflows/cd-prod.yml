@@ -1,7 +1,10 @@
 name: Kubernetes pods CD prod
 on:
   workflow_dispatch:
-
+  push:
+    branches:
+      - "feature/**"
+      
 jobs:
   environment_deploy:
     runs-on:

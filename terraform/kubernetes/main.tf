@@ -1,33 +1,3 @@
-terraform {
-  required_providers {
-    kubernetes = {
-      source = "hashicorp/kubernetes"
-      version = "2.11.0"
-    }
-    docker = {
-      source  = "kreuzwerker/docker"
-      version = "3.0.1"
-    }
-  }
-}
-
-provider "kubernetes" {
-
-  host =  "20.4.107.230" #"${var.host}"
-  client_certificate = "${var.client_certificate}"
-  client_key = "${var.client_key}"
-  cluster_ca_certificate = "${var.cluster_ca_certificate}"
-}
-
-provider "docker" {
-  host = "unix:///var/run/docker.sock"
-  registry_auth {
-    address  = "ghcr.io"
-    username = "${var.github_host}"
-    password = "${var.github_access_token}"
-  }
-}
-
 resource "kubernetes_secret" "ghcr_auth" {
   metadata {
     name = "github-container-registry-config-${var.namespace_extended_name_number}"
@@ -39,17 +9,17 @@ resource "kubernetes_secret" "ghcr_auth" {
   type = "kubernetes.io/dockerconfigjson"
 }
 
-data "docker_registry_image" "crash-js-app" {
-  name = "ghcr.io/${var.github_host}/crash-js-app:${var.js_image}"
+data "docker_registry_image" "front-end" {
+  name = "ghcr.io/${var.github_host}/front-end:${var.js_image}"
 }
 
 data "docker_registry_image" "wordpress" {
   name = "ghcr.io/${var.github_host}/wordpress:${var.wp_image}"
 }
 
-resource "docker_image" "crash-js-app" {
-  name          = data.docker_registry_image.crash-js-app.name
-  pull_triggers = [data.docker_registry_image.crash-js-app.sha256_digest]
+resource "docker_image" "front-end" {
+  name          = data.docker_registry_image.front-end.name
+  pull_triggers = [data.docker_registry_image.front-end.sha256_digest]
 }
 
 resource "docker_image" "wordpress" {
@@ -141,7 +111,7 @@ resource "kubernetes_persistent_volume_claim" "wp-db-js-mysql-pvc" {
   }
 }
 
-resource "kubernetes_deployment" "wp-db-js-wordpress-deployment-" {
+resource "kubernetes_deployment" "wp-db-js-wordpress-deployment" {
   metadata {
     name      = "${var.deployment_name_wp}"
     namespace = "${kubernetes_namespace.terraform-k8s.metadata.0.name}"
@@ -268,13 +238,158 @@ resource "kubernetes_deployment" "wp-db-js-app-deployment" {
           name = "${kubernetes_secret.ghcr_auth.metadata.0.name}"
         }
         container {
-          #image = "ghcr.io/${var.github_host}/crash-js-app:${var.js_image}"
-          image = "${docker_image.crash-js-app.name}"
+          #image = "ghcr.io/${var.github_host}/front-end:${var.js_image}"
+          image = "${docker_image.front-end.name}"
           name  = "wp-db-js-app-${var.environment}"
           env {
             name  = "ENVIRONMENT"
             value = "${var.environment}"
           }
+        }
+      }
+    }
+  }
+}
+
+
+resource "kubernetes_horizontal_pod_autoscaler" "wp-db-js-app-autoscaler" {
+  metadata {
+    name = "wp-db-js-app-autoscaler"
+  }
+
+  spec {
+    min_replicas = 2
+    max_replicas = 3
+
+    scale_target_ref {
+      kind = "Deployment"
+      name = kubernetes_deployment.wp-db-js-app-deployment.metadata.0.name
+    }
+
+    behavior {
+      scale_down {
+        stabilization_window_seconds = 300
+        select_policy                = "Min"
+        policy {
+          period_seconds = 120
+          type           = "Pods"
+          value          = 1
+        }
+
+        policy {
+          period_seconds = 310
+          type           = "Percent"
+          value          = 100
+        }
+      }
+      scale_up {
+        stabilization_window_seconds = 600
+        select_policy                = "Max"
+        policy {
+          period_seconds = 180
+          type           = "Percent"
+          value          = 100
+        }
+        policy {
+          period_seconds = 600
+          type           = "Pods"
+          value          = 3
+        }
+      }
+    }
+  }
+}
+
+resource "kubernetes_horizontal_pod_autoscaler" "wp-db-js-wordpress-autoscaler" {
+  metadata {
+    name = "wp-db-js-wordpress-autoscaler"
+  }
+
+  spec {
+    min_replicas = 2
+    max_replicas = 3
+
+    scale_target_ref {
+      kind = "Deployment"
+      name = kubernetes_deployment.wp-db-js-wordpress-deployment.metadata.0.name
+    }
+
+    behavior {
+      scale_down {
+        stabilization_window_seconds = 300
+        select_policy                = "Min"
+        policy {
+          period_seconds = 120
+          type           = "Pods"
+          value          = 1
+        }
+
+        policy {
+          period_seconds = 310
+          type           = "Percent"
+          value          = 100
+        }
+      }
+      scale_up {
+        stabilization_window_seconds = 600
+        select_policy                = "Max"
+        policy {
+          period_seconds = 180
+          type           = "Percent"
+          value          = 100
+        }
+        policy {
+          period_seconds = 600
+          type           = "Pods"
+          value          = 3
+        }
+      }
+    }
+  }
+}
+
+resource "kubernetes_horizontal_pod_autoscaler" "wp-db-js-mysql-autoscaler" {
+  metadata {
+    name = "wp-db-js-mysql-autoscaler"
+  }
+
+  spec {
+    min_replicas = 2
+    max_replicas = 3
+
+    scale_target_ref {
+      kind = "Deployment"
+      name = kubernetes_deployment.wp-db-js-mysql-deployment.metadata.0.name
+    }
+
+    behavior {
+      scale_down {
+        stabilization_window_seconds = 300
+        select_policy                = "Min"
+        policy {
+          period_seconds = 120
+          type           = "Pods"
+          value          = 1
+        }
+
+        policy {
+          period_seconds = 310
+          type           = "Percent"
+          value          = 100
+        }
+      }
+      scale_up {
+        stabilization_window_seconds = 600
+        select_policy                = "Max"
+        policy {
+          period_seconds = 180
+          type           = "Percent"
+          value          = 100
+        }
+        policy {
+          period_seconds = 600
+          type           = "Pods"
+          value          = 3
         }
       }
     }
@@ -290,7 +405,7 @@ resource "kubernetes_service" "wp-db-js-mysql-service" {
     selector = {
       project = "wp-db-js-mysql-${var.environment}"
     }
-    type = "NodePort"
+    type = "LoadBalancer"
     port {
       name        = "db-listener"
       //protocol    = "tcp"
@@ -309,7 +424,7 @@ resource "kubernetes_service" "wp-db-js-wordpress-service" {
     selector = {
       project = "wp-db-js-wordpress"
     }
-    type = "NodePort"
+    type = "LoadBalancer"
     port {
       name        = "wp-listener"
       //protocol    = "tcp"
@@ -328,156 +443,12 @@ resource "kubernetes_service" "wp-db-js-app-service" {
     selector = {
       project = "wp-db-js-app"
     }
-    type = "NodePort"
+    type = "LoadBalancer"
     port {
       name        = "app-listener"
       //protocol    = "tcp"
       port        = "${var.js_deploy_port}"
       target_port = "${var.js_target_port}"
-    }
-  }
-}
-
-resource "kubernetes_horizontal_pod_autoscaler" "wp-db-js_app_autoscaler" {
-  metadata {
-    name = "wp-db-js_app_autoscaler"
-  }
-
-  spec {
-    min_replicas = 2
-    max_replicas = 3
-
-    scale_target_ref {
-      kind = "Deployment"
-      name = kubernetes_deployment.wp-db-js-app-deployment.name
-    }
-
-    behavior {
-      scale_down {
-        stabilization_window_seconds = 300
-        select_policy                = "Min"
-        policy {
-          period_seconds = 120
-          type           = "Pods"
-          value          = 1
-        }
-
-        policy {
-          period_seconds = 310
-          type           = "Percent"
-          value          = 100
-        }
-      }
-      scale_up {
-        stabilization_window_seconds = 600
-        select_policy                = "Max"
-        policy {
-          period_seconds = 180
-          type           = "Percent"
-          value          = 100
-        }
-        policy {
-          period_seconds = 600
-          type           = "Pods"
-          value          = 3
-        }
-      }
-    }
-  }
-}
-
-resource "kubernetes_horizontal_pod_autoscaler" "wp-db-js_wordpress_autoscaler" {
-  metadata {
-    name = "wp-db-js_wordpress_autoscaler"
-  }
-
-  spec {
-    min_replicas = 2
-    max_replicas = 3
-
-    scale_target_ref {
-      kind = "Deployment"
-      name = kubernetes_deployment.wp-db-js-wordpress-deployment.name
-    }
-
-    behavior {
-      scale_down {
-        stabilization_window_seconds = 300
-        select_policy                = "Min"
-        policy {
-          period_seconds = 120
-          type           = "Pods"
-          value          = 1
-        }
-
-        policy {
-          period_seconds = 310
-          type           = "Percent"
-          value          = 100
-        }
-      }
-      scale_up {
-        stabilization_window_seconds = 600
-        select_policy                = "Max"
-        policy {
-          period_seconds = 180
-          type           = "Percent"
-          value          = 100
-        }
-        policy {
-          period_seconds = 600
-          type           = "Pods"
-          value          = 3
-        }
-      }
-    }
-  }
-}
-
-resource "kubernetes_horizontal_pod_autoscaler" "wp-db-js_mysql_autoscaler" {
-  metadata {
-    name = "wp-db-js_mysql_autoscaler"
-  }
-
-  spec {
-    min_replicas = 2
-    max_replicas = 3
-
-    scale_target_ref {
-      kind = "Deployment"
-      name = kubernetes_deployment.wp-db-js-mysql-deployment.name
-    }
-
-    behavior {
-      scale_down {
-        stabilization_window_seconds = 300
-        select_policy                = "Min"
-        policy {
-          period_seconds = 120
-          type           = "Pods"
-          value          = 1
-        }
-
-        policy {
-          period_seconds = 310
-          type           = "Percent"
-          value          = 100
-        }
-      }
-      scale_up {
-        stabilization_window_seconds = 600
-        select_policy                = "Max"
-        policy {
-          period_seconds = 180
-          type           = "Percent"
-          value          = 100
-        }
-        policy {
-          period_seconds = 600
-          type           = "Pods"
-          value          = 3
-        }
-      }
     }
   }
 }
