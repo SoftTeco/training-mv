@@ -24,7 +24,7 @@ jobs:
     - name: Build kubernetes deployment / init
       working-directory: ./terraform/aks-dev
       run: terraform init
-
+      
     - name: Build kubernetes deployment / plan
       working-directory: ./terraform/aks-dev
       env:
