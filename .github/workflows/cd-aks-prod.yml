@@ -13,31 +13,7 @@ env:
   ENVIRONMENT: 'prod'
 
 jobs:
-  creating_azure_sa_sc:
-    runs-on:
-      - ubuntu-latest
-    steps:
-    - name: pre checkout
-      uses: actions/checkout@v3
-
-    - name: Creating Storage Account
-      env:
-        RESOURCE_GROUP_NAME: 'NetworkWatcherRG'
-        STORAGE_ACCOUNT_NAME: "saterraformstate$ENVIRONMENT"
-      run: az storage account create --resource-group $RESOURCE_GROUP_NAME --name $STORAGE_ACCOUNT_NAME --sku Standard_LRS --encryption-services blob
-
-    - name: Creating Storage Container
-      env:
-        STORAGE_ACCOUNT_NAME: "saterraformstate$ENVIRONMENT"
-        CONTAINER_NAME: "scterraformstate$ENVIRONMENT"
-      run: az storage container create --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME
-
-    - name: Storage access key variable export
-      env:
-        RESOURCE_GROUP_NAME: 'NetworkWatcherRG'
-        STORAGE_ACCOUNT_NAME: "saterraformstate$ENVIRONMENT"
-      run: export ARM_ACCESS_KEY=$(az storage account keys list --resource-group $RESOURCE_GROUP_NAME --account-name $STORAGE_ACCOUNT_NAME --query '[0].value' -o tsv)
-
+  
   environment_deploy:
     runs-on:
       - self-hosted
