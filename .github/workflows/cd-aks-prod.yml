@@ -1,0 +1,68 @@
+name: azure-kubernetes-service-prod-ci
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "main"
+      - "feature/**"
+    paths:
+      - terraform/aks-prod/**
+
+env:
+  ENVIRONMENT: 'prod'
+
+jobs:
+  creating_azure_sa_sc:
+    runs-on:
+      - ubuntu-latest
+    steps:
+    - name: pre checkout
+      uses: actions/checkout@v3
+
+    - name: Creating Storage Account
+      env:
+        RESOURCE_GROUP_NAME: 'NetworkWatcherRG'
+        STORAGE_ACCOUNT_NAME: "saterraformstate$ENVIRONMENT"
+      run: az storage account create --resource-group $RESOURCE_GROUP_NAME --name $STORAGE_ACCOUNT_NAME --sku Standard_LRS --encryption-services blob
+
+    - name: Creating Storage Container
+      env:
+        STORAGE_ACCOUNT_NAME: "saterraformstate$ENVIRONMENT"
+        CONTAINER_NAME: "scterraformstate$ENVIRONMENT"
+      run: az storage container create --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME
+
+    - name: Storage access key variable export
+      env:
+        RESOURCE_GROUP_NAME: 'NetworkWatcherRG'
+        STORAGE_ACCOUNT_NAME: "saterraformstate$ENVIRONMENT"
+      run: export ARM_ACCESS_KEY=$(az storage account keys list --resource-group $RESOURCE_GROUP_NAME --account-name $STORAGE_ACCOUNT_NAME --query '[0].value' -o tsv)
+
+  environment_deploy:
+    runs-on:
+      - self-hosted
+    steps:
+    - uses: actions/checkout@v3
+      name: pre checkout
+
+    - name: Build kubernetes deployment / init
+      working-directory: ./terraform/aks-prod
+      run: terraform init
+
+    - name: Build kubernetes deployment / plan
+      working-directory: ./terraform/aks-prod
+      env:
+        CLIENT_ID: ${{ secrets.MAXVRBTSK_CLIENT_ID }}
+        SUBSCRIPTION_ID: ${{ secrets.MAXVRBTSK_SUBSCRIPTION_ID }}
+        TENANT_ID: ${{ secrets.MAXVRBTSK_TENANT_ID }}
+        CLIENT_SECRET: ${{ secrets.MAXVRBTSK_CLIENT_SECRET }}
+      run: terraform plan -var "client_id=${CLIENT_ID}" -var "subscription_id=${SUBSCRIPTION_ID}" -var "tenant_id=${TENANT_ID}" -var "client_secret=${CLIENT_SECRET}"
+
+    - name: Build kubernetes deployment / apply
+      working-directory: ./terraform/aks-prod
+      env:
+        CLIENT_ID: ${{ secrets.MAXVRBTSK_CLIENT_ID }}
+        SUBSCRIPTION_ID: ${{ secrets.MAXVRBTSK_SUBSCRIPTION_ID }}
+        TENANT_ID: ${{ secrets.MAXVRBTSK_TENANT_ID }}
+        CLIENT_SECRET: ${{ secrets.MAXVRBTSK_CLIENT_SECRET }}
+      run: terraform apply -auto-approve -var "client_id=${CLIENT_ID}" -var "subscription_id=${SUBSCRIPTION_ID}" -var "tenant_id=${TENANT_ID}" -var "client_secret=${CLIENT_SECRET}"
