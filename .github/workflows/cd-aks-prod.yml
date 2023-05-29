@@ -1,4 +1,4 @@
-name: azure-kubernetes-service-prod-ci
+name: azure-kubernetes-service-prod-cd
 
 on:
   workflow_dispatch:
@@ -7,7 +7,7 @@ on:
       - "main"
       - "feature/**"
     paths:
-      - terraform/aks-prod/**
+      - terraform/aks/**
 
 env:
   ENVIRONMENT: 'prod'
@@ -22,11 +22,11 @@ jobs:
       name: pre checkout
 
     - name: Build kubernetes deployment / init
-      working-directory: ./terraform/aks-prod
+      working-directory: ./terraform/aks
       run: terraform init
 
     - name: Build kubernetes deployment / plan
-      working-directory: ./terraform/aks-prod
+      working-directory: ./terraform/aks
       env:
         CLIENT_ID: ${{ secrets.MAXVRBTSK_CLIENT_ID }}
         SUBSCRIPTION_ID: ${{ secrets.MAXVRBTSK_SUBSCRIPTION_ID }}
@@ -35,7 +35,7 @@ jobs:
       run: terraform plan -var "client_id=${CLIENT_ID}" -var "subscription_id=${SUBSCRIPTION_ID}" -var "tenant_id=${TENANT_ID}" -var "client_secret=${CLIENT_SECRET}"
 
     - name: Build kubernetes deployment / apply
-      working-directory: ./terraform/aks-prod
+      working-directory: ./terraform/aks
       env:
         CLIENT_ID: ${{ secrets.MAXVRBTSK_CLIENT_ID }}
         SUBSCRIPTION_ID: ${{ secrets.MAXVRBTSK_SUBSCRIPTION_ID }}

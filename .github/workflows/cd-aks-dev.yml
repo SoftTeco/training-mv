@@ -7,7 +7,7 @@ on:
       - "main"
       - "feature/**"
     paths:
-      - terraform/aks-dev/**
+      - terraform/aks/**
 
 env:
   ENVIRONMENT: 'dev'
@@ -22,23 +22,13 @@ jobs:
       name: pre checkout
 
     - name: Build kubernetes deployment / init
-      working-directory: ./terraform/aks-dev
+      working-directory: ./terraform/aks
       run: terraform init
-      
+
     - name: Build kubernetes deployment / plan
-      working-directory: ./terraform/aks-dev
-      env:
-        CLIENT_ID: ${{ secrets.MAXVRBTSK_CLIENT_ID }}
-        SUBSCRIPTION_ID: ${{ secrets.MAXVRBTSK_SUBSCRIPTION_ID }}
-        TENANT_ID: ${{ secrets.MAXVRBTSK_TENANT_ID }}
-        CLIENT_SECRET: ${{ secrets.MAXVRBTSK_CLIENT_SECRET }}
-      run: terraform plan -var "client_id=${CLIENT_ID}" -var "subscription_id=${SUBSCRIPTION_ID}" -var "tenant_id=${TENANT_ID}" -var "client_secret=${CLIENT_SECRET}"
+      working-directory: ./terraform/aks
+      run: terraform plan
 
     - name: Build kubernetes deployment / apply
-      working-directory: ./terraform/aks-dev
-      env:
-        CLIENT_ID: ${{ secrets.MAXVRBTSK_CLIENT_ID }}
-        SUBSCRIPTION_ID: ${{ secrets.MAXVRBTSK_SUBSCRIPTION_ID }}
-        TENANT_ID: ${{ secrets.MAXVRBTSK_TENANT_ID }}
-        CLIENT_SECRET: ${{ secrets.MAXVRBTSK_CLIENT_SECRET }}
-      run: terraform apply -auto-approve -var "client_id=${CLIENT_ID}" -var "subscription_id=${SUBSCRIPTION_ID}" -var "tenant_id=${TENANT_ID}" -var "client_secret=${CLIENT_SECRET}"
+      working-directory: ./terraform/aks
+      run: terraform apply -auto-approve
