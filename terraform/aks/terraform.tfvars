@@ -1,6 +1,4 @@
-aks_service_node_vm_size = "Standard_B2ms"
-aks_service_node_name = "testnode"
-aks_service_resource_group_location = "westeurope"
-aks_service_cluster_name = "k8stest"
-aks_service_dns_prefix = "test-prefix"
-aks_service_agent_count = "2"
+rg_location = "centralindia"
+node_vm_size = "Standard_B2ms"
+node_count = 2
+#environment = "dev"

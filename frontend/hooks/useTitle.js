@@ -2,7 +2,7 @@ import {useState} from "react";
 
 export const useTitle = ()=>{
     const [resp,setResp] = useState();
-    //let url = `http://wp-db-js-wordpress-service.k8s-${ENVIRONMENT}.svc.cluster.local:8000/graphql`;
+    //let url = `http://localhost:${process.env.NEXT_PUBLIC_PORT}/graphql`;
     let url = `${process.env.NEXT_PUBLIC_API_URL}`;
     const getResp = async()=>{
         const res= await fetch(url, {
