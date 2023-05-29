@@ -27,8 +27,8 @@ jobs:
 
     - name: Build kubernetes deployment / plan
       working-directory: ./terraform/aks
-      run: terraform plan
+      run: terraform plan --var-file="terraform.tfvars" -var "environment=${ENVIRONMENT}"
 
     - name: Build kubernetes deployment / apply
       working-directory: ./terraform/aks
-      run: terraform apply -auto-approve
+      run: terraform apply --var-file="terraform.tfvars" -var "environment=${ENVIRONMENT}" -auto-approve

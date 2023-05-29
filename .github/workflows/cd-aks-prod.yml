@@ -13,7 +13,7 @@ env:
   ENVIRONMENT: 'prod'
 
 jobs:
-  
+
   environment_deploy:
     runs-on:
       - self-hosted
@@ -27,18 +27,8 @@ jobs:
 
     - name: Build kubernetes deployment / plan
       working-directory: ./terraform/aks
-      env:
-        CLIENT_ID: ${{ secrets.MAXVRBTSK_CLIENT_ID }}
-        SUBSCRIPTION_ID: ${{ secrets.MAXVRBTSK_SUBSCRIPTION_ID }}
-        TENANT_ID: ${{ secrets.MAXVRBTSK_TENANT_ID }}
-        CLIENT_SECRET: ${{ secrets.MAXVRBTSK_CLIENT_SECRET }}
-      run: terraform plan -var "client_id=${CLIENT_ID}" -var "subscription_id=${SUBSCRIPTION_ID}" -var "tenant_id=${TENANT_ID}" -var "client_secret=${CLIENT_SECRET}"
+      run: terraform plan --var-file="terraform.tfvars" -var "environment=${ENVIRONMENT}"
 
     - name: Build kubernetes deployment / apply
       working-directory: ./terraform/aks
-      env:
-        CLIENT_ID: ${{ secrets.MAXVRBTSK_CLIENT_ID }}
-        SUBSCRIPTION_ID: ${{ secrets.MAXVRBTSK_SUBSCRIPTION_ID }}
-        TENANT_ID: ${{ secrets.MAXVRBTSK_TENANT_ID }}
-        CLIENT_SECRET: ${{ secrets.MAXVRBTSK_CLIENT_SECRET }}
-      run: terraform apply -auto-approve -var "client_id=${CLIENT_ID}" -var "subscription_id=${SUBSCRIPTION_ID}" -var "tenant_id=${TENANT_ID}" -var "client_secret=${CLIENT_SECRET}"
+      run: terraform apply --var-file="terraform.tfvars" -var "environment=${ENVIRONMENT}" -auto-approve
