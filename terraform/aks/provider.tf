@@ -10,11 +10,15 @@ terraform {
     }
   }
   backend "azurerm" {
-      resource_group_name  = "WPDBJS-RG"
+      resource_group_name  = "RG-Backend"
       storage_account_name = "saterraformstatewpdbjs"
       container_name       = "scterraformstatewpdbjs"
       key                  = "terraform.tfstate"
   }
+}
+
+data "azurerm_resource_group" "rg-backend" {
+  name = "RG-Backend"
 }
 
 provider "azurerm" {
