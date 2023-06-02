@@ -1,20 +1,24 @@
-resource "kubernetes_secret" "ghcr_auth" {
+locals {
+  name = "${terraform.workspace}"
+}
+
+resource "kubernetes_secret" "ghcr-auth" {
   metadata {
-    name = "github-container-registry-config-${var.namespace_extended_name_number}"
-    namespace = "${kubernetes_namespace.terraform-k8s.metadata.0.name}"
+    name = "ghcr-config-${var.ns-extended-number}"
+    namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
   }
   data = {
-    ".dockerconfigjson" = "${var.docker_config_ghcr_auth}"
+    ".dockerconfigjson" = "${var.docker-config-ghcr-auth}"
   }
   type = "kubernetes.io/dockerconfigjson"
 }
 
 data "docker_registry_image" "front-end" {
-  name = "ghcr.io/${var.github_host}/front-end:${var.js_image}"
+  name = "ghcr.io/${var.gh-host}/front-end:${var.frontend-image}"
 }
 
 data "docker_registry_image" "wordpress" {
-  name = "ghcr.io/${var.github_host}/wordpress:${var.wp_image}"
+  name = "ghcr.io/${var.gh-host}/wordpress:${var.wordpress-image}"
 }
 
 resource "docker_image" "front-end" {
@@ -27,25 +31,21 @@ resource "docker_image" "wordpress" {
   pull_triggers = [data.docker_registry_image.wordpress.sha256_digest]
 }
 
-resource "kubernetes_namespace" "terraform-k8s" {
+resource "kubernetes_namespace" "ns-wpdbjs" {
   metadata {
-    name = "terraform-k8s-${var.environment}-${var.namespace_extended_name_number}"
+    name = "ns-wpdbjs-${var.environment}-${var.ns-extended-number}"
   }
 }
 
-resource "kubernetes_persistent_volume" "wp-db-js-wordpress-pv" {
+resource "kubernetes_persistent_volume" "pv-wpdbjs-wordpress" {
   metadata {
-    name = "wp-db-js-wordpress-pv-${var.environment}-${var.namespace_extended_name_number}"
+    name = "pv-wpdbjs-wordpress-${var.environment}-${var.ns-extended-number}"
   }
   spec {
     storage_class_name = "standard"
     capacity = {
       storage = "1Gi"
     }
-    /*claim_ref {
-      name = "wp-db-js-wordpress-pvc" #"${kubernetes_persistent_volume_claim.wp-db-js-wordpress-pvc.metadata.0.name}"
-      namespace = "${kubernetes_namespace.terraform-k8s.metadata.0.name}"
-    }*/
     access_modes = ["ReadWriteMany"]
     persistent_volume_source {
       vsphere_volume {
@@ -55,19 +55,15 @@ resource "kubernetes_persistent_volume" "wp-db-js-wordpress-pv" {
   }
 }
 
-resource "kubernetes_persistent_volume" "wp-db-js-mysql-pv" {
+resource "kubernetes_persistent_volume" "pv-wpdbjs-mysql" {
   metadata {
-    name = "wp-db-js-mysql-pv-${var.environment}-${var.namespace_extended_name_number}"
+    name = "pv-wpdbjs-mysql-${var.environment}-${var.ns-extended-number}"
   }
   spec {
     storage_class_name = "standard"
     capacity = {
       storage = "1Gi"
     }
-    /*claim_ref {
-      name = "wp-db-js-mysql-pvc" #"${kubernetes_persistent_volume_claim.wp-db-js-mysql-pvc.metadata.0.name}"
-      namespace = "${kubernetes_namespace.terraform-k8s.metadata.0.name}"
-    }*/
     access_modes = ["ReadWriteMany"]
     persistent_volume_source {
       vsphere_volume {
@@ -77,10 +73,10 @@ resource "kubernetes_persistent_volume" "wp-db-js-mysql-pv" {
   }
 }
 
-resource "kubernetes_persistent_volume_claim" "wp-db-js-wordpress-pvc" {
+resource "kubernetes_persistent_volume_claim" "pvc-wpdbjs-wordpress" {
   metadata {
-    name      = "wp-db-js-wordpress-pvc"
-    namespace = "${kubernetes_namespace.terraform-k8s.metadata.0.name}"
+    name      = "pvc-wpdbjs-wordpress"
+    namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
   }
   spec {
     access_modes = ["ReadWriteMany"]
@@ -90,14 +86,14 @@ resource "kubernetes_persistent_volume_claim" "wp-db-js-wordpress-pvc" {
       }
     }
     storage_class_name = "standard"
-    volume_name = "${kubernetes_persistent_volume.wp-db-js-wordpress-pv.metadata.0.name}"
+    volume_name = "${kubernetes_persistent_volume.pv-wpdbjs-wordpress.metadata.0.name}"
   }
 }
 
-resource "kubernetes_persistent_volume_claim" "wp-db-js-mysql-pvc" {
+resource "kubernetes_persistent_volume_claim" "pvc-wpdbjs-mysql" {
   metadata {
-    name      = "wp-db-js-mysql-pvc"
-    namespace = "${kubernetes_namespace.terraform-k8s.metadata.0.name}"
+    name      = "pvc-wpdbjs-mysql"
+    namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
   }
   spec {
     access_modes = ["ReadWriteMany"]
@@ -107,57 +103,57 @@ resource "kubernetes_persistent_volume_claim" "wp-db-js-mysql-pvc" {
       }
     }
     storage_class_name = "standard"
-    volume_name = "${kubernetes_persistent_volume.wp-db-js-mysql-pv.metadata.0.name}"
+    volume_name = "${kubernetes_persistent_volume.pv-wpdbjs-wordpress.metadata.0.name}"
   }
 }
 
-resource "kubernetes_deployment" "wp-db-js-wordpress-deployment" {
+resource "kubernetes_deployment" "deploy-wpdbjs-wordpress" {
   metadata {
-    name      = "${var.deployment_name_wp}"
-    namespace = "${kubernetes_namespace.terraform-k8s.metadata.0.name}"
+    name      = "deploy-wpdbjs-wordpress"
+    namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
   }
   spec {
-    replicas = "${var.replicas}"
+    replicas = "${var.replicas-count}"
     selector {
       match_labels = {
-        project = "wp-db-js-wordpress-${var.environment}"
+        project = "wpdbjs-wordpress-${var.environment}"
       }
     }
     template {
       metadata {
         labels = {
-          project = "wp-db-js-wordpress-${var.environment}"
+          project = "wpdbjs-wordpress-${var.environment}"
         }
       }
       spec {
         image_pull_secrets {
-          name = "${kubernetes_secret.ghcr_auth.metadata.0.name}"
+          name = "${kubernetes_secret.ghcr-auth.metadata.0.name}"
         }
         container {
           #image = "ghcr.io/${var.github_host}/wordpress:${var.wp_image}"
           image = "${docker_image.wordpress.name}"
-          name  = "wp-db-js-wordpress-${var.environment}"
+          name  = "wpdbjs-wordpress-${var.environment}"
           env {
             name = "WORDPRESS_DB_HOST"
-            value = "wp-db-js-mysql-service.${kubernetes_namespace.terraform-k8s.metadata.0.name}.svc.cluster.local"
+            value = "svc-wpdbjs-mysql.${kubernetes_namespace.ns-wpdbjs.metadata.0.name}.svc.cluster.local"
           }
           env {
             name = "WORDPRESS_DB_USER"
-            value = "${var.db_user}"
+            value = "${var.mysql-user}"
           }
           env {
             name = "WORDPRESS_DB_PASSWORD"
-            value = "${var.db_password}"
+            value = "${var.mysql-password}"
           }
           env {
             name = "WORDPRESS_DB_NAME"
-            value = "${var.db_name}"
+            value = "${var.mysql-name}"
           }
         }
         volume {
-          name = "wp-db-js-wordpress-pv-${var.environment}-test"
+          name = "pv-wpdbjs-wordpress-${var.environment}"
           persistent_volume_claim {
-            claim_name = "${kubernetes_persistent_volume_claim.wp-db-js-wordpress-pvc.metadata.0.name}"
+            claim_name = "${kubernetes_persistent_volume_claim.pvc-wpdbjs-wordpress.metadata.0.name}"
           }
         }
       }
@@ -165,49 +161,49 @@ resource "kubernetes_deployment" "wp-db-js-wordpress-deployment" {
   }
 }
 
-resource "kubernetes_deployment" "wp-db-js-mysql-deployment" {
+resource "kubernetes_deployment" "deploy-wpdbjs-mysql" {
   metadata {
-    name      = "${var.deployment_name_db}"
-    namespace = "${kubernetes_namespace.terraform-k8s.metadata.0.name}"
+    name      = "deploy-wpdbjs-mysql"
+    namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
   }
   spec {
-    replicas = "${var.replicas}"
+    replicas = "${var.replicas-count}"
     selector {
       match_labels = {
-        project = "wp-db-js-mysql-${var.environment}"
+        project = "wpdbjs-mysql-${var.environment}"
       }
     }
     template {
       metadata {
         labels = {
-          project = "wp-db-js-mysql-${var.environment}"
+          project = "wpdbjs-mysql-${var.environment}"
         }
       }
       spec {
         container {
           image = "mysql:5.7"
-          name  = "wp-db-js-mysql-${var.environment}"
+          name  = "wpdbjs-mysql-${var.environment}"
           env {
             name  = "MYSQL_ROOT_PASSWORD"
-            value = "${var.db_password}"
+            value = "${var.mysql-password}"
           }
           env {
             name  = "MYSQL_USER"
-            value = "${var.db_user}"
+            value = "${var.mysql-user}"
           }
           env {
             name  = "MYSQL_PASSWORD"
-            value = "${var.db_password}"
+            value = "${var.mysql-password}"
           }
           env {
             name  = "MYSQL_DATABASE"
-            value = "${var.db_name}"
+            value = "${var.mysql-name}"
           }
         }
         volume {
-          name = "wp-db-js-mysql-pv-${var.environment}-test"
+          name = "pv-wpdbjs-${var.environment}"
           persistent_volume_claim {
-            claim_name = "${kubernetes_persistent_volume_claim.wp-db-js-mysql-pvc.metadata.0.name}"
+            claim_name = "${kubernetes_persistent_volume_claim.pvc-wpdbjs-mysql.metadata.0.name}"
           }
         }
       }
@@ -215,32 +211,32 @@ resource "kubernetes_deployment" "wp-db-js-mysql-deployment" {
   }
 }
 
-resource "kubernetes_deployment" "wp-db-js-app-deployment" {
+resource "kubernetes_deployment" "deploy-wpdbjs-frontend" {
   metadata {
-    name      = "${var.deployment_name_js}"
-    namespace = "${kubernetes_namespace.terraform-k8s.metadata.0.name}"
+    name      = "deploy-wpdbjs-frontend"
+    namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
   }
   spec {
-    replicas = "${var.replicas}"
+    replicas = "${var.replicas-count}"
     selector {
       match_labels = {
-        project = "wp-db-js-app-${var.environment}"
+        project = "wpdbjs-frontend-${var.environment}"
       }
     }
     template {
       metadata {
         labels = {
-          project = "wp-db-js-app-${var.environment}"
+          project = "wpdbjs-frontend-${var.environment}"
         }
       }
       spec {
         image_pull_secrets {
-          name = "${kubernetes_secret.ghcr_auth.metadata.0.name}"
+          name = "${kubernetes_secret.ghcr-auth.metadata.0.name}"
         }
         container {
           #image = "ghcr.io/${var.github_host}/front-end:${var.js_image}"
           image = "${docker_image.front-end.name}"
-          name  = "wp-db-js-app-${var.environment}"
+          name  = "wpdbjs-frontend-${var.environment}"
           env {
             name  = "ENVIRONMENT"
             value = "${var.environment}"
@@ -252,9 +248,9 @@ resource "kubernetes_deployment" "wp-db-js-app-deployment" {
 }
 
 
-resource "kubernetes_horizontal_pod_autoscaler" "wp-db-js-app-autoscaler" {
+resource "kubernetes_horizontal_pod_autoscaler" "ascale-wpdbjs-frontend" {
   metadata {
-    name = "wp-db-js-app-autoscaler"
+    name = "ascale-wpdbjs-frontend"
   }
 
   spec {
@@ -263,7 +259,7 @@ resource "kubernetes_horizontal_pod_autoscaler" "wp-db-js-app-autoscaler" {
 
     scale_target_ref {
       kind = "Deployment"
-      name = kubernetes_deployment.wp-db-js-app-deployment.metadata.0.name
+      name = kubernetes_deployment.deploy-wpdbjs-frontend.metadata.0.name
     }
 
     behavior {
@@ -300,9 +296,9 @@ resource "kubernetes_horizontal_pod_autoscaler" "wp-db-js-app-autoscaler" {
   }
 }
 
-resource "kubernetes_horizontal_pod_autoscaler" "wp-db-js-wordpress-autoscaler" {
+resource "kubernetes_horizontal_pod_autoscaler" "ascale-wpdbjs-wordpress" {
   metadata {
-    name = "wp-db-js-wordpress-autoscaler"
+    name = "ascale-wpdbjs-wordpress"
   }
 
   spec {
@@ -311,7 +307,7 @@ resource "kubernetes_horizontal_pod_autoscaler" "wp-db-js-wordpress-autoscaler" 
 
     scale_target_ref {
       kind = "Deployment"
-      name = kubernetes_deployment.wp-db-js-wordpress-deployment.metadata.0.name
+      name = kubernetes_deployment.deploy-wpdbjs-wordpress.metadata.0.name
     }
 
     behavior {
@@ -348,9 +344,9 @@ resource "kubernetes_horizontal_pod_autoscaler" "wp-db-js-wordpress-autoscaler" 
   }
 }
 
-resource "kubernetes_horizontal_pod_autoscaler" "wp-db-js-mysql-autoscaler" {
+resource "kubernetes_horizontal_pod_autoscaler" "ascale-wpdbjs-mysql" {
   metadata {
-    name = "wp-db-js-mysql-autoscaler"
+    name = "ascale-wpdbjs-mysql"
   }
 
   spec {
@@ -359,7 +355,7 @@ resource "kubernetes_horizontal_pod_autoscaler" "wp-db-js-mysql-autoscaler" {
 
     scale_target_ref {
       kind = "Deployment"
-      name = kubernetes_deployment.wp-db-js-mysql-deployment.metadata.0.name
+      name = kubernetes_deployment.deploy-wpdbjs-mysql.metadata.0.name
     }
 
     behavior {
@@ -396,59 +392,56 @@ resource "kubernetes_horizontal_pod_autoscaler" "wp-db-js-mysql-autoscaler" {
   }
 }
 
-resource "kubernetes_service" "wp-db-js-mysql-service" {
+resource "kubernetes_service" "svc-wpdbjs-mysql" {
   metadata {
-    name      = "${var.service_name_db}"
-    namespace = "${kubernetes_namespace.terraform-k8s.metadata.0.name}"
+    name      = "svc-wpdbjs-mysql"
+    namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
   }
   spec {
     selector = {
-      project = "wp-db-js-mysql-${var.environment}"
+      project = "wpdbjs-mysql-${var.environment}"
     }
     type = "LoadBalancer"
     port {
-      name        = "db-listener"
-      //protocol    = "tcp"
-      port        = "${var.mysql_deploy_port}"
-      target_port = "${var.mysql_target_port}"
+      name        = "mysql-listener"
+      port        = "${var.mysql-deploy-port}"
+      target_port = "${var.mysql-target-port}"
     }
   }
 }
 
-resource "kubernetes_service" "wp-db-js-wordpress-service" {
+resource "kubernetes_service" "svc-wpdbjs-wordpress" {
   metadata {
-    name      = "${var.service_name_wp}"
-    namespace = "${kubernetes_namespace.terraform-k8s.metadata.0.name}"
+    name      = "svc-wpdbjs-wordpress"
+    namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
   }
   spec {
     selector = {
-      project = "wp-db-js-wordpress"
+      project = "wpdbjs-wordpress-${var.environment}"
     }
     type = "LoadBalancer"
     port {
-      name        = "wp-listener"
-      //protocol    = "tcp"
-      port        = "${var.wp_deploy_port}"
-      target_port = "${var.wp_target_port}"
+      name        = "wordpress-listener"
+      port        = "${var.wordpress-deploy-port}"
+      target_port = "${var.wordpress-target-port}"
     }
   }
 }
 
-resource "kubernetes_service" "wp-db-js-app-service" {
+resource "kubernetes_service" "svc-wpdbjs-frontend" {
   metadata {
-    name      = "${var.service_name_js}"
-    namespace = "${kubernetes_namespace.terraform-k8s.metadata.0.name}"
+    name      = "svc-wpdbjs-frontend"
+    namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
   }
   spec {
     selector = {
-      project = "wp-db-js-app"
+      project = "wpdbjs-frontend"
     }
     type = "LoadBalancer"
     port {
-      name        = "app-listener"
-      //protocol    = "tcp"
-      port        = "${var.js_deploy_port}"
-      target_port = "${var.js_target_port}"
+      name        = "frontend-listener"
+      port        = "${var.frontend-deploy-port}"
+      target_port = "${var.frontend-target-port}"
     }
   }
 }

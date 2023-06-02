@@ -11,21 +11,43 @@ terraform {
   }
 }
 
-provider "kubernetes" {
+data "azurerm_storage_blob" "terraformstate" {
+  name                   = "terraform.tfstateenv:${local.name}"
+  storage_account_name   = "saterraformstatewpdbjs"
+  storage_container_name = "scterraformstatewpdbjs"
+}
 
-  #host =  "https://test-prefix-ut4di0f8.hcp.westeurope.azmk8s.io:443" #"20.73.140.95" #"${var.host}"
-  #client_certificate = "${var.client_certificate}"
-  #client_key = "${var.client_key}"
-  #cluster_ca_certificate = "${var.cluster_ca_certificate}"
-  config_path = "~/.kube/config"
+output "id_tfstateblob" {
+  value = data.azurerm_storage_blob.terraformstate.id
+}
+
+output "url_tfstateblob" {
+  value = data.azurerm_storage_blob.terraformstate.url
+}
+
+data "terraform_remote_state" "tfstatefile" {
+  backend = "azurerm"
+  config = {
+    storage_account_name = "saterraformstatewpdbjs"
+    container_name       = "scterraformstatewpdbjs"
+    key                  = "terraform.tfstateenv:${local.name}"
+  }
+}
+
+provider "kubernetes" {
+  #config_path = "~/.kube/config"
+  host = data.terraform_remote_state.tfstatefile.outputs.host
+  client_certificate = data.terraform_remote_state.tfstatefile.outputs.client_certificate
+  client_key = data.terraform_remote_state.tfstatefile.outputs.client_key
+  cluster_ca_certificate = data.terraform_remote_state.tfstatefile.outputs.cluster_ca_certificate
 }
 
 provider "docker" {
   host = "unix:///var/run/docker.sock"
   registry_auth {
     address  = "ghcr.io"
-    username = "${var.github_host}"
-    password = "${var.github_access_token}"
+    username = "${var.gh-host}"
+    password = "${var.gh-access-token}"
   }
 }
 
