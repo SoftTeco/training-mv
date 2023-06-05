@@ -11,15 +11,6 @@ terraform {
   }
 }
 
-data "terraform_remote_state" "tfstatefile" {
-  backend = "azurerm"
-  config = {
-    storage_account_name = "saterraformstatewpdbjs"
-    container_name       = "scterraformstatewpdbjs"
-    key                  = "terraform.tfstateenv:${local.name}"
-  }
-}
-
 provider "kubernetes" {
   #config_path = "~/.kube/config"
   host = data.terraform_remote_state.tfstatefile.outputs.host
@@ -34,6 +25,15 @@ provider "docker" {
     address  = "ghcr.io"
     username = "${var.gh-host}"
     password = "${var.gh-access-token}"
+  }
+}
+
+data "terraform_remote_state" "tfstatefile" {
+  backend = "azurerm"
+  config = {
+    storage_account_name = "saterraformstatewpdbjs"
+    container_name       = "scterraformstatewpdbjs"
+    key                  = "terraform.tfstateenv:${local.name}"
   }
 }
 
