@@ -5,7 +5,6 @@ on:
       - "feature/**"
     paths:
       - terraform/kubernetes/**
-      - .github/workflows/cd-dev.yml
 
 permissions:
       contents: read
