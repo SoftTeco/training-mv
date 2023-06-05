@@ -7,6 +7,10 @@ on:
     paths:
       - terraform/kubernetes/**
 
+permissions:
+      contents: read
+      id-token: write
+
 env:
   ENVIRONMENT: 'dev'
 
@@ -39,29 +43,26 @@ jobs:
     runs-on:
       - ubuntu-latest
     needs: creating_tag
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
     
     steps:
-    - name: az cli login
+    - name: pre checkout
+      uses: actions/checkout@v3
+
+    - name: 'az cli login'
       uses: azure/login@v1
       with:
-        client-id: ${{ secrets.MAXVRBTSK_CLIENT_ID }}
-        tenant-id: ${{ secrets.MAXVRBTSK_TENANT_ID }}
-        subscription-id: ${{ secrets.MAXVRBTSK_SUBSCRIPTION_ID }}
+        #client-id: ${{ secrets.MAXVRBTSK_CLIENT_ID }}
+        #tenant-id: ${{ secrets.MAXVRBTSK_TENANT_ID }}
+        #subscription-id: ${{ secrets.MAXVRBTSK_SUBSCRIPTION_ID }}
+        creds: ${{ secrets.MAXVRBTSK_AZURE_CREDENTIALS }}
 
-    - name: azure cli script
+    - name: 'azure cli script'
       uses: azure/CLI@v1
       with:
         azclientversion: latest
         inlineScript: |
           az account show
           az group list
-
-    - name: pre checkout
-      uses: actions/checkout@v3
       
     - name: Build kubernetes deployment / init
       working-directory: ./terraform/kubernetes
