@@ -11,7 +11,6 @@ terraform {
   }
 }
 
-
 provider "kubernetes" {
   #config_path = "~/.kube/config"
   host = data.terraform_remote_state.tfstatefile.outputs.host
