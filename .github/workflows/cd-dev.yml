@@ -40,6 +40,7 @@ jobs:
       - ubuntu-latest
     needs: creating_tag
     steps:
+    
     - name: az cli login
       uses: azure/login@v1
       with:

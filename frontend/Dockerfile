@@ -7,7 +7,8 @@ COPY package.json /app
 RUN yarn install
 COPY jsconfig.json /app
 COPY next.config.js /app
-COPY src /app/src
+COPY src/pages /app/src/pages
+COPY src/styles /app/src/styles
 COPY public /app/public
 
 RUN yarn run build

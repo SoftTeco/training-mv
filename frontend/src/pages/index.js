@@ -2,27 +2,28 @@ import Head from 'next/head'
 import Image from 'next/image'
 import { Inter } from '@next/font/google'
 import styles from '@/styles/Home.module.css'
-//import { useTitle } from "../../hooks/useTitle";
+//import { useTitle } from "../../hooks/useTitle.js";
+import { useTitle } from "./useTitle.js"
 //import { useState, useEffect } from "react";
-//import { getAllPosts } from "../../lib/test-data";
-//import { getAllPosts } from "./test-data";
+//import { getAllPosts } from "../../lib/test-data.js";
+import { getAllPosts } from "./test-data.js";
 
 const inter = Inter({ subsets: ['latin'] })
 
 export default function Home({ posts }) {
-  //const { resp, getResp, status } = useTitle();
-  //useEffect(() => {
-   // getResp();
-  //}, []);
-  //console.log(resp?.posts?.nodes);
+  const { resp, getResp, status } = useTitle();
+  useEffect(() => {
+    getResp();
+  }, []);
+  console.log(resp?.posts?.nodes);
   return (
     <div className="container">
       {
-      //status ? (
-        //resp.posts.nodes.map((node,index) => <div key={index}>{node.title}</div>)
- //) : (
-   //<div>Loading</div>
-  //)
+      status ? (
+        resp.posts.nodes.map((node,index) => <div key={index}>{node.title}</div>)
+ ) : (
+   <div>Loading</div>
+  )
 }
     <>
       <Head>
@@ -140,12 +141,12 @@ export default function Home({ posts }) {
   )
 }
 
-//export async function getStaticProps() {
-  //const response = await getAllPosts();
-  //const posts = response?.data?.posts?.nodes;
-  //return {
-    //props: {
-      //posts,
-    //},
-  //};
-//}
+export async function getStaticProps() {
+  const response = await getAllPosts();
+  const posts = response?.data?.posts?.nodes;
+  return {
+    props: {
+      posts,
+    },
+  };
+}
