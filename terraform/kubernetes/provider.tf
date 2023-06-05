@@ -11,20 +11,6 @@ terraform {
   }
 }
 
-data "azurerm_storage_blob" "terraformstate" {
-  name                   = "terraform.tfstateenv:${local.name}"
-  storage_account_name   = "saterraformstatewpdbjs"
-  storage_container_name = "scterraformstatewpdbjs"
-}
-
-output "id_tfstateblob" {
-  value = data.azurerm_storage_blob.terraformstate.id
-}
-
-output "url_tfstateblob" {
-  value = data.azurerm_storage_blob.terraformstate.url
-}
-
 data "terraform_remote_state" "tfstatefile" {
   backend = "azurerm"
   config = {
