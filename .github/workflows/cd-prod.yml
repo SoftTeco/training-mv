@@ -6,6 +6,8 @@ on:
         default: ''
       ns-extended-number:
         default: 010000
+      gh-host:
+        default: 'softteco'
 
 env:
   ENVIRONMENT: 'prod'  
@@ -16,6 +18,21 @@ jobs:
       - ubuntu-latest
     needs: creating_tag
     steps:
+    - name: az cli login
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.MAXVRBTSK_CLIENT_ID }}
+        tenant-id: ${{ secrets.MAXVRBTSK_TENANT_ID }}
+        subscription-id: ${{ secrets.MAXVRBTSK_SUBSCRIPTION_ID }}
+
+    - name: azure cli script
+      uses: azure/CLI@v1
+      with:
+        azclientversion: latest
+        inlineScript: |
+          az account show
+          az group list
+          
     - name: pre checkout
       uses: actions/checkout@v3
       
@@ -35,7 +52,7 @@ jobs:
       working-directory: ./terraform/kubernetes
       env:
         TF_VAR_environment: $ENVIRONMENT
-        TF_VAR_gh-host: ${{ github.repository_owner }}
+        TF_VAR_gh-host: ${{ github.event.inputs.gh-host}}"
         TF_VAR_aks-name: "aks-WPDBJS-${ENVIRONMENT}"
         TF_VAR_rg-name: "RG-WPDBJS-${ENVIRONMENT}"
         DB_USER: ${{ secrets.WORDPRESS_DB_USER_PROD }}
@@ -50,7 +67,7 @@ jobs:
       working-directory: ./terraform/kubernetes
       env:
         TF_VAR_environment: $ENVIRONMENT
-        TF_VAR_gh-host: ${{ github.repository_owner }}
+        TF_VAR_gh-host: ${{ github.event.inputs.gh-host}}"
         TF_VAR_aks-name: "aks-WPDBJS-${ENVIRONMENT}"
         TF_VAR_rg-name: "RG-WPDBJS-${ENVIRONMENT}"
         DB_USER: ${{ secrets.WORDPRESS_DB_USER_PROD }}

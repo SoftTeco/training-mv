@@ -19,6 +19,7 @@ jobs:
       k8s_ns_extended_number: ${{ steps.namespace_tag.outputs.tag }}
       existing_tf_workspace_dev: ${{ steps.existing_tf_workspace_dev.workspace_dev }}
       existing_tf_workspace_prod: ${{ steps.existing_tf_workspace_prod.workspace_prod }}
+      gh_owner_lc: ${{ steps.set_owner_lowercase.owner_lowercase }}
 
     steps:
       - id: namespace_tag
@@ -30,11 +31,30 @@ jobs:
       - id: existing_tf_workspace_prod
         run: echo "workspace_prod=$(terraform workspace list | grep prod)" >> $GITHUB_OUTPUT
 
+      - id: set_owner_lowercase
+        shell: bash
+        run: echo "owner_lowercase=$(echo ${{ github.repository_owner }} | awk '{print tolower($0)}')" >> $GITHUB_OUTPUT
+
   environment_deploy:
     runs-on:
       - ubuntu-latest
     needs: creating_tag
     steps:
+    - name: az cli login
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.MAXVRBTSK_CLIENT_ID }}
+        tenant-id: ${{ secrets.MAXVRBTSK_TENANT_ID }}
+        subscription-id: ${{ secrets.MAXVRBTSK_SUBSCRIPTION_ID }}
+
+    - name: azure cli script
+      uses: azure/CLI@v1
+      with:
+        azclientversion: latest
+        inlineScript: |
+          az account show
+          az group list
+
     - name: pre checkout
       uses: actions/checkout@v3
       
@@ -54,7 +74,7 @@ jobs:
       working-directory: ./terraform/kubernetes
       env:
         TF_VAR_environment: $ENVIRONMENT
-        TF_VAR_gh-host: ${{ github.repository_owner }}
+        TF_VAR_gh-host: ${{ needs.createing_tag.outputs.gh_owner_lc }}
         TF_VAR_aks-name: "aks-WPDBJS-${ENVIRONMENT}"
         TF_VAR_rg-name: "RG-WPDBJS-${ENVIRONMENT}"
         DB_USER: ${{ secrets.WORDPRESS_DB_USER_DEV }}
@@ -69,7 +89,7 @@ jobs:
       working-directory: ./terraform/kubernetes
       env:
         TF_VAR_environment: $ENVIRONMENT
-        TF_VAR_gh-host: ${{ github.repository_owner }}
+        TF_VAR_gh-host: ${{ needs.createing_tag.outputs.gh_owner_lc }}
         TF_VAR_aks-name: "aks-WPDBJS-${ENVIRONMENT}"
         TF_VAR_rg-name: "RG-WPDBJS-${ENVIRONMENT}"
         DB_USER: ${{ secrets.WORDPRESS_DB_USER_DEV }}
@@ -91,4 +111,5 @@ jobs:
       env:
         K8S_NS_EXTENDED_NUMBER: ${{ needs.creating_tag.outputs.k8s_ns_extended_number }}
         WORKSPACE_PROD: ${{ needs.creating_tag.outputs.existing_tf_workspace_dev }}
-      run: gh workflow run cd-prod.yml -f ns-extended-number=${K8S_NS_EXTENDED_NUMBER} -f existing_tf_workspace_prod=${WORKSPACE_PROD}
+        GH_OWNER_LOWERCASE: ${{ needs.createing_tag.outputs.gh_owner_lc }}
+      run: gh workflow run cd-prod.yml -f ns-extended-number=${K8S_NS_EXTENDED_NUMBER} -f existing_tf_workspace_prod=${WORKSPACE_PROD} -f gh-host=${GH_OWNER_LOWERCASE}
