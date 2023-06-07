@@ -15,9 +15,7 @@ env:
 
 jobs:
   creating_tag:
-    runs-on: 
-      - ubuntu-latest
-
+    runs-on: ubuntu-latest
     outputs:
       k8s_ns_extended_number: ${{ steps.namespace_tag.outputs.tag }}
       existing_tf_workspace_dev: ${{ steps.existing_tf_workspace_dev.workspace_dev }}
@@ -39,8 +37,7 @@ jobs:
         run: echo "owner_lowercase=$(echo ${{ github.repository_owner }} | awk '{print tolower($0)}')" >> $GITHUB_OUTPUT
 
   environment_deploy:
-    runs-on:
-      - ubuntu-latest
+    runs-on: ubuntu-latest
     needs: creating_tag
     
     steps:
@@ -53,7 +50,8 @@ jobs:
         #client-id: ${{ secrets.MAXVRBTSK_CLIENT_ID }}
         #tenant-id: ${{ secrets.MAXVRBTSK_TENANT_ID }}
         #subscription-id: ${{ secrets.MAXVRBTSK_SUBSCRIPTION_ID }}
-        creds: ${{ env.MAXVRBTSK_AZURE_CREDENTIALS }}
+        #creds: ${{ env.MAXVRBTSK_AZURE_CREDENTIALS }}
+        creds: ${{ '{"clientId":"${{ secrets.MAXVRBTSK_CLIENT_ID }}","clientSecret":"${{ secrets.MAXVRBTSK_CLIENT_SECRET }}","subscriptionId":"${{ secrets.MAXVRBTSK_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.MAXVRBTSK_TENANT_ID }}"}' }}
 
     - name: 'azure cli script'
       uses: azure/CLI@v1
