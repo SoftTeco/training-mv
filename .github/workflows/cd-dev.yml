@@ -88,7 +88,7 @@ jobs:
         GITHUB_CONNECT_TOKEN: ${{ secrets.GH_TOKEN }}
         DOCKER_CONFIG_GHCR_AUTH: ${{ secrets.DOCKER_CONFIG_GHCR_AUTH }}
         NAMESPACE_EXTENDED_NUMBER: ${{ needs.creating_tag.outputs.k8s_ns_extended_number }}
-      run: terraform plan --var-file="terraform.tfvars" -var "mysql-user=${DB_USER}" -var "mysql-password=${DB_PASSWORD}" -var "mysql-name=${DB_NAME}" -var "gh-access-token=${GITHUB_CONNECT_TOKEN}" -var "docker-config-ghcr-auth=${DOCKER_CONFIG_GHCR_AUTH}" -var "ns-extended-number=${NAMESPACE_EXTENDED_NUMBER}" -out=plan-${ENVIRONMENT}
+      run: terraform plan --var-file="terraform.tfvars" -var "mysql-user=${DB_USER}" -var "mysql-password=${DB_PASSWORD}" -var "mysql-name=${DB_NAME}" -var "gh-access-token=${GITHUB_CONNECT_TOKEN}" -var "docker-config-ghcr-auth=${DOCKER_CONFIG_GHCR_AUTH}" -var "ns-extended-number=${NAMESPACE_EXTENDED_NUMBER}" -out=plan-${ENVIRONMENT} -lock=false
 
     - name: Build kubernetes deployment / apply
       working-directory: ./terraform/kubernetes
