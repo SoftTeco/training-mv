@@ -11,6 +11,10 @@ terraform {
   }
 }
 
+provider "azurerm" {
+  skip_provider_registration = "true"
+  features {}
+}
 
 provider "kubernetes" {
   #config_path = "~/.kube/config"
