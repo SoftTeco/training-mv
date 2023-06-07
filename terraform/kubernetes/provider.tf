@@ -29,7 +29,6 @@ provider "docker" {
   }
 }
 
-
 data "terraform_remote_state" "tfstatefile" {
   backend = "azurerm"
   config = {
