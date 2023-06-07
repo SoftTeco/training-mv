@@ -15,7 +15,8 @@ env:
 
 jobs:
   creating_tag:
-    runs-on: ubuntu-latest
+    #runs-on: ubuntu-latest
+    runs-on: self-hosted
     outputs:
       k8s_ns_extended_number: ${{ steps.namespace_tag.outputs.tag }}
       existing_tf_workspace_dev: ${{ steps.existing_tf_workspace_dev.workspace_dev }}
@@ -37,7 +38,8 @@ jobs:
         run: echo "owner_lowercase=$(echo ${{ github.repository_owner }} | awk '{print tolower($0)}')" >> $GITHUB_OUTPUT
 
   environment_deploy:
-    runs-on: ubuntu-latest
+    #runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: creating_tag
     
     steps:
@@ -104,7 +106,8 @@ jobs:
       run: terraform apply -auto-approve "plan-${ENVIRONMENT}"
 
   CD_prod_trigger:
-    runs-on: ubuntu-latest
+    #runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [creating_tag, environment_deploy]
     steps:
     - name: pre checkout
