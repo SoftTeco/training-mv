@@ -38,30 +38,30 @@ jobs:
         run: echo "owner_lowercase=$(echo ${{ github.repository_owner }} | awk '{print tolower($0)}')" >> $GITHUB_OUTPUT
 
   environment_deploy:
-    #runs-on: ubuntu-latest
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
+    #runs-on: self-hosted
     needs: creating_tag
     
     steps:
     - name: pre checkout
       uses: actions/checkout@v3
 
-    #- name: 'az cli login'
-    #  uses: azure/login@v1
-    #  with:
-        #client-id: ${{ secrets.MAXVRBTSK_CLIENT_ID }}
-        #tenant-id: ${{ secrets.MAXVRBTSK_TENANT_ID }}
-        #subscription-id: ${{ secrets.MAXVRBTSK_SUBSCRIPTION_ID }}
+    - name: 'az cli login'
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.MAXVRBTSK_CLIENT_ID }}
+        tenant-id: ${{ secrets.MAXVRBTSK_TENANT_ID }}
+        subscription-id: ${{ secrets.MAXVRBTSK_SUBSCRIPTION_ID }}
         #creds: ${{ env.MAXVRBTSK_AZURE_CREDENTIALS }}
-    #    creds: ${{ '{"clientId":"f288ee47-782f-4498-9067-f7dcb968ffe8","clientSecret":"BWh8Q~R6SrNHeNQ7rk7E4DocZpUfvv7BapVoacxA","subscriptionId":"0655929a-47b2-4283-80af-31ef636fe744","tenantId":"6ab3a8f0-1cc4-4557-a006-b10322d52b05"}' }}
+        #creds: ${{ '{"clientId":"f288ee47-782f-4498-9067-f7dcb968ffe8","clientSecret":"BWh8Q~R6SrNHeNQ7rk7E4DocZpUfvv7BapVoacxA","subscriptionId":"0655929a-47b2-4283-80af-31ef636fe744","tenantId":"6ab3a8f0-1cc4-4557-a006-b10322d52b05"}' }}
 
-    #- name: 'azure cli script'
-    #  uses: azure/CLI@v1
-    #  with:
-    #    azclientversion: latest
-    #    inlineScript: |
-    #      az account show
-    #      az group list
+    - name: 'azure cli script'
+      uses: azure/CLI@v1
+      with:
+        azclientversion: latest
+        inlineScript: |
+          az account show
+          az group list
       
     - name: Build kubernetes deployment / init
       working-directory: ./terraform/kubernetes
@@ -79,7 +79,7 @@ jobs:
       working-directory: ./terraform/kubernetes
       env:
         TF_VAR_environment: $ENVIRONMENT
-        TF_VAR_gh-host: ${{ needs.createing_tag.outputs.gh_owner_lc }}
+        TF_VAR_gh-host: ${{ needs.creating_tag.outputs.gh_owner_lc }}
         TF_VAR_aks-name: "aks-WPDBJS-${ENVIRONMENT}"
         TF_VAR_rg-name: "RG-WPDBJS-${ENVIRONMENT}"
         DB_USER: ${{ secrets.WORDPRESS_DB_USER_DEV }}
@@ -106,8 +106,8 @@ jobs:
       run: terraform apply -auto-approve "plan-${ENVIRONMENT}"
 
   CD_prod_trigger:
-    #runs-on: ubuntu-latest
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
+    #runs-on: self-hosted
     needs: [creating_tag, environment_deploy]
     steps:
     - name: pre checkout
@@ -117,5 +117,5 @@ jobs:
       env:
         K8S_NS_EXTENDED_NUMBER: ${{ needs.creating_tag.outputs.k8s_ns_extended_number }}
         WORKSPACE_PROD: ${{ needs.creating_tag.outputs.existing_tf_workspace_dev }}
-        GH_OWNER_LOWERCASE: ${{ needs.createing_tag.outputs.gh_owner_lc }}
+        GH_OWNER_LOWERCASE: ${{ needs.creating_tag.outputs.gh_owner_lc }}
       run: gh workflow run cd-prod.yml -f ns-extended-number=${K8S_NS_EXTENDED_NUMBER} -f existing_tf_workspace_prod=${WORKSPACE_PROD} -f gh-host=${GH_OWNER_LOWERCASE}

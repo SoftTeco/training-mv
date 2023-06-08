@@ -1,5 +1,5 @@
 frontend-image = "v1.25.0"
-wordpress-image= "v1.25.1"
+wordpress-image = "v1.25.1"
 wordpress-target-port = 8000
 wordpress-deploy-port = 8000
 frontend-target-port = 3000
