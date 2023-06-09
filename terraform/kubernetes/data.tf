@@ -1,7 +1,3 @@
-locals {
-  name = "${terraform.workspace}"
-}
-
 data "azurerm_resource_group" "rg-wpdbjs" {
   name     = "RG-WPDBJS-${local.name}"
   location = var.rg_location
