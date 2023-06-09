@@ -12,6 +12,13 @@ permissions:
 
 env:
   ENVIRONMENT: 'dev'
+  ARM_CLIENT_ID: ${{ secrets.MAXVRBTSK_CLIENT_ID }}
+  ARM_CLIENT_SECRET: ${{ secrets.MAXVRBTSK_CLIENT_SECRET }}
+  ARM_TENANT_ID: ${{ secrets.MAXVRBTSK_TENANT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.MAXVRBTSK_SUBSCRIPTION_ID }}
+  AZURE_CLIENT_ID: ${{ secrets.MAXVRBTSK_CLIENT_ID }}
+  AZURE_CLIENT_SECRET: ${{ secrets.MAXVRBTSK_CLIENT_SECRET }}
+  AZURE_TENANT_ID: ${{ secrets.MAXVRBTSK_TENANT_ID }}
 
 jobs:
   creating_tag:
@@ -52,9 +59,7 @@ jobs:
         client-id: ${{ secrets.MAXVRBTSK_CLIENT_ID }}
         tenant-id: ${{ secrets.MAXVRBTSK_TENANT_ID }}
         subscription-id: ${{ secrets.MAXVRBTSK_SUBSCRIPTION_ID }}
-        #creds: ${{ env.MAXVRBTSK_AZURE_CREDENTIALS }}
-        #creds: ${{ '{"clientId":"f288ee47-782f-4498-9067-f7dcb968ffe8","clientSecret":"BWh8Q~R6SrNHeNQ7rk7E4DocZpUfvv7BapVoacxA","subscriptionId":"0655929a-47b2-4283-80af-31ef636fe744","tenantId":"6ab3a8f0-1cc4-4557-a006-b10322d52b05"}' }}
-
+        
     - name: 'azure cli script'
       uses: azure/CLI@v1
       with:
