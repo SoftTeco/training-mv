@@ -39,13 +39,3 @@ provider "docker" {
   }
 }
 
-
-data "terraform_remote_state" "tfstatefile" {
-  backend = "azurerm"
-  config = {
-    storage_account_name = "saterraformstatewpdbjs"
-    container_name       = "scterraformstatewpdbjs"
-    key                  = "terraform.tfstateenv:${local.name}"
-  }
-}
-

@@ -80,6 +80,9 @@ jobs:
       if: needs.creating_tag.outputs.existing_tf_workspace_dev != ''
       run: terraform workspace select ${ENVIRONMENT}
 
+    - name: test
+      run: echo ${{ needs.creating_tag.outputs.gh_owner_lc }}
+
     - name: Build kubernetes deployment / plan
       working-directory: ./terraform/kubernetes
       env:
