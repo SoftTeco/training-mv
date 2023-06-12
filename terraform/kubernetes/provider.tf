@@ -9,12 +9,6 @@ terraform {
       version = "3.0.1"
     }
   }
-  backend "azurerm" {
-      resource_group_name  = "RG-Backend"
-      storage_account_name = "saterraformstatewpdbjs"
-      container_name       = "scterraformstatewpdbjs"
-      key                  = "terraform.tfstate"
-  }
 }
 
 provider "azurerm" {

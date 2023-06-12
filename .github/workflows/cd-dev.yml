@@ -81,7 +81,7 @@ jobs:
       run: terraform workspace select ${ENVIRONMENT}
 
     - name: test
-      run: echo ${{ needs.creating_tag.outputs.gh_owner_lc }}
+      run: echo ${{ needs.creating_tag.outputs.gh_owner_lc }} && echo ${{ github.repository_owner }}
 
     - name: Build kubernetes deployment / plan
       working-directory: ./terraform/kubernetes
