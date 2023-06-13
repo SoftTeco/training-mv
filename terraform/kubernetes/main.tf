@@ -13,14 +13,6 @@ resource "kubernetes_secret" "ghcr-auth" {
   type = "kubernetes.io/dockerconfigjson"
 }
 
-data "docker_registry_image" "front-end" {
-  name = "ghcr.io/${var.gh-host}/front-end:${var.frontend-image}"
-}
-
-data "docker_registry_image" "wordpress" {
-  name = "ghcr.io/${var.gh-host}/wordpress:${var.wordpress-image}"
-}
-
 resource "docker_image" "front-end" {
   name          = data.docker_registry_image.front-end.name
   pull_triggers = [data.docker_registry_image.front-end.sha256_digest]

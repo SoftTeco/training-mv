@@ -1,11 +1,11 @@
 data "azurerm_resource_group" "rg-wpdbjs" {
-  #name     = "RG-WPDBJS-${local.name}"
-  name      = "${var.rg-name}"
+  name     = "RG-WPDBJS-${local.name}"
+  #name      = "${var.rg-name}"
 }
 
 data "azurerm_kubernetes_cluster" "aks-wpdbjs" {
-  #name                = "aks-WPDBJS-${local.name}"
-  name                 = "${var.aks-name}"
+  name                = "aks-WPDBJS-${local.name}"
+  #name                 = "${var.aks-name}"
   resource_group_name  = data.azurerm_resource_group.rg-wpdbjs
 }
 
@@ -23,4 +23,12 @@ data "terraform_remote_state" "tfstatefile" {
 data "azurerm_storage_account" "example" {
   name                = "saterraformstatewpdbjs"
   resource_group_name = "RG-backend"
+}
+
+data "docker_registry_image" "front-end" {
+  name = "${var.registry}/${var.gh-host}/front-end:${var.frontend-image}"
+}
+
+data "docker_registry_image" "wordpress" {
+  name = "${var.registry}/${var.gh-host}/wordpress:${var.wordpress-image}"
 }

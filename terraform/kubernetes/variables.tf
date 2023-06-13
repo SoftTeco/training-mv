@@ -43,3 +43,7 @@ variable "rg-name" {}
 variable "replicas-count" {}
 
 variable "aks-name" {}
+
+variable "registry" {
+    default = "ghcr.io"
+}
