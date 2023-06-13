@@ -26,7 +26,6 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(data.terraform_remote_state.tfstatefile.outputs.cluster_ca_certificate)
 }
 
-
 provider "docker" {
   host = "unix:///var/run/docker.sock"
   registry_auth {

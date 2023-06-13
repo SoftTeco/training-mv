@@ -68,10 +68,12 @@ jobs:
           az account show
           az group list
 
-    - name: 'docker login ghcr.io'
-      shell: bash
-      run: |
-        echo ${{ secrets.GH_TOKEN }} | docker login ghcr.io -u isostheneia94 --password-stdin
+    name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: isostheneia94
+          password: ${{ secrets.GH_TOKEN }}
       
     - name: Build kubernetes deployment / init
       working-directory: ./terraform/kubernetes
