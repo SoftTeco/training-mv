@@ -20,7 +20,7 @@ provider "azurerm" {
 
 provider "kubernetes" {
   #config_path = "~/.kube/config"
-  host = base64decode(data.terraform_remote_state.tfstatefile.outputs.host)
+  host = data.terraform_remote_state.tfstatefile.outputs.host
   client_certificate = base64decode(data.terraform_remote_state.tfstatefile.outputs.client_certificate)
   client_key = base64decode(data.terraform_remote_state.tfstatefile.outputs.client_key)
   cluster_ca_certificate = base64decode(data.terraform_remote_state.tfstatefile.outputs.cluster_ca_certificate)
