@@ -41,7 +41,6 @@ jobs:
         run: echo "workspace_prod=$(terraform workspace list | grep prod)" >> $GITHUB_OUTPUT
 
       - id: set_owner_lowercase
-        shell: bash
         run: echo "owner_lowercase=$(echo ${{ github.repository_owner }} | awk '{print tolower($0)}')" >> $GITHUB_OUTPUT
 
   environment_deploy:

@@ -51,7 +51,7 @@ jobs:
       run: terraform workspace new ${ENVIRONMENT}
 
     - name: Selecting existing terraform workspace
-      if: ${{ github.event.inputs.existing_tf_workspace_prod}}" != ''
+      if: ${{ github.event.inputs.existing_tf_workspace_prod}}" == 'prod'
       run: terraform workspace select ${ENVIRONMENT}
 
     - name: Build kubernetes deployment / plan
