@@ -69,10 +69,10 @@ jobs:
           az group list
 
     - name: Login to GitHub Container Registry
-      uses: docker/login-action@v2
+      uses: docker/login-action@v1
       with:
-        registry: ghcr.io
-        username: isostheneia94
+        registry: 'ghcr.io'
+        username: 'isostheneia94'
         password: ${{ secrets.GH_TOKEN }}
       
     - name: Build kubernetes deployment / init
