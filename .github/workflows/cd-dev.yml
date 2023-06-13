@@ -90,7 +90,7 @@ jobs:
         terraform plan --var-file="terraform.tfvars" -var "aks-name=${AKS_NAME}" -var "rg-name=${RG_NAME}" -var "mysql-user=${DB_USER}" -var "mysql-password=${DB_PASSWORD}" -var "mysql-name=${DB_NAME}" -var "gh-access-token=${GITHUB_CONNECT_TOKEN}" -var "docker-config-ghcr-auth=${DOCKER_CONFIG_GHCR_AUTH}" -var "ns-extended-number=${NAMESPACE_EXTENDED_NUMBER}" -out=plan-${ENVIRONMENT} -lock=false
 
     - name: Build kubernetes deployment / plan (if workspace doesnt exist)
-      if: needs.creating_tag.outputs.existing_tf_workspace_dev == ''
+      if: needs.creating_tag.outputs.existing_tf_workspace_dev != 'dev'
       working-directory: ./terraform/kubernetes
       env:
         TF_VAR_environment: $ENVIRONMENT
