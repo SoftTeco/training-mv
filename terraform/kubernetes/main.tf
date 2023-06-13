@@ -25,13 +25,13 @@ resource "docker_image" "wordpress" {
 
 resource "kubernetes_namespace" "ns-wpdbjs" {
   metadata {
-    name = "ns-wpdbjs-${var.environment}-${var.ns-extended-number}"
+    name = "ns-wpdbjs-${local.name}-${var.ns-extended-number}"
   }
 }
 
 resource "kubernetes_persistent_volume" "pv-wpdbjs-wordpress" {
   metadata {
-    name = "pv-wpdbjs-wordpress-${var.environment}-${var.ns-extended-number}"
+    name = "pv-wpdbjs-wordpress-${local.name}-${var.ns-extended-number}"
   }
   spec {
     storage_class_name = "standard"
@@ -41,7 +41,7 @@ resource "kubernetes_persistent_volume" "pv-wpdbjs-wordpress" {
     access_modes = ["ReadWriteMany"]
     persistent_volume_source {
       vsphere_volume {
-        volume_path = "/compose_data/wordpress-${var.environment}-data"
+        volume_path = "/compose_data/wordpress-${local.name}-data"
       }
     }
   }
@@ -49,7 +49,7 @@ resource "kubernetes_persistent_volume" "pv-wpdbjs-wordpress" {
 
 resource "kubernetes_persistent_volume" "pv-wpdbjs-mysql" {
   metadata {
-    name = "pv-wpdbjs-mysql-${var.environment}-${var.ns-extended-number}"
+    name = "pv-wpdbjs-mysql-${local.name}-${var.ns-extended-number}"
   }
   spec {
     storage_class_name = "standard"
@@ -59,7 +59,7 @@ resource "kubernetes_persistent_volume" "pv-wpdbjs-mysql" {
     access_modes = ["ReadWriteMany"]
     persistent_volume_source {
       vsphere_volume {
-        volume_path = "/compose_data/mysql-${var.environment}-data"
+        volume_path = "/compose_data/mysql-${local.name}-data"
       }
     }
   }
@@ -108,13 +108,13 @@ resource "kubernetes_deployment" "deploy-wpdbjs-wordpress" {
     replicas = "${var.replicas-count}"
     selector {
       match_labels = {
-        project = "wpdbjs-wordpress-${var.environment}"
+        project = "wpdbjs-wordpress-${local.name}"
       }
     }
     template {
       metadata {
         labels = {
-          project = "wpdbjs-wordpress-${var.environment}"
+          project = "wpdbjs-wordpress-${local.name}"
         }
       }
       spec {
@@ -124,7 +124,7 @@ resource "kubernetes_deployment" "deploy-wpdbjs-wordpress" {
         container {
           #image = "ghcr.io/${var.github_host}/wordpress:${var.wp_image}"
           image = "${docker_image.wordpress.name}"
-          name  = "wpdbjs-wordpress-${var.environment}"
+          name  = "wpdbjs-wordpress-${local.name}"
           env {
             name = "WORDPRESS_DB_HOST"
             value = "svc-wpdbjs-mysql.${kubernetes_namespace.ns-wpdbjs.metadata.0.name}.svc.cluster.local"
@@ -143,7 +143,7 @@ resource "kubernetes_deployment" "deploy-wpdbjs-wordpress" {
           }
         }
         volume {
-          name = "pv-wpdbjs-wordpress-${var.environment}"
+          name = "pv-wpdbjs-wordpress-${local.name}"
           persistent_volume_claim {
             claim_name = "${kubernetes_persistent_volume_claim.pvc-wpdbjs-wordpress.metadata.0.name}"
           }
@@ -162,19 +162,19 @@ resource "kubernetes_deployment" "deploy-wpdbjs-mysql" {
     replicas = "${var.replicas-count}"
     selector {
       match_labels = {
-        project = "wpdbjs-mysql-${var.environment}"
+        project = "wpdbjs-mysql-${local.name}"
       }
     }
     template {
       metadata {
         labels = {
-          project = "wpdbjs-mysql-${var.environment}"
+          project = "wpdbjs-mysql-${local.name}"
         }
       }
       spec {
         container {
           image = "mysql:5.7"
-          name  = "wpdbjs-mysql-${var.environment}"
+          name  = "wpdbjs-mysql-${local.name}"
           env {
             name  = "MYSQL_ROOT_PASSWORD"
             value = "${var.mysql-password}"
@@ -193,7 +193,7 @@ resource "kubernetes_deployment" "deploy-wpdbjs-mysql" {
           }
         }
         volume {
-          name = "pv-wpdbjs-${var.environment}"
+          name = "pv-wpdbjs-${local.name}"
           persistent_volume_claim {
             claim_name = "${kubernetes_persistent_volume_claim.pvc-wpdbjs-mysql.metadata.0.name}"
           }
@@ -212,13 +212,13 @@ resource "kubernetes_deployment" "deploy-wpdbjs-frontend" {
     replicas = "${var.replicas-count}"
     selector {
       match_labels = {
-        project = "wpdbjs-frontend-${var.environment}"
+        project = "wpdbjs-frontend-${local.name}"
       }
     }
     template {
       metadata {
         labels = {
-          project = "wpdbjs-frontend-${var.environment}"
+          project = "wpdbjs-frontend-${local.name}"
         }
       }
       spec {
@@ -228,10 +228,10 @@ resource "kubernetes_deployment" "deploy-wpdbjs-frontend" {
         container {
           #image = "ghcr.io/${var.github_host}/front-end:${var.js_image}"
           image = "${docker_image.front-end.name}"
-          name  = "wpdbjs-frontend-${var.environment}"
+          name  = "wpdbjs-frontend-${local.name}"
           env {
             name  = "ENVIRONMENT"
-            value = "${var.environment}"
+            value = "${local.name}"
           }
         }
       }
@@ -391,7 +391,7 @@ resource "kubernetes_service" "svc-wpdbjs-mysql" {
   }
   spec {
     selector = {
-      project = "wpdbjs-mysql-${var.environment}"
+      project = "wpdbjs-mysql-${local.name}"
     }
     type = "LoadBalancer"
     port {
@@ -409,7 +409,7 @@ resource "kubernetes_service" "svc-wpdbjs-wordpress" {
   }
   spec {
     selector = {
-      project = "wpdbjs-wordpress-${var.environment}"
+      project = "wpdbjs-wordpress-${local.name}"
     }
     type = "LoadBalancer"
     port {
