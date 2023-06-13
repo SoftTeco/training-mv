@@ -84,23 +84,23 @@ jobs:
       env:
         TF_VAR_environment: $ENVIRONMENT
         TF_VAR_gh-host: ${{ needs.creating_tag.outputs.gh_owner_lc }}
-        TF_VAR_aks-name: "aks-WPDBJS-${ENVIRONMENT}"
-        TF_VAR_rg-name: "RG-WPDBJS-${ENVIRONMENT}"
+        AKS_NAME: "aks-WPDBJS-${ENVIRONMENT}"
+        RG_NAME: "RG-WPDBJS-${ENVIRONMENT}"
         DB_USER: ${{ secrets.WORDPRESS_DB_USER_DEV }}
         DB_PASSWORD: ${{ secrets.WORDPRESS_DB_PASSWORD_DEV }}
         DB_NAME: ${{ secrets.WORDPRESS_DB_NAME_DEV }}
         GITHUB_CONNECT_TOKEN: ${{ secrets.GH_TOKEN }}
         DOCKER_CONFIG_GHCR_AUTH: ${{ secrets.DOCKER_CONFIG_GHCR_AUTH }}
         NAMESPACE_EXTENDED_NUMBER: ${{ needs.creating_tag.outputs.k8s_ns_extended_number }}
-      run: terraform plan --var-file="terraform.tfvars" -var "mysql-user=${DB_USER}" -var "mysql-password=${DB_PASSWORD}" -var "mysql-name=${DB_NAME}" -var "gh-access-token=${GITHUB_CONNECT_TOKEN}" -var "docker-config-ghcr-auth=${DOCKER_CONFIG_GHCR_AUTH}" -var "ns-extended-number=${NAMESPACE_EXTENDED_NUMBER}" -out=plan-${ENVIRONMENT} -lock=false
+      run: terraform plan --var-file="terraform.tfvars" -var "aks-name=${AKS_NAME}" -var "rg-name=${RG_NAME}" -var "mysql-user=${DB_USER}" -var "mysql-password=${DB_PASSWORD}" -var "mysql-name=${DB_NAME}" -var "gh-access-token=${GITHUB_CONNECT_TOKEN}" -var "docker-config-ghcr-auth=${DOCKER_CONFIG_GHCR_AUTH}" -var "ns-extended-number=${NAMESPACE_EXTENDED_NUMBER}" -out=plan-${ENVIRONMENT} -lock=false
 
     - name: Build kubernetes deployment / apply
       working-directory: ./terraform/kubernetes
       env:
         TF_VAR_environment: $ENVIRONMENT
         TF_VAR_gh-host: ${{ needs.createing_tag.outputs.gh_owner_lc }}
-        TF_VAR_aks-name: "aks-WPDBJS-${ENVIRONMENT}"
-        TF_VAR_rg-name: "RG-WPDBJS-${ENVIRONMENT}"
+        AKS_NAME: "aks-WPDBJS-${ENVIRONMENT}"
+        RG_NAME: "RG-WPDBJS-${ENVIRONMENT}"
         DB_USER: ${{ secrets.WORDPRESS_DB_USER_DEV }}
         DB_PASSWORD: ${{ secrets.WORDPRESS_DB_PASSWORD_DEV }}
         DB_NAME: ${{ secrets.WORDPRESS_DB_NAME_DEV }}

@@ -32,4 +32,3 @@ provider "docker" {
     password = "${var.gh-access-token}"
   }
 }
-
