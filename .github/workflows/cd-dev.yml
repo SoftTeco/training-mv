@@ -67,6 +67,10 @@ jobs:
         inlineScript: |
           az account show
           az group list
+
+    - name: 'docker login ghcr.io'
+      shell: bash
+      run: echo ${{ secrets.GH_TOKEN }} | docker login ghcr.io -u isostheneia94 --password-stdin
       
     - name: Build kubernetes deployment / init
       working-directory: ./terraform/kubernetes
