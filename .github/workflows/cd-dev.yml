@@ -43,22 +43,10 @@ jobs:
       - id: set_owner_lowercase
         run: echo "owner_lowercase=$(echo ${{ github.repository_owner }} | awk '{print tolower($0)}')" >> $GITHUB_OUTPUT
 
-  terraform_workspace:
-    runs-on: self-hosted
-    needs: creating_tag
-    steps:
-    - name: Creating terraform workspace
-      if: needs.creating_tag.outputs.existing_tf_workspace_dev == ''
-      run: terraform workspace new ${ENVIRONMENT}
-
-    - name: Selecting existing terraform workspace
-      if: needs.creating_tag.outputs.existing_tf_workspace_dev == 'dev'
-      run: terraform workspace select ${ENVIRONMENT}
-
   environment_deploy:
     runs-on: ubuntu-latest
     #runs-on: self-hosted
-    needs: [creating_tag, terraform_workspace]
+    needs: [creating_tag]
     
     steps:
     - name: pre checkout
@@ -83,7 +71,8 @@ jobs:
       working-directory: ./terraform/kubernetes
       run: terraform init
 
-    - name: Build kubernetes deployment / plan
+    - name: Build kubernetes deployment / plan (if workspace exists)
+      if: needs.creating_tag.outputs.existing_tf_workspace_dev == 'dev'
       working-directory: ./terraform/kubernetes
       env:
         TF_VAR_environment: $ENVIRONMENT
@@ -99,6 +88,25 @@ jobs:
       run: |
         terraform workspace select ${ENVIRONMENT}
         terraform plan --var-file="terraform.tfvars" -var "aks-name=${AKS_NAME}" -var "rg-name=${RG_NAME}" -var "mysql-user=${DB_USER}" -var "mysql-password=${DB_PASSWORD}" -var "mysql-name=${DB_NAME}" -var "gh-access-token=${GITHUB_CONNECT_TOKEN}" -var "docker-config-ghcr-auth=${DOCKER_CONFIG_GHCR_AUTH}" -var "ns-extended-number=${NAMESPACE_EXTENDED_NUMBER}" -out=plan-${ENVIRONMENT} -lock=false
+
+    - name: Build kubernetes deployment / plan (if workspace doesnt exist)
+      if: needs.creating_tag.outputs.existing_tf_workspace_dev == ''
+      working-directory: ./terraform/kubernetes
+      env:
+        TF_VAR_environment: $ENVIRONMENT
+        TF_VAR_gh-host: ${{ needs.creating_tag.outputs.gh_owner_lc }}
+        AKS_NAME: "aks-WPDBJS-${ENVIRONMENT}"
+        RG_NAME: "RG-WPDBJS-${ENVIRONMENT}"
+        DB_USER: ${{ secrets.WORDPRESS_DB_USER_DEV }}
+        DB_PASSWORD: ${{ secrets.WORDPRESS_DB_PASSWORD_DEV }}
+        DB_NAME: ${{ secrets.WORDPRESS_DB_NAME_DEV }}
+        GITHUB_CONNECT_TOKEN: ${{ secrets.GH_TOKEN }}
+        DOCKER_CONFIG_GHCR_AUTH: ${{ secrets.DOCKER_CONFIG_GHCR_AUTH }}
+        NAMESPACE_EXTENDED_NUMBER: ${{ needs.creating_tag.outputs.k8s_ns_extended_number }}
+      run: |
+        terraform workspace new ${ENVIRONMENT}
+        terraform plan --var-file="terraform.tfvars" -var "aks-name=${AKS_NAME}" -var "rg-name=${RG_NAME}" -var "mysql-user=${DB_USER}" -var "mysql-password=${DB_PASSWORD}" -var "mysql-name=${DB_NAME}" -var "gh-access-token=${GITHUB_CONNECT_TOKEN}" -var "docker-config-ghcr-auth=${DOCKER_CONFIG_GHCR_AUTH}" -var "ns-extended-number=${NAMESPACE_EXTENDED_NUMBER}" -out=plan-${ENVIRONMENT} -lock=false
+
 
     - name: Build kubernetes deployment / apply
       working-directory: ./terraform/kubernetes
