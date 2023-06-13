@@ -77,7 +77,7 @@ jobs:
       run: terraform workspace new ${ENVIRONMENT}
 
     - name: Selecting existing terraform workspace
-      if: needs.creating_tag.outputs.existing_tf_workspace_dev != ''
+      if: needs.creating_tag.outputs.existing_tf_workspace_dev == 'dev'
       run: terraform workspace select ${ENVIRONMENT}
 
     - name: Build kubernetes deployment / plan
