@@ -3,10 +3,16 @@ on:
   workflow_dispatch:
     inputs:
       existing_tf_workspace_prod:
+        required: true
+        type: string
         default: ''
       ns-extended-number:
+        required: true
+        type: string
         default: '010000'
       gh-host:
+        required: true
+        type: string
         default: 'softteco'
 
 env:
