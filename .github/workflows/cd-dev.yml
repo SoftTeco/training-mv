@@ -29,6 +29,7 @@ jobs:
       existing_tf_workspace_dev: ${{ steps.existing_tf_workspace_dev.outputs.workspace_dev }}
       existing_tf_workspace_prod: ${{ steps.existing_tf_workspace_prod.outputs.workspace_prod }}
       gh_owner_lc: ${{ steps.set_owner_lowercase.outputs.owner_lowercase }}
+      current_branch: ${{ steps.current_branch.outputs.branch }}
 
     steps:
       - id: namespace_tag
@@ -42,6 +43,9 @@ jobs:
 
       - id: set_owner_lowercase
         run: echo "owner_lowercase=$(echo ${{ github.repository_owner }} | awk '{print tolower($0)}')" >> $GITHUB_OUTPUT
+
+      - id: current_branch
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
 
   environment_deploy:
     runs-on: ubuntu-latest
@@ -137,4 +141,5 @@ jobs:
         K8S_NS_EXTENDED_NUMBER: ${{ needs.creating_tag.outputs.k8s_ns_extended_number }}
         WORKSPACE_PROD: ${{ needs.creating_tag.outputs.existing_tf_workspace_prod }}
         GH_OWNER_LOWERCASE: ${{ needs.creating_tag.outputs.gh_owner_lc }}
-      run: gh workflow run cd-prod.yml -f ns-extended-number=${K8S_NS_EXTENDED_NUMBER} -f existing-tf-workspace-prod=${WORKSPACE_PROD} -f gh-host=${GH_OWNER_LOWERCASE}
+        CURRENT_BRANCH: ${{ needs.creating_tag.outputs.current_branch }}
+      run: gh workflow run cd-prod.yml -f ns-extended-number=${K8S_NS_EXTENDED_NUMBER} -f existing-tf-workspace-prod=${WORKSPACE_PROD} -f gh-host=${GH_OWNER_LOWERCASE} --ref ${CURRENT_BRANCH}
