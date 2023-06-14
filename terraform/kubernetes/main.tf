@@ -95,7 +95,7 @@ resource "kubernetes_persistent_volume_claim" "pvc-wpdbjs-mysql" {
       }
     }
     storage_class_name = "standard"
-    volume_name = "${kubernetes_persistent_volume.pv-wpdbjs-wordpress.metadata.0.name}"
+    volume_name = "${kubernetes_persistent_volume.pv-wpdbjs-mysql.metadata.0.name}"
   }
 }
 
