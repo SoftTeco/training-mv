@@ -1,11 +1,9 @@
 data "azurerm_resource_group" "rg-wpdbjs" {
   name     = "RG-WPDBJS-${local.name}"
-  #name      = "${var.rg-name}"
 }
 
 data "azurerm_kubernetes_cluster" "aks-wpdbjs" {
   name                = "aks-WPDBJS-${local.name}"
-  #name                 = "${var.aks-name}"
   resource_group_name  = data.azurerm_resource_group.rg-wpdbjs.name
 }
 

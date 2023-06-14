@@ -1,16 +1,8 @@
-#variable "client_certificate" {sensitive = true}
-
-#variable "client_key" {sensitive = true}
-
-#variable "cluster_ca_certificate" {sensitive = true}
-
 variable "mysql-user" {sensitive = true}
 
 variable "mysql-password" {sensitive = true}
 
 variable "mysql-name" {sensitive = true}
-
-#variable "host" {sensitive = true}
 
 variable "gh-access-token" {sensitive = true}
 
@@ -38,11 +30,7 @@ variable "mysql-target-port" {}
 
 variable "mysql-deploy-port" {}
 
-variable "rg-name" {}
-
 variable "replicas-count" {}
-
-variable "aks-name" {}
 
 variable "registry" {
     default = "ghcr.io"
