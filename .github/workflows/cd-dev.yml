@@ -137,4 +137,4 @@ jobs:
         K8S_NS_EXTENDED_NUMBER: ${{ needs.creating_tag.outputs.k8s_ns_extended_number }}
         WORKSPACE_PROD: ${{ needs.creating_tag.outputs.existing_tf_workspace_prod }}
         GH_OWNER_LOWERCASE: ${{ needs.creating_tag.outputs.gh_owner_lc }}
-      run: gh workflow run cd-prod.yml -f ns-extended-number=${K8S_NS_EXTENDED_NUMBER} -f existing_tf_workspace_prod=${WORKSPACE_PROD} -f gh-host=${GH_OWNER_LOWERCASE}
+      run: gh workflow run cd-prod.yml -f ns-extended-number=${K8S_NS_EXTENDED_NUMBER} -f existing-tf-workspace-prod=${WORKSPACE_PROD} -f gh-host=${GH_OWNER_LOWERCASE}

@@ -2,7 +2,7 @@ name: Kubernetes pods CD prod
 on:
   workflow_dispatch:
     inputs:
-      existing_tf_workspace_prod:
+      existing-tf-workspace-prod:
         required: true
         type: string
         default: ''
@@ -14,6 +14,11 @@ on:
         required: true
         type: string
         default: 'softteco'
+
+permissions:
+      contents: read
+      id-token: write
+      packages: write
 
 env:
   ENVIRONMENT: 'prod'
