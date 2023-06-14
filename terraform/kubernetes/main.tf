@@ -242,7 +242,7 @@ resource "kubernetes_deployment" "deploy-wpdbjs-frontend" {
 
 resource "kubernetes_horizontal_pod_autoscaler" "ascale-wpdbjs-frontend" {
   metadata {
-    name = "ascale-wpdbjs-frontend"
+    name = "ascale-wpdbjs-frontend-${local.name}-${var.ns-extended-number}"
   }
 
   spec {
@@ -290,7 +290,7 @@ resource "kubernetes_horizontal_pod_autoscaler" "ascale-wpdbjs-frontend" {
 
 resource "kubernetes_horizontal_pod_autoscaler" "ascale-wpdbjs-wordpress" {
   metadata {
-    name = "ascale-wpdbjs-wordpress"
+    name = "ascale-wpdbjs-wordpress-${local.name}-${var.ns-extended-number}"
   }
 
   spec {
@@ -338,7 +338,7 @@ resource "kubernetes_horizontal_pod_autoscaler" "ascale-wpdbjs-wordpress" {
 
 resource "kubernetes_horizontal_pod_autoscaler" "ascale-wpdbjs-mysql" {
   metadata {
-    name = "ascale-wpdbjs-mysql"
+    name = "ascale-wpdbjs-mysql-${local.name}-${var.ns-extended-number}"
   }
 
   spec {
