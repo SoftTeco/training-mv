@@ -133,6 +133,7 @@ jobs:
 
     - name: run CD
       env:
+        GH_TOKEN: ${{ secrets.MAXVRBTSK_GH_TOKEN }}
         K8S_NS_EXTENDED_NUMBER: ${{ needs.creating_tag.outputs.k8s_ns_extended_number }}
         WORKSPACE_PROD: ${{ needs.creating_tag.outputs.existing_tf_workspace_prod }}
         GH_OWNER_LOWERCASE: ${{ needs.creating_tag.outputs.gh_owner_lc }}
