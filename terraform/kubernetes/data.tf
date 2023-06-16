@@ -7,7 +7,6 @@ data "azurerm_kubernetes_cluster" "aks-wpdbjs" {
   resource_group_name  = data.azurerm_resource_group.rg-wpdbjs.name
 }
 
-
 data "terraform_remote_state" "tfstatefile" {
   backend = "azurerm"
   config = {
