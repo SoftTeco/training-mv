@@ -5,7 +5,7 @@ on:
       existing-tf-workspace-prod:
         required: true
         type: string
-        default: ' '
+        default: 'test-prod'
       ns-extended-number:
         required: true
         type: string
