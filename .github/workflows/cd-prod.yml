@@ -69,7 +69,23 @@ jobs:
       run: terraform init
 
     - name: test
-      run: echo "${{ github.event.inputs.existing-tf-workspace-prod}} == 'prod'"
+      run: echo "${{ github.event.inputs.existing-tf-workspace-prod}} == prod"
+
+    - name: Build kubernetes deployment / plan (if workspace doesnt exist)
+      if: ${{ github.event.inputs.existing-tf-workspace-prod}} != 'prod'
+      working-directory: ./terraform/kubernetes
+      env:
+        TF_VAR_environment: $ENVIRONMENT
+        TF_VAR_gh-host: ${{ needs.creating_tag.outputs.gh_owner_lc }}
+        DB_USER: ${{ secrets.WORDPRESS_DB_USER_PROD }}
+        DB_PASSWORD: ${{ secrets.WORDPRESS_DB_PASSWORD_PROD }}
+        DB_NAME: ${{ secrets.WORDPRESS_DB_NAME_PROD }}
+        GITHUB_CONNECT_TOKEN: ${{ secrets.MAXVRBTSK_GH_TOKEN }}
+        DOCKER_CONFIG_GHCR_AUTH: ${{ secrets.DOCKER_CONFIG_GHCR_AUTH }}
+        NAMESPACE_EXTENDED_NUMBER: ${{ needs.creating_tag.outputs.k8s_ns_extended_number }}
+      run: |
+        terraform workspace new ${ENVIRONMENT}
+        terraform plan --var-file="terraform.tfvars" -var "mysql-user=${DB_USER}" -var "mysql-password=${DB_PASSWORD}" -var "mysql-name=${DB_NAME}" -var "gh-access-token=${GITHUB_CONNECT_TOKEN}" -var "docker-config-ghcr-auth=${DOCKER_CONFIG_GHCR_AUTH}" -var "ns-extended-number=${NAMESPACE_EXTENDED_NUMBER}" -out=plan-${ENVIRONMENT} -lock=false
 
     - name: Build kubernetes deployment / plan (if workspace exists)
       if: ${{ github.event.inputs.existing-tf-workspace-prod}} == 'prod'
@@ -87,21 +103,6 @@ jobs:
         terraform workspace select ${ENVIRONMENT}
         terraform plan --var-file="terraform.tfvars" -var "mysql-user=${DB_USER}" -var "mysql-password=${DB_PASSWORD}" -var "mysql-name=${DB_NAME}" -var "gh-access-token=${GITHUB_CONNECT_TOKEN}" -var "docker-config-ghcr-auth=${DOCKER_CONFIG_GHCR_AUTH}" -var "ns-extended-number=${NAMESPACE_EXTENDED_NUMBER}" -out=plan-${ENVIRONMENT} -lock=false
 
-    - name: Build kubernetes deployment / plan (if workspace doesnt exist)
-      if: ${{ github.event.inputs.existing-tf-workspace-prod}} != 'prod'
-      working-directory: ./terraform/kubernetes
-      env:
-        TF_VAR_environment: $ENVIRONMENT
-        TF_VAR_gh-host: ${{ needs.creating_tag.outputs.gh_owner_lc }}
-        DB_USER: ${{ secrets.WORDPRESS_DB_USER_PROD }}
-        DB_PASSWORD: ${{ secrets.WORDPRESS_DB_PASSWORD_PROD }}
-        DB_NAME: ${{ secrets.WORDPRESS_DB_NAME_PROD }}
-        GITHUB_CONNECT_TOKEN: ${{ secrets.MAXVRBTSK_GH_TOKEN }}
-        DOCKER_CONFIG_GHCR_AUTH: ${{ secrets.DOCKER_CONFIG_GHCR_AUTH }}
-        NAMESPACE_EXTENDED_NUMBER: ${{ needs.creating_tag.outputs.k8s_ns_extended_number }}
-      run: |
-        terraform workspace new ${ENVIRONMENT}
-        terraform plan --var-file="terraform.tfvars" -var "mysql-user=${DB_USER}" -var "mysql-password=${DB_PASSWORD}" -var "mysql-name=${DB_NAME}" -var "gh-access-token=${GITHUB_CONNECT_TOKEN}" -var "docker-config-ghcr-auth=${DOCKER_CONFIG_GHCR_AUTH}" -var "ns-extended-number=${NAMESPACE_EXTENDED_NUMBER}" -out=plan-${ENVIRONMENT} -lock=false
 
     - name: Build kubernetes deployment / apply
       working-directory: ./terraform/kubernetes
