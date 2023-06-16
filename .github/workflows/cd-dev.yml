@@ -1,5 +1,6 @@
 name: Kubernetes pods CD dev
 on:
+  workflow_dispatch:
   push:
     branches:
       - "feature/**"
@@ -74,7 +75,7 @@ jobs:
       uses: docker/login-action@v2
       with:
         registry: 'ghcr.io'
-        username: 'isostheneia94'
+        username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
       
     - name: Build kubernetes deployment / init

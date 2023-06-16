@@ -5,7 +5,7 @@ on:
       existing-tf-workspace-prod:
         required: true
         type: string
-        default: ''
+        default: 'prod'
       ns-extended-number:
         required: true
         type: string
@@ -45,7 +45,10 @@ jobs:
     - name: az cli login
       uses: azure/login@v1
       with:
-  
+        client-id: ${{ secrets.MAXVRBTSK_CLIENT_ID }}
+        tenant-id: ${{ secrets.MAXVRBTSK_TENANT_ID }}
+        subscription-id: ${{ secrets.MAXVRBTSK_SUBSCRIPTION_ID }}
+
     - name: azure cli script
       uses: azure/CLI@v1
       with:
@@ -58,7 +61,7 @@ jobs:
       uses: docker/login-action@v2
       with:
         registry: 'ghcr.io'
-        username: 'isostheneia94'
+        username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
       
     - name: Build kubernetes deployment / init
@@ -67,7 +70,7 @@ jobs:
 
 
     - name: Build kubernetes deployment / plan (if workspace exists)
-      if: ${{ github.event.inputs.existing_tf_workspace_prod}}" == 'prod'
+      if: ${{ github.event.inputs.existing_tf_workspace_prod}} == 'prod'
       working-directory: ./terraform/kubernetes
       env:
         TF_VAR_environment: $ENVIRONMENT
@@ -83,7 +86,7 @@ jobs:
         terraform plan --var-file="terraform.tfvars" -var "mysql-user=${DB_USER}" -var "mysql-password=${DB_PASSWORD}" -var "mysql-name=${DB_NAME}" -var "gh-access-token=${GITHUB_CONNECT_TOKEN}" -var "docker-config-ghcr-auth=${DOCKER_CONFIG_GHCR_AUTH}" -var "ns-extended-number=${NAMESPACE_EXTENDED_NUMBER}" -out=plan-${ENVIRONMENT} -lock=false
 
     - name: Build kubernetes deployment / plan (if workspace doesnt exist)
-      if: ${{ github.event.inputs.existing_tf_workspace_prod}}" != 'prod'
+      if: ${{ github.event.inputs.existing_tf_workspace_prod}} != 'prod'
       working-directory: ./terraform/kubernetes
       env:
         TF_VAR_environment: $ENVIRONMENT
