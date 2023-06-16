@@ -61,6 +61,7 @@ jobs:
       run: terraform init
 
     - name: Build kubernetes deployment / plan
+      working-directory: ./terraform/kubernetes
       env:
         TF_VAR_environment: $ENVIRONMENT
         TF_VAR_gh-host: ${{ github.event.inputs.gh-host}}
