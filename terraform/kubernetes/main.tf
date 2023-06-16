@@ -1,7 +1,9 @@
+#----------------- Local( dev/prod )------------------
 locals {
   name = "${terraform.workspace}"
 }
 
+#----------------- Docker config for authentification --------------
 resource "kubernetes_secret" "ghcr-auth" {
   metadata {
     name = "ghcr-config-${var.ns-extended-number}"
@@ -13,6 +15,7 @@ resource "kubernetes_secret" "ghcr-auth" {
   type = "kubernetes.io/dockerconfigjson"
 }
 
+#------------------ Docker images from GitHub Container Registry (wp, js) ---------------
 resource "docker_image" "front-end" {
   name          = data.docker_registry_image.front-end.name
   pull_triggers = [data.docker_registry_image.front-end.sha256_digest]
@@ -23,12 +26,14 @@ resource "docker_image" "wordpress" {
   pull_triggers = [data.docker_registry_image.wordpress.sha256_digest]
 }
 
+#-------------------- K8s namespace for each deploy --------------------
 resource "kubernetes_namespace" "ns-wpdbjs" {
   metadata {
     name = "ns-wpdbjs-${local.name}-${var.ns-extended-number}"
   }
 }
 
+#-------------------- K8s pv creating (wp, db) -------------------------
 resource "kubernetes_persistent_volume" "pv-wpdbjs-wordpress" {
   metadata {
     name = "pv-wpdbjs-wordpress-${local.name}-${var.ns-extended-number}"
@@ -65,6 +70,7 @@ resource "kubernetes_persistent_volume" "pv-wpdbjs-mysql" {
   }
 }
 
+#------------------ K8s pvc creating (wp, db) ------------------------
 resource "kubernetes_persistent_volume_claim" "pvc-wpdbjs-wordpress" {
   metadata {
     name      = "pvc-wpdbjs-wordpress"
@@ -99,6 +105,7 @@ resource "kubernetes_persistent_volume_claim" "pvc-wpdbjs-mysql" {
   }
 }
 
+#------------- K8s deployments creating (wp, db, js) ---------------
 resource "kubernetes_deployment" "deploy-wpdbjs-wordpress" {
   metadata {
     name      = "deploy-wpdbjs-wordpress"
@@ -122,7 +129,6 @@ resource "kubernetes_deployment" "deploy-wpdbjs-wordpress" {
           name = "${kubernetes_secret.ghcr-auth.metadata.0.name}"
         }
         container {
-          #image = "ghcr.io/${var.github_host}/wordpress:${var.wp_image}"
           image = "${docker_image.wordpress.name}"
           name  = "wpdbjs-wordpress-${local.name}"
           env {
@@ -226,7 +232,6 @@ resource "kubernetes_deployment" "deploy-wpdbjs-frontend" {
           name = "${kubernetes_secret.ghcr-auth.metadata.0.name}"
         }
         container {
-          #image = "ghcr.io/${var.github_host}/front-end:${var.js_image}"
           image = "${docker_image.front-end.name}"
           name  = "wpdbjs-frontend-${local.name}"
           env {
@@ -239,7 +244,7 @@ resource "kubernetes_deployment" "deploy-wpdbjs-frontend" {
   }
 }
 
-
+#--------------- K8s hpa creating (wp, db, js) ---------------------
 resource "kubernetes_horizontal_pod_autoscaler" "ascale-wpdbjs-frontend" {
   metadata {
     name = "ascale-wpdbjs-frontend-${local.name}-${var.ns-extended-number}"
@@ -384,6 +389,7 @@ resource "kubernetes_horizontal_pod_autoscaler" "ascale-wpdbjs-mysql" {
   }
 }
 
+#---------------- K8s svc creating (wp, db, js) ------------------
 resource "kubernetes_service" "svc-wpdbjs-mysql" {
   metadata {
     name      = "svc-wpdbjs-mysql"

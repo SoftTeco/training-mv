@@ -33,10 +33,6 @@ env:
 jobs:
   environment_deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-      packages: write
 
     steps:
     - name: pre checkout
@@ -67,12 +63,6 @@ jobs:
     - name: Build kubernetes deployment / init
       working-directory: ./terraform/kubernetes
       run: terraform init
-
-    - name: test
-      run: |
-        echo "${{ github.event.inputs.existing-tf-workspace-prod}} == prod"
-        echo "${{ github.event.inputs.ns-extended-number}} == 123456"
-        echo "${{ github.event.inputs.gh-host}} == host"
 
     - name: Build kubernetes deployment / plan (if workspace doesnt exist)
       if: ${{ github.event.inputs.existing-tf-workspace-prod}} != 'prod'

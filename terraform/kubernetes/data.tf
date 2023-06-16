@@ -18,7 +18,7 @@ data "terraform_remote_state" "tfstatefile" {
   }
 }
 
-data "azurerm_storage_account" "example" {
+data "azurerm_storage_account" "saterraformstate" {
   name                = "saterraformstatewpdbjs"
   resource_group_name = "RG-backend"
 }
