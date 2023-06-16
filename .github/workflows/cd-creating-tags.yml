@@ -13,20 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       k8s_ns_extended_number: ${{ steps.namespace_tag.outputs.tag }}
-      existing_tf_workspace_dev: ${{ steps.existing_tf_workspace_dev.outputs.workspace_dev }}
-      existing_tf_workspace_prod: ${{ steps.existing_tf_workspace_prod.outputs.workspace_prod }}
       gh_owner_lc: ${{ steps.set_owner_lowercase.outputs.owner_lowercase }}
       current_branch: ${{ steps.current_branch.outputs.branch }}
 
     steps:
       - id: namespace_tag
         run: echo "tag=$(date +"%d%H%M")" >> $GITHUB_OUTPUT
-
-      - id: existing_tf_workspace_dev
-        run: echo "workspace_dev=$(terraform workspace list | grep dev)" >> $GITHUB_OUTPUT
-
-      - id: existing_tf_workspace_prod
-        run: echo "workspace_prod=$(terraform workspace list | grep prod)" >> $GITHUB_OUTPUT
 
       - id: set_owner_lowercase
         run: echo "owner_lowercase=$(echo ${{ github.repository_owner }} | awk '{print tolower($0)}')" >> $GITHUB_OUTPUT
@@ -45,10 +37,9 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.MAXVRBTSK_GH_TOKEN }}
         K8S_NS_EXTENDED_NUMBER: ${{ needs.creating_tag.outputs.k8s_ns_extended_number }}
-        WORKSPACE_DEV: ${{ needs.creating_tag.outputs.existing_tf_workspace_dev }}
         GH_OWNER_LOWERCASE: ${{ needs.creating_tag.outputs.gh_owner_lc }}
         CURRENT_BRANCH: ${{ needs.creating_tag.outputs.current_branch }}
-      run: gh workflow run cd-dev.yml -f ns-extended-number=${K8S_NS_EXTENDED_NUMBER} -f existing-tf-workspace-dev=${WORKSPACE_DEV} -f gh-host=${GH_OWNER_LOWERCASE} --ref ${CURRENT_BRANCH}
+      run: gh workflow run cd-dev.yml -f ns-extended-number=${K8S_NS_EXTENDED_NUMBER} -f gh-host=${GH_OWNER_LOWERCASE} --ref ${CURRENT_BRANCH}
 
   CD_prod_trigger:
     runs-on: ubuntu-latest
@@ -61,7 +52,6 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.MAXVRBTSK_GH_TOKEN }}
         K8S_NS_EXTENDED_NUMBER: ${{ needs.creating_tag.outputs.k8s_ns_extended_number }}
-        WORKSPACE_PROD: ${{ needs.creating_tag.outputs.existing_tf_workspace_prod }}
         GH_OWNER_LOWERCASE: ${{ needs.creating_tag.outputs.gh_owner_lc }}
         CURRENT_BRANCH: ${{ needs.creating_tag.outputs.current_branch }}
-      run: gh workflow run cd-prod.yml -f ns-extended-number=${K8S_NS_EXTENDED_NUMBER} -f existing-tf-workspace-prod=${WORKSPACE_PROD} -f gh-host=${GH_OWNER_LOWERCASE} --ref ${CURRENT_BRANCH}
+      run: gh workflow run cd-prod.yml -f ns-extended-number=${K8S_NS_EXTENDED_NUMBER} -f gh-host=${GH_OWNER_LOWERCASE} --ref ${CURRENT_BRANCH}
