@@ -69,7 +69,10 @@ jobs:
       run: terraform init
 
     - name: test
-      run: echo "${{ github.event.inputs.existing-tf-workspace-prod}} == prod"
+      run: |
+        echo "${{ github.event.inputs.existing-tf-workspace-prod}} == prod"
+        echo "${{ github.event.inputs.ns-extended-number}} == 123456"
+        echo "${{ github.event.inputs.gh-host}} == host"
 
     - name: Build kubernetes deployment / plan (if workspace doesnt exist)
       if: ${{ github.event.inputs.existing-tf-workspace-prod}} != 'prod'
