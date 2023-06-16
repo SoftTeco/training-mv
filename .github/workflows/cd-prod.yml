@@ -68,6 +68,8 @@ jobs:
       working-directory: ./terraform/kubernetes
       run: terraform init
 
+    - name: test
+      run: echo "${{ github.event.inputs.existing-tf-workspace-prod}} == 'prod'"
 
     - name: Build kubernetes deployment / plan (if workspace exists)
       if: ${{ github.event.inputs.existing-tf-workspace-prod}} == 'prod'
