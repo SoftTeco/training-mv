@@ -131,6 +131,10 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-wordpress" {
         container {
           image = "${docker_image.wordpress.name}"
           name  = "wpdbjs-wordpress-${local.name}"
+          resources {
+            limits = {"cpu": "100m"}
+            requests = {"cpu": "80m"}
+          }
           env {
             name = "WORDPRESS_DB_HOST"
             value = "svc-wpdbjs-mysql.${kubernetes_namespace.ns-wpdbjs.metadata.0.name}.svc.cluster.local"
@@ -181,6 +185,10 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-mysql" {
         container {
           image = "mysql:5.7"
           name  = "wpdbjs-mysql-${local.name}"
+          resources {
+            limits = {"cpu": "100m"}
+            requests = {"cpu": "80m"}
+          }
           env {
             name  = "MYSQL_ROOT_PASSWORD"
             value = "${var.mysql-password}"
@@ -234,6 +242,10 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-frontend" {
         container {
           image = "${docker_image.front-end.name}"
           name  = "wpdbjs-frontend-${local.name}"
+          resources {
+            limits = {"cpu": "100m"}
+            requests = {"cpu": "80m"}
+          }
           env {
             name  = "ENVIRONMENT"
             value = "${local.name}"
@@ -259,6 +271,8 @@ resource "kubernetes_horizontal_pod_autoscaler_v1" "ascale-wpdbjs-frontend" {
       name = kubernetes_deployment_v1.deploy-wpdbjs-frontend.metadata.0.name
       api_version = "apps/v1"
     }
+
+    target_cpu_utilization_percentage = 75
 
     #behavior {
       #scale_down {
@@ -309,6 +323,8 @@ resource "kubernetes_horizontal_pod_autoscaler_v1" "ascale-wpdbjs-wordpress" {
       api_version = "apps/v1"
     }
 
+    target_cpu_utilization_percentage = 75
+
     # behavior {
     #   scale_down {
     #     stabilization_window_seconds = 300
@@ -357,6 +373,8 @@ resource "kubernetes_horizontal_pod_autoscaler_v1" "ascale-wpdbjs-mysql" {
       name = kubernetes_deployment_v1.deploy-wpdbjs-mysql.metadata.0.name
       api_version = "apps/v1"
     }
+
+    target_cpu_utilization_percentage = 75
 
     # behavior {
     #   scale_down {
