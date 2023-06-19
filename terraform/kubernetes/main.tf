@@ -106,7 +106,7 @@ resource "kubernetes_persistent_volume_claim" "pvc-wpdbjs-mysql" {
 }
 
 #------------- K8s deployments creating (wp, db, js) ---------------
-resource "kubernetes_deployment" "deploy-wpdbjs-wordpress" {
+resource "kubernetes_deployment_v1" "deploy-wpdbjs-wordpress" {
   metadata {
     name      = "deploy-wpdbjs-wordpress"
     namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
@@ -159,7 +159,7 @@ resource "kubernetes_deployment" "deploy-wpdbjs-wordpress" {
   }
 }
 
-resource "kubernetes_deployment" "deploy-wpdbjs-mysql" {
+resource "kubernetes_deployment_v1" "deploy-wpdbjs-mysql" {
   metadata {
     name      = "deploy-wpdbjs-mysql"
     namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
@@ -209,7 +209,7 @@ resource "kubernetes_deployment" "deploy-wpdbjs-mysql" {
   }
 }
 
-resource "kubernetes_deployment" "deploy-wpdbjs-frontend" {
+resource "kubernetes_deployment_v1" "deploy-wpdbjs-frontend" {
   metadata {
     name      = "deploy-wpdbjs-frontend"
     namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
@@ -256,7 +256,7 @@ resource "kubernetes_horizontal_pod_autoscaler" "ascale-wpdbjs-frontend" {
 
     scale_target_ref {
       kind = "Deployment"
-      name = kubernetes_deployment.deploy-wpdbjs-frontend.metadata.0.name
+      name = kubernetes_deployment_v1.deploy-wpdbjs-frontend.metadata.0.name
     }
 
     behavior {
@@ -304,7 +304,7 @@ resource "kubernetes_horizontal_pod_autoscaler" "ascale-wpdbjs-wordpress" {
 
     scale_target_ref {
       kind = "Deployment"
-      name = kubernetes_deployment.deploy-wpdbjs-wordpress.metadata.0.name
+      name = kubernetes_deployment_v1.deploy-wpdbjs-wordpress.metadata.0.name
     }
 
     behavior {
@@ -352,7 +352,7 @@ resource "kubernetes_horizontal_pod_autoscaler" "ascale-wpdbjs-mysql" {
 
     scale_target_ref {
       kind = "Deployment"
-      name = kubernetes_deployment.deploy-wpdbjs-mysql.metadata.0.name
+      name = kubernetes_deployment_v1.deploy-wpdbjs-mysql.metadata.0.name
     }
 
     behavior {
