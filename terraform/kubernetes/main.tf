@@ -245,7 +245,7 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-frontend" {
 }
 
 #--------------- K8s hpa creating (wp, db, js) ---------------------
-resource "kubernetes_horizontal_pod_autoscaler" "ascale-wpdbjs-frontend" {
+resource "kubernetes_horizontal_pod_autoscaler_v1" "ascale-wpdbjs-frontend" {
   metadata {
     name = "ascale-wpdbjs-frontend-${local.name}-${var.ns-extended-number}"
   }
@@ -257,6 +257,7 @@ resource "kubernetes_horizontal_pod_autoscaler" "ascale-wpdbjs-frontend" {
     scale_target_ref {
       kind = "Deployment"
       name = kubernetes_deployment_v1.deploy-wpdbjs-frontend.metadata.0.name
+      api_version = "apps/v1"
     }
 
     behavior {
@@ -293,7 +294,7 @@ resource "kubernetes_horizontal_pod_autoscaler" "ascale-wpdbjs-frontend" {
   }
 }
 
-resource "kubernetes_horizontal_pod_autoscaler" "ascale-wpdbjs-wordpress" {
+resource "kubernetes_horizontal_pod_autoscaler_v1" "ascale-wpdbjs-wordpress" {
   metadata {
     name = "ascale-wpdbjs-wordpress-${local.name}-${var.ns-extended-number}"
   }
@@ -305,6 +306,7 @@ resource "kubernetes_horizontal_pod_autoscaler" "ascale-wpdbjs-wordpress" {
     scale_target_ref {
       kind = "Deployment"
       name = kubernetes_deployment_v1.deploy-wpdbjs-wordpress.metadata.0.name
+      api_version = "apps/v1"
     }
 
     behavior {
@@ -341,7 +343,7 @@ resource "kubernetes_horizontal_pod_autoscaler" "ascale-wpdbjs-wordpress" {
   }
 }
 
-resource "kubernetes_horizontal_pod_autoscaler" "ascale-wpdbjs-mysql" {
+resource "kubernetes_horizontal_pod_autoscaler_v1" "ascale-wpdbjs-mysql" {
   metadata {
     name = "ascale-wpdbjs-mysql-${local.name}-${var.ns-extended-number}"
   }
@@ -353,6 +355,7 @@ resource "kubernetes_horizontal_pod_autoscaler" "ascale-wpdbjs-mysql" {
     scale_target_ref {
       kind = "Deployment"
       name = kubernetes_deployment_v1.deploy-wpdbjs-mysql.metadata.0.name
+      api_version = "apps/v1"
     }
 
     behavior {
