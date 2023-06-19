@@ -132,8 +132,14 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-wordpress" {
           image = "${docker_image.wordpress.name}"
           name  = "wpdbjs-wordpress-${local.name}"
           resources {
-            limits = {cpu = "100m"}
-            requests = {cpu = "80m"}
+            limits = {
+              cpu = "100m"
+              memory = "128Mi"
+            }
+            requests = {
+              cpu = "80m"
+              memory = "64Mi"
+            }
           }
           env {
             name = "WORDPRESS_DB_HOST"
@@ -186,8 +192,14 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-mysql" {
           image = "mysql:5.7"
           name  = "wpdbjs-mysql-${local.name}"
           resources {
-            limits = {cpu = "100m"}
-            requests = {cpu = "80m"}
+            limits = {
+              cpu = "100m"
+              memory = "128Mi"
+            }
+            requests = {
+              cpu = "80m"
+              memory = "64Mi"
+            }
           }
           env {
             name  = "MYSQL_ROOT_PASSWORD"
@@ -243,8 +255,14 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-frontend" {
           image = "${docker_image.front-end.name}"
           name  = "wpdbjs-frontend-${local.name}"
           resources {
-            limits = {cpu = "100m"}
-            requests = {cpu = "80m"}
+            limits = {
+              cpu = "100m"
+              memory = "128Mi"
+            }
+            requests = {
+              cpu = "80m"
+              memory = "64Mi"
+            }
           }
           env {
             name  = "ENVIRONMENT"
