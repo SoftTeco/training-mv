@@ -138,12 +138,12 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-wordpress" {
           name  = "wpdbjs-wordpress-${local.name}"
           resources {
             limits = {
-              cpu = "100m"
-              #memory = "128Mi"
+              cpu = "5m"
+              memory = "64Mi"
             }
             requests = {
-              cpu = "80m"
-              #memory = "64Mi"
+              cpu = "2m"
+              memory = "32Mi"
             }
           }
           env {
@@ -203,12 +203,12 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-mysql" {
           name  = "wpdbjs-mysql-${local.name}"
           resources {
             limits = {
-              cpu = "100m"
-              #memory = "128Mi"
+              cpu = "5m"
+              memory = "256Mi"
             }
             requests = {
-              cpu = "80m"
-              #memory = "64Mi"
+              cpu = "2m"
+              memory = "256Mi"
             }
           }
           env {
@@ -271,12 +271,12 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-frontend" {
           name  = "wpdbjs-frontend-${local.name}"
           resources {
             limits = {
-              cpu = "100m"
-              #memory = "128Mi"
+              cpu = "5m"
+              memory = "128Mi"
             }
             requests = {
-              cpu = "80m"
-              #memory = "64Mi"
+              cpu = "2m"
+              memory = "64Mi"
             }
           }
           env {
@@ -302,7 +302,7 @@ resource "kubernetes_horizontal_pod_autoscaler_v1" "ascale-wpdbjs-frontend" {
     scale_target_ref {
       kind = "Deployment"
       name = kubernetes_deployment_v1.deploy-wpdbjs-frontend.metadata.0.name
-      api_version = "extension/v1beta1"
+      api_version = "apps/v1"
     }
 
     target_cpu_utilization_percentage = 75
@@ -353,7 +353,7 @@ resource "kubernetes_horizontal_pod_autoscaler_v1" "ascale-wpdbjs-wordpress" {
     scale_target_ref {
       kind = "Deployment"
       name = kubernetes_deployment_v1.deploy-wpdbjs-wordpress.metadata.0.name
-      api_version = "extension/v1beta1"
+      api_version = "apps/v1"
     }
 
     target_cpu_utilization_percentage = 75
@@ -404,7 +404,7 @@ resource "kubernetes_horizontal_pod_autoscaler_v1" "ascale-wpdbjs-mysql" {
     scale_target_ref {
       kind = "Deployment"
       name = kubernetes_deployment_v1.deploy-wpdbjs-mysql.metadata.0.name
-      api_version = "extension/v1beta1"
+      api_version = "apps/v1"
     }
 
     target_cpu_utilization_percentage = 75
