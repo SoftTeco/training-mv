@@ -111,6 +111,11 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-wordpress" {
     name      = "deploy-wpdbjs-wordpress"
     namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
   }
+  lifecycle {
+    ignore_changes = [
+      spec[0].replicas,
+    ]
+  }
   spec {
     replicas = "${var.replicas-count}"
     selector {
@@ -174,6 +179,11 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-mysql" {
     name      = "deploy-wpdbjs-mysql"
     namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
   }
+  lifecycle {
+    ignore_changes = [
+      spec[0].replicas,
+    ]
+  }
   spec {
     replicas = "${var.replicas-count}"
     selector {
@@ -233,6 +243,11 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-frontend" {
   metadata {
     name      = "deploy-wpdbjs-frontend"
     namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
+  }
+  lifecycle {
+    ignore_changes = [
+      spec[0].replicas,
+    ]
   }
   spec {
     replicas = "${var.replicas-count}"
