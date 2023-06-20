@@ -111,11 +111,11 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-wordpress" {
     name      = "deploy-wpdbjs-wordpress"
     namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
   }
-  lifecycle {
-    ignore_changes = [
-      spec[0].replicas,
-    ]
-  }
+  #lifecycle {
+  #  ignore_changes = [
+  #    spec[0].replicas,
+  #  ]
+  #}
   spec {
     replicas = "${var.replicas-count}"
     selector {
@@ -139,11 +139,11 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-wordpress" {
           resources {
             limits = {
               cpu = "100m"
-              memory = "128Mi"
+              #memory = "128Mi"
             }
             requests = {
               cpu = "80m"
-              memory = "64Mi"
+              #memory = "64Mi"
             }
           }
           env {
@@ -179,11 +179,11 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-mysql" {
     name      = "deploy-wpdbjs-mysql"
     namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
   }
-  lifecycle {
-    ignore_changes = [
-      spec[0].replicas,
-    ]
-  }
+  #lifecycle {
+  #  ignore_changes = [
+  #    spec[0].replicas,
+  #  ]
+  #}
   spec {
     replicas = "${var.replicas-count}"
     selector {
@@ -204,11 +204,11 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-mysql" {
           resources {
             limits = {
               cpu = "100m"
-              memory = "128Mi"
+              #memory = "128Mi"
             }
             requests = {
               cpu = "80m"
-              memory = "64Mi"
+              #memory = "64Mi"
             }
           }
           env {
@@ -244,11 +244,11 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-frontend" {
     name      = "deploy-wpdbjs-frontend"
     namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
   }
-  lifecycle {
-    ignore_changes = [
-      spec[0].replicas,
-    ]
-  }
+  #lifecycle {
+  #  ignore_changes = [
+  #    spec[0].replicas,
+  #  ]
+  #}
   spec {
     replicas = "${var.replicas-count}"
     selector {
@@ -272,11 +272,11 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-frontend" {
           resources {
             limits = {
               cpu = "100m"
-              memory = "128Mi"
+              #memory = "128Mi"
             }
             requests = {
               cpu = "80m"
-              memory = "64Mi"
+              #memory = "64Mi"
             }
           }
           env {
@@ -302,7 +302,7 @@ resource "kubernetes_horizontal_pod_autoscaler_v1" "ascale-wpdbjs-frontend" {
     scale_target_ref {
       kind = "Deployment"
       name = kubernetes_deployment_v1.deploy-wpdbjs-frontend.metadata.0.name
-      api_version = "apps/v1"
+      api_version = "extension/v1beta1"
     }
 
     target_cpu_utilization_percentage = 75
@@ -353,7 +353,7 @@ resource "kubernetes_horizontal_pod_autoscaler_v1" "ascale-wpdbjs-wordpress" {
     scale_target_ref {
       kind = "Deployment"
       name = kubernetes_deployment_v1.deploy-wpdbjs-wordpress.metadata.0.name
-      api_version = "apps/v1"
+      api_version = "extension/v1beta1"
     }
 
     target_cpu_utilization_percentage = 75
@@ -404,7 +404,7 @@ resource "kubernetes_horizontal_pod_autoscaler_v1" "ascale-wpdbjs-mysql" {
     scale_target_ref {
       kind = "Deployment"
       name = kubernetes_deployment_v1.deploy-wpdbjs-mysql.metadata.0.name
-      api_version = "apps/v1"
+      api_version = "extension/v1beta1"
     }
 
     target_cpu_utilization_percentage = 75
