@@ -137,10 +137,10 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-wordpress" {
           image = "${docker_image.wordpress.name}"
           name  = "wpdbjs-wordpress-${local.name}"
           resources {
-            limits = {
-              cpu = "5m"
-              memory = "64Mi"
-            }
+            #limits = {
+            #  cpu = "5m"
+            #  memory = "64Mi"
+            #}
             requests = {
               cpu = "2m"
               memory = "32Mi"
@@ -202,10 +202,10 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-mysql" {
           image = "mysql:5.7"
           name  = "wpdbjs-mysql-${local.name}"
           resources {
-            limits = {
-              cpu = "5m"
-              memory = "256Mi"
-            }
+            #limits = {
+            #  cpu = "5m"
+            #  memory = "256Mi"
+            #}
             requests = {
               cpu = "2m"
               memory = "256Mi"
@@ -270,10 +270,10 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-frontend" {
           image = "${docker_image.front-end.name}"
           name  = "wpdbjs-frontend-${local.name}"
           resources {
-            limits = {
-              cpu = "5m"
-              memory = "128Mi"
-            }
+            #limits = {
+            #  cpu = "5m"
+            #  memory = "128Mi"
+            #}
             requests = {
               cpu = "2m"
               memory = "64Mi"
@@ -290,7 +290,7 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-frontend" {
 }
 
 #--------------- K8s hpa creating (wp, db, js) ---------------------
-resource "kubernetes_horizontal_pod_autoscaler_v1" "ascale-wpdbjs-frontend" {
+resource "kubernetes_horizontal_pod_autoscaler_v2" "ascale-wpdbjs-frontend" {
   metadata {
     name = "ascale-wpdbjs-frontend-${local.name}-${var.ns-extended-number}"
     namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
@@ -310,7 +310,7 @@ resource "kubernetes_horizontal_pod_autoscaler_v1" "ascale-wpdbjs-frontend" {
   }
 }
 
-resource "kubernetes_horizontal_pod_autoscaler_v1" "ascale-wpdbjs-wordpress" {
+resource "kubernetes_horizontal_pod_autoscaler_v2" "ascale-wpdbjs-wordpress" {
   metadata {
     name = "ascale-wpdbjs-wordpress-${local.name}-${var.ns-extended-number}"
     namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
@@ -330,7 +330,7 @@ resource "kubernetes_horizontal_pod_autoscaler_v1" "ascale-wpdbjs-wordpress" {
   }
 }
 
-resource "kubernetes_horizontal_pod_autoscaler_v1" "ascale-wpdbjs-mysql" {
+resource "kubernetes_horizontal_pod_autoscaler_v2" "ascale-wpdbjs-mysql" {
   metadata {
     name = "ascale-wpdbjs-mysql-${local.name}-${var.ns-extended-number}"
     namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
