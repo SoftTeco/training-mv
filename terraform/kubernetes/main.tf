@@ -117,7 +117,7 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-wordpress" {
   #  ]
   #}
   spec {
-    replicas = "${var.replicas-count}"
+    #replicas = "${var.replicas-count}"
     selector {
       match_labels = {
         project = "wpdbjs-wordpress-${local.name}"
@@ -185,7 +185,7 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-mysql" {
   #  ]
   #}
   spec {
-    replicas = "${var.replicas-count}"
+    #replicas = "${var.replicas-count}"
     selector {
       match_labels = {
         project = "wpdbjs-mysql-${local.name}"
@@ -250,7 +250,7 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-frontend" {
   #  ]
   #}
   spec {
-    replicas = "${var.replicas-count}"
+    #replicas = "${var.replicas-count}"
     selector {
       match_labels = {
         project = "wpdbjs-frontend-${local.name}"
