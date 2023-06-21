@@ -297,8 +297,8 @@ resource "kubernetes_horizontal_pod_autoscaler_v1" "ascale-wpdbjs-frontend" {
   }
 
   spec {
-    min_replicas = 2
-    max_replicas = 3
+    min_replicas = 3
+    max_replicas = 8
 
     scale_target_ref {
       kind = "Deployment"
@@ -317,8 +317,8 @@ resource "kubernetes_horizontal_pod_autoscaler_v1" "ascale-wpdbjs-wordpress" {
   }
 
   spec {
-    min_replicas = 2
-    max_replicas = 3
+    min_replicas = 3
+    max_replicas = 8
 
     scale_target_ref {
       kind = "Deployment"
@@ -337,8 +337,8 @@ resource "kubernetes_horizontal_pod_autoscaler_v1" "ascale-wpdbjs-mysql" {
   }
 
   spec {
-    min_replicas = 2
-    max_replicas = 3
+    min_replicas = 3
+    max_replicas = 8
 
     scale_target_ref {
       kind = "Deployment"
