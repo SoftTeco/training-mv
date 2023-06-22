@@ -121,13 +121,13 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-wordpress" {
     #replicas = "${var.replicas-count}"
     selector {
       match_labels = {
-        project = "wpdbjs-wordpress-${local.name}"
+        project = "wpdbjs-wordpress-${local.name}-${var.ns-extended-number}"
       }
     }
     template {
       metadata {
         labels = {
-          project = "wpdbjs-wordpress-${local.name}"
+          project = "wpdbjs-wordpress-${local.name}-${var.ns-extended-number}"
         }
       }
       spec {
@@ -189,13 +189,13 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-mysql" {
     #replicas = "${var.replicas-count}"
     selector {
       match_labels = {
-        project = "wpdbjs-mysql-${local.name}"
+        project = "wpdbjs-mysql-${local.name}-${var.ns-extended-number}"
       }
     }
     template {
       metadata {
         labels = {
-          project = "wpdbjs-mysql-${local.name}"
+          project = "wpdbjs-mysql-${local.name}-${var.ns-extended-number}"
         }
       }
       spec {
@@ -254,13 +254,13 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-frontend" {
     #replicas = "${var.replicas-count}"
     selector {
       match_labels = {
-        project = "wpdbjs-frontend-${local.name}"
+        project = "wpdbjs-frontend-${local.name}-${var.ns-extended-number}"
       }
     }
     template {
       metadata {
         labels = {
-          project = "wpdbjs-frontend-${local.name}"
+          project = "wpdbjs-frontend-${local.name}-${var.ns-extended-number}"
         }
       }
       spec {
@@ -359,7 +359,7 @@ resource "kubernetes_service" "svc-wpdbjs-mysql" {
   }
   spec {
     selector = {
-      project = "wpdbjs-mysql-${local.name}"
+      project = "wpdbjs-mysql-${local.name}-${var.ns-extended-number}"
     }
     type = "LoadBalancer"
     port {
@@ -377,7 +377,7 @@ resource "kubernetes_service" "svc-wpdbjs-wordpress" {
   }
   spec {
     selector = {
-      project = "wpdbjs-wordpress-${local.name}"
+      project = "wpdbjs-wordpress-${local.name}-${var.ns-extended-number}"
     }
     type = "LoadBalancer"
     port {
@@ -395,9 +395,9 @@ resource "kubernetes_service" "svc-wpdbjs-frontend" {
   }
   spec {
     selector = {
-      project = "wpdbjs-frontend"
+      project = "wpdbjs-frontend-${local.name}-${var.ns-extended-number}"
     }
-    type = "LoadBalancer"
+    session_affinity = "ClientIP"
     port {
       name        = "frontend-listener"
       port        = "${var.frontend-deploy-port}"
