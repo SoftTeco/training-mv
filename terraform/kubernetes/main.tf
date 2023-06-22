@@ -110,6 +110,9 @@ resource "kubernetes_persistent_volume_claim" "pvc-wpdbjs-mysql" {
 resource "kubernetes_deployment_v1" "deploy-wpdbjs-wordpress" {
   metadata {
     name      = "deploy-wpdbjs-wordpress"
+    labels    = {
+      project = "wpdbjs-wordpress-${local.name}-${var.ns-extended-number}"
+    }
     namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
   }
   #lifecycle {
@@ -178,6 +181,9 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-wordpress" {
 resource "kubernetes_deployment_v1" "deploy-wpdbjs-mysql" {
   metadata {
     name      = "deploy-wpdbjs-mysql"
+    labels    = {
+      project = "wpdbjs-mysql-${local.name}-${var.ns-extended-number}"
+    }
     namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
   }
   #lifecycle {
@@ -243,6 +249,9 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-mysql" {
 resource "kubernetes_deployment_v1" "deploy-wpdbjs-frontend" {
   metadata {
     name      = "deploy-wpdbjs-frontend"
+    labels    = {
+      project = "wpdbjs-frontend-${local.name}-${var.ns-extended-number}"
+    }
     namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
   }
   #lifecycle {
@@ -359,7 +368,7 @@ resource "kubernetes_service" "svc-wpdbjs-mysql" {
   }
   spec {
     selector = {
-      project = "wpdbjs-mysql-${local.name}-${var.ns-extended-number}"
+      project = kubernetes_deployment_v1.deploy-wpdbjs-mysql.metadata.0.labels.project
     }
     type = "LoadBalancer"
     port {
@@ -377,7 +386,7 @@ resource "kubernetes_service" "svc-wpdbjs-wordpress" {
   }
   spec {
     selector = {
-      project = "wpdbjs-wordpress-${local.name}-${var.ns-extended-number}"
+      project = kubernetes_deployment_v1.deploy-wpdbjs-wordpress.metadata.0.labels.project
     }
     type = "LoadBalancer"
     port {
@@ -395,9 +404,9 @@ resource "kubernetes_service" "svc-wpdbjs-frontend" {
   }
   spec {
     selector = {
-      project = "wpdbjs-frontend-${local.name}-${var.ns-extended-number}"
+      project = kubernetes_deployment_v1.deploy-wpdbjs-frontend.metadata.0.labels.project
     }
-    session_affinity = "ClientIP"
+    type = "LoadBalancer"
     port {
       name        = "frontend-listener"
       port        = "${var.frontend-deploy-port}"
