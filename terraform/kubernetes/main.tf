@@ -105,6 +105,7 @@ resource "kubernetes_persistent_volume_claim" "pvc-wpdbjs-mysql" {
   }
 }
 
+
 #------------- K8s deployments creating (wp, db, js) ---------------
 resource "kubernetes_deployment_v1" "deploy-wpdbjs-wordpress" {
   metadata {
