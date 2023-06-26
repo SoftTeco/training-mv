@@ -9,12 +9,39 @@ import styles from '@/styles/Home.module.css'
 
 const inter = Inter({ subsets: ['latin'] })
 
+export const useTitle = ()=>{
+  const [resp,setResp] = useState();
+  //let url = `http://localhost:${process.env.NEXT_PUBLIC_PORT}/graphql`;
+  let url = `${process.env.NEXT_PUBLIC_API_URL}`;
+  const getResp = async()=>{
+      const res= await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: `
+          query MyQuery {
+            posts {
+              nodes {
+                title
+                uri
+              }
+            }
+          }
+          `
+          }),
+      })
+          .then(res => res.json())
+          .then(res => res.data);
+      setResp(res)
+  }
+  return {resp,getResp,status:!!resp}
+}
+
 export default function Home({ posts }) {
-  //const { resp, getResp, status } = useTitle();
-  //useEffect(() => {
-   // getResp();
-  //}, []);
-  //console.log(resp?.posts?.nodes);
+  const { resp, getResp, status } = useTitle();
+  useEffect(() => {
+    getResp();
+  }, []);
+  console.log(resp?.posts?.nodes);
   return (
     <div className="container">
       {
@@ -23,7 +50,14 @@ export default function Home({ posts }) {
  //) : (
    //<div>Loading</div>
   //)
-}
+  status ? (
+    resp.posts.nodes.map((node,index) => <div key={index}>{node.title}</div>)
+) : (
+<div>Loading</div>
+)}
+    <div className="container">
+       
+    </div>
     <>
       <Head>
         <title>Create Next App</title>

@@ -24,7 +24,8 @@ data "azurerm_storage_account" "saterraformstate" {
 }
 
 data "docker_registry_image" "front-end" {
-  name = "${var.registry}/${var.gh-host}/front-end:${var.frontend-image}"
+  #name = "${var.registry}/${var.gh-host}/front-end:${var.frontend-image}"
+  name = "ghcr.io/isostheneia94/new-nextjs-app:1.0.11"
 }
 
 data "docker_registry_image" "wordpress" {
