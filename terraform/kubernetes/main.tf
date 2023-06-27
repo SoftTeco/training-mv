@@ -1,7 +1,7 @@
 #----------------- Local( dev/prod )------------------
 locals {
   name = "${terraform.workspace}"
-  wordpress-address = [data.kubernetes_service.svc-wpdbjs-wordpress.spec[0].load_balancer_ip]
+  wordpress-address = data.kubernetes_service.svc-wpdbjs-wordpress.spec[0].load_balancer_ip
 }
 
 #----------------- Docker config for authentification --------------
