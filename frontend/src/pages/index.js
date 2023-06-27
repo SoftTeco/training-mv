@@ -2,39 +2,11 @@ import Head from 'next/head'
 import Image from 'next/image'
 import { Inter } from '@next/font/google'
 import styles from '@/styles/Home.module.css'
-//import { useTitle } from "../../hooks/useTitle";
-//import { useState, useEffect } from "react";
-//import { getAllPosts } from "../../lib/test-data";
-//import { getAllPosts } from "./test-data";
+import { useTitle } from "../../hooks/useTitle";
+import { useState, useEffect } from "react";
+import { getAllPosts } from "../../lib/test-data";
 
 const inter = Inter({ subsets: ['latin'] })
-
-export const useTitle = ()=>{
-  const [resp,setResp] = useState();
-  //let url = `http://localhost:${process.env.NEXT_PUBLIC_PORT}/graphql`;
-  let url = `${process.env.NEXT_PUBLIC_API_URL}`;
-  const getResp = async()=>{
-      const res= await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query: `
-          query MyQuery {
-            posts {
-              nodes {
-                title
-                uri
-              }
-            }
-          }
-          `
-          }),
-      })
-          .then(res => res.json())
-          .then(res => res.data);
-      setResp(res)
-  }
-  return {resp,getResp,status:!!resp}
-}
 
 export default function Home({ posts }) {
   const { resp, getResp, status } = useTitle();
@@ -42,22 +14,15 @@ export default function Home({ posts }) {
     getResp();
   }, []);
   console.log(resp?.posts?.nodes);
+  console.log(process.env.NEXT_PUBLIC_API_URL);
   return (
     <div className="container">
       {
-      //status ? (
-        //resp.posts.nodes.map((node,index) => <div key={index}>{node.title}</div>)
- //) : (
-   //<div>Loading</div>
-  //)
-  status ? (
-    resp.posts.nodes.map((node,index) => <div key={index}>{node.title}</div>)
-) : (
-<div>Loading</div>
+      status ? (
+        resp.posts.nodes.map((node,index) => <div key={index}>{node.title}</div>)
+ ) : (
+   <div>Loading</div>
 )}
-    <div className="container">
-       
-    </div>
     <>
       <Head>
         <title>Create Next App</title>
@@ -174,12 +139,13 @@ export default function Home({ posts }) {
   )
 }
 
-//export async function getStaticProps() {
-  //const response = await getAllPosts();
-  //const posts = response?.data?.posts?.nodes;
-  //return {
-    //props: {
-      //posts,
-    //},
-  //};
-//}
+
+export async function getStaticProps() {
+  const response = await getAllPosts();
+  const posts = response?.data?.posts?.nodes;
+  return {
+    props: {
+      posts,
+    },
+  };
+}

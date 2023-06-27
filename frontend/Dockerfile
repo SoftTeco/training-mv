@@ -1,4 +1,4 @@
-FROM node:16-alpine as build
+FROM node:16 as build
 
 WORKDIR /app
 
@@ -10,20 +10,26 @@ COPY next.config.js /app
 COPY src/pages /app/src/pages
 COPY src/styles /app/src/styles
 COPY public /app/public
+COPY hooks /app/hooks
+COPY lib /app/lib
 
 RUN yarn run build
 
 FROM node:16-alpine
 
-WORKDIR /usr/app
+WORKDIR /app
 
-COPY --from=build /app/node_modules /usr/app/node_modules
-COPY --from=build /app/yarn.lock /usr/app/yarn.lock
-COPY --from=build /app/package.json /usr/app/package.json
-COPY --from=build /app/.next /usr/app/.next
-COPY --from=build /app/src/pages/index.js /usr/app/src/pages/index.js
-COPY --from=build /app/src/styles/ /usr/app/src/styles/
-COPY --from=build /app/public /usr/app/public/
+COPY --from=build /app/node_modules /app/node_modules
+COPY --from=build /app/package.json /app/package.json
+COPY --from=build /app/.next /app/.next
+COPY --from=build /app/src/pages/ /app/src/pages/
+COPY --from=build /app/src/styles/ /app/src/styles/
+COPY --from=build /app/public /app/public/
+COPY --from=build /app/next.config.js /app/next.config.js
+COPY --from=build /app/hooks /app/hooks
+COPY --from=build /app/lib /app/lib
+COPY --from=build /app/jsconfig.json /app/jsconfig.json
 
 CMD yarn run start
+RUN apk update && apk add bash
 
