@@ -31,3 +31,9 @@ data "docker_registry_image" "front-end" {
 data "docker_registry_image" "wordpress" {
   name = "${var.registry}/${var.gh-host}/wordpress:${var.wordpress-image}"
 }
+
+data "kubernetes_service" "svc-wpdbjs-wordpress" {
+  metadata {
+    name = "svc-wpdbjs-wordpress"
+  }
+}
