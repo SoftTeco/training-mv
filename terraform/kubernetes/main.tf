@@ -152,7 +152,7 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-wordpress" {
           }
           env {
             name = "WORDPRESS_DB_HOST"
-            value = kubernetes_service.svc-wpdbjs-mysql.ns-wpdbjs.svc.cluster.local
+            value = "${kubernetes_service.svc-wpdbjs-mysql.ns-wpdbjs.svc.cluster.local}"
             #kubernetes_service.svc-wpdbjs-mysql.ns-wpdbjs.svc.cluster.local
           }
           env {
@@ -296,7 +296,7 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-frontend" {
           }
           env {
             name  = "NEXT_PUBLIC_API_URL"
-            value = "http://${data.kubernetes_service.svc-wpdbjs-wordpress.spec.load_balancer_ip}:${data.kubernetes_service.svc-wpdbjs-wordpress.port.port}"
+            value = "http://${kubernetes_service.svc-wpdbjs-wordpress.spec.load_balancer_ip}:${kubernetes_service.svc-wpdbjs-wordpress.port.port}"
           }
         }
       }
