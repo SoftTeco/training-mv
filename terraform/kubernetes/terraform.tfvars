@@ -1,4 +1,4 @@
-frontend-image          = "v1.25.0"
+frontend-image          = "1.27.2"
 wordpress-image         = "v1.25.0"
 registry                = "ghcr.io"
 wordpress-target-port   = 8000
