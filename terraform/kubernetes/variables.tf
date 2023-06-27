@@ -37,8 +37,3 @@ variable "ns-extended-number" {}
 variable "replicas-count" {}
 
 variable "registry" {}
-
-variable "wordpress-address" {
-    default = [data.kubernetes_service.svc-wpdbjs-wordpress.spec[0].load_balancer_ip]
-}
-

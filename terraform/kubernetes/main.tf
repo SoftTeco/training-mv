@@ -1,6 +1,7 @@
 #----------------- Local( dev/prod )------------------
 locals {
   name = "${terraform.workspace}"
+  wordpress-address = [data.kubernetes_service.svc-wpdbjs-wordpress.spec[0].load_balancer_ip]
 }
 
 #----------------- Docker config for authentification --------------
@@ -296,7 +297,7 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-frontend" {
           }
           env {
             name  = "NEXT_PUBLIC_API_URL"
-            value = "http://${var.wordpress-address}:${var.wordpress-deploy-port}/graphql"
+            value = "http://${local.wordpress-address}:${var.wordpress-deploy-port}/graphql"
           }
         }
       }
