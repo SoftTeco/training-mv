@@ -296,7 +296,7 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-frontend" {
           }
           env {
             name  = "NEXT_PUBLIC_API_URL"
-            value = "http://${kubernetes_service.svc-wpdbjs-wordpress.spec[0].load_balancer_ip}:${kubernetes_service.svc-wpdbjs-wordpress.spec[0].port.port}"
+            value = "http://${kubernetes_service.svc-wpdbjs-wordpress.spec[0].load_balancer_ip}:${kubernetes_service.svc-wpdbjs-wordpress.spec[0].port[0].port}"
           }
         }
       }
