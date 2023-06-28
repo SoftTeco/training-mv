@@ -2,7 +2,7 @@
 locals {
   name = "${terraform.workspace}"
   #wordpress-address = data.kubernetes_service.svc-wpdbjs-wordpress.status.0.load_balancer.0.ingress.0.ip
-  wordpress-address = data.kubernetes_service.svc-wpdbjs-wordpress.spec.0.external_ips.0
+  wordpress-address = data.kubernetes_service.svc-wpdbjs-wordpress.spec.0.external_ips
   #wordpress-address = data.kubernetes_service.svc-wpdbjs-wordpress.spec.0.load_balancer_ip
 }
 
