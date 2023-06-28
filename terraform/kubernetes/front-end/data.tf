@@ -41,7 +41,7 @@ data "kubernetes_namespace" "ns-wpdbjs" {
   }
 }
 
-data "kubernetes_secret" "example" {
+data "kubernetes_secret" "ghcr-auth" {
   metadata {
     name = "ghcr-config-${var.ns-extended-number}"
     namespace = data.kubernetes_namespace.ns-wpdbjs.metadata.0.name
