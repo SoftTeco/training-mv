@@ -252,7 +252,7 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-mysql" {
 }
 
 resource "kubernetes_deployment_v1" "deploy-wpdbjs-frontend" {
-  depends_on = [kubernetes_deployment_v1.deploy-wpdbjs-wordpress]
+  depends_on = [kubernetes_service.svc-wpdbjs-wordpress]
   metadata {
     name      = "deploy-wpdbjs-frontend"
     labels    = {
