@@ -12,6 +12,8 @@ variable "frontend-target-port" {}
 
 variable "frontend-deploy-port" {}
 
+variable "wordpress-deploy-port" {}
+
 
 variable "environment" {}
 
