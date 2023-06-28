@@ -8,7 +8,7 @@ locals {
 resource "kubernetes_secret" "ghcr-auth" {
   metadata {
     name = "ghcr-config-${var.ns-extended-number}"
-    namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
+    namespace = data.kubernetes_namespace.ns-wpdbjs.metadata.0.name
   }
   data = {
     ".dockerconfigjson" = "${var.docker-config-ghcr-auth}"
@@ -21,14 +21,6 @@ resource "docker_image" "wordpress" {
   name          = data.docker_registry_image.wordpress.name
   pull_triggers = [data.docker_registry_image.wordpress.sha256_digest]
 }
-
-#-------------------- K8s namespace for each deploy --------------------
-resource "kubernetes_namespace" "ns-wpdbjs" {
-  metadata {
-    name = "ns-wpdbjs-${local.name}-${var.ns-extended-number}"
-  }
-}
-
 #-------------------- K8s pv creating (wp, db) -------------------------
 resource "kubernetes_persistent_volume" "pv-wpdbjs-wordpress" {
   metadata {
@@ -51,7 +43,7 @@ resource "kubernetes_persistent_volume" "pv-wpdbjs-wordpress" {
 resource "kubernetes_persistent_volume_claim" "pvc-wpdbjs-wordpress" {
   metadata {
     name      = "pvc-wpdbjs-wordpress"
-    namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
+    namespace = data.kubernetes_namespace.ns-wpdbjs.metadata.0.name
   }
   spec {
     access_modes = ["ReadWriteMany"]
@@ -71,7 +63,7 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-wordpress" {
     labels    = {
       project = "wpdbjs-wordpress-${local.name}-${var.ns-extended-number}"
     }
-    namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
+    namespace = data.kubernetes_namespace.ns-wpdbjs.metadata.0.name
   }
   spec {
     selector {
@@ -135,7 +127,7 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-wordpress" {
 resource "kubernetes_horizontal_pod_autoscaler_v1" "ascale-wpdbjs-wordpress" {
   metadata {
     name = "ascale-wpdbjs-wordpress-${local.name}-${var.ns-extended-number}"
-    namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
+    namespace = data.kubernetes_namespace.ns-wpdbjs.metadata.0.name
   }
 
   spec {
@@ -155,7 +147,7 @@ resource "kubernetes_horizontal_pod_autoscaler_v1" "ascale-wpdbjs-wordpress" {
 resource "kubernetes_service" "svc-wpdbjs-wordpress" {
   metadata {
     name      = "svc-wpdbjs-wordpress"
-    namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
+    namespace = data.kubernetes_namespace.ns-wpdbjs.metadata.0.name
   }
   spec {
     selector = {

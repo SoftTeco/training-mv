@@ -34,3 +34,9 @@ data "kubernetes_service" "svc-wpdbjs-wordpress" {
     namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
   }
 }
+
+data "kubernetes_namespace" "ns-wpdbjs" {
+  metadata {
+    name = "ns-wpdbjs-${local.name}-${var.ns-extended-number}"
+  }
+}
