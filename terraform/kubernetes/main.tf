@@ -109,6 +109,7 @@ resource "kubernetes_persistent_volume_claim" "pvc-wpdbjs-mysql" {
 
 #------------- K8s deployments creating (wp, db, js) ---------------
 resource "kubernetes_deployment_v1" "deploy-wpdbjs-wordpress" {
+  depends_on = [kubernetes_deployment_v1.deploy-wpdbjs-mysql]
   metadata {
     name      = "deploy-wpdbjs-wordpress"
     labels    = {
@@ -249,6 +250,7 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-mysql" {
 }
 
 resource "kubernetes_deployment_v1" "deploy-wpdbjs-frontend" {
+  depends_on = [kubernetes_deployment_v1.deploy-wpdbjs-wordpress]
   metadata {
     name      = "deploy-wpdbjs-frontend"
     labels    = {
@@ -307,6 +309,7 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-frontend" {
 
 #--------------- K8s hpa creating (wp, db, js) ---------------------
 resource "kubernetes_horizontal_pod_autoscaler_v1" "ascale-wpdbjs-frontend" {
+  depends_on = [kubernetes_horizontal_pod_autoscaler_v1.ascale-wpdbjs-wordpress]
   metadata {
     name = "ascale-wpdbjs-frontend-${local.name}-${var.ns-extended-number}"
     namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
@@ -327,6 +330,7 @@ resource "kubernetes_horizontal_pod_autoscaler_v1" "ascale-wpdbjs-frontend" {
 }
 
 resource "kubernetes_horizontal_pod_autoscaler_v1" "ascale-wpdbjs-wordpress" {
+  depends_on = [kubernetes_horizontal_pod_autoscaler_v1.ascale-wpdbjs-mysql]
   metadata {
     name = "ascale-wpdbjs-wordpress-${local.name}-${var.ns-extended-number}"
     namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
@@ -386,6 +390,7 @@ resource "kubernetes_service" "svc-wpdbjs-mysql" {
 }
 
 resource "kubernetes_service" "svc-wpdbjs-wordpress" {
+  depends_on = [kubernetes_service.svc-wpdbjs-mysql]
   metadata {
     name      = "svc-wpdbjs-wordpress"
     namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
@@ -404,6 +409,7 @@ resource "kubernetes_service" "svc-wpdbjs-wordpress" {
 }
 
 resource "kubernetes_service" "svc-wpdbjs-frontend" {
+  depends_on = [kubernetes_service.svc-wpdbjs-wordpress]
   metadata {
     name      = "svc-wpdbjs-frontend"
     namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
