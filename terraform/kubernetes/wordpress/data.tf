@@ -26,3 +26,10 @@ data "azurerm_storage_account" "saterraformstate" {
 data "docker_registry_image" "wordpress" {
   name = "${var.registry}/${var.gh-host}/wordpress:${var.wordpress-image}"
 }
+
+data "kubernetes_service" "svc-wpdbjs-mysql" {
+  metadata {
+    name      = "svc-wpdbjs-mysql"
+    namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
+  }
+}
