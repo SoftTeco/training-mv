@@ -3,19 +3,6 @@ locals {
   name = "${terraform.workspace}"
   wordpress-address = data.kubernetes_service.svc-wpdbjs-wordpress.status.0.load_balancer.0.ingress.0.ip
 }
-
-#----------------- Docker config for authentification --------------
-resource "kubernetes_secret" "ghcr-auth" {
-  metadata {
-    name = "ghcr-config-${var.ns-extended-number}"
-    namespace = data.kubernetes_namespace.ns-wpdbjs.metadata.0.name
-  }
-  data = {
-    ".dockerconfigjson" = "${var.docker-config-ghcr-auth}"
-  }
-  type = "kubernetes.io/dockerconfigjson"
-}
-
 #------------------ Docker images from GitHub Container Registry (wp, js) ---------------
 resource "docker_image" "front-end" {
   name          = data.docker_registry_image.front-end.name
@@ -44,7 +31,7 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-frontend" {
       }
       spec {
         image_pull_secrets {
-          name = "${kubernetes_secret.ghcr-auth.metadata.0.name}"
+          name = data.kubernetes_secret.ghcr-auth.metadata.0.name
         }
         container {
           image = "${docker_image.front-end.name}"
