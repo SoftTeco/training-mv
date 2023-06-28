@@ -27,21 +27,21 @@ env:
   AZURE_TENANT_ID: ${{ secrets.MAXVRBTSK_TENANT_ID }}
       
 jobs:
-  environment_deploy:
+  az-ghcr_login:
     runs-on: ubuntu-latest
-
+    
     steps:
     - name: pre checkout
       uses: actions/checkout@v3
 
-    - name: az cli login
+    - name: 'az cli login'
       uses: azure/login@v1
       with:
         client-id: ${{ secrets.MAXVRBTSK_CLIENT_ID }}
         tenant-id: ${{ secrets.MAXVRBTSK_TENANT_ID }}
         subscription-id: ${{ secrets.MAXVRBTSK_SUBSCRIPTION_ID }}
-
-    - name: azure cli script
+        
+    - name: 'azure cli script'
       uses: azure/CLI@v1
       with:
         azclientversion: latest
@@ -55,13 +55,57 @@ jobs:
         registry: 'ghcr.io'
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
+
+  environment_deploy_mysql:
+    runs-on: ubuntu-latest
+    needs: az-ghcr_login
+    steps:
+    - name: pre checkout
+      uses: actions/checkout@v3
       
-    - name: Build kubernetes deployment / init
-      working-directory: ./terraform/kubernetes
+    - name: Build kubernetes deployment mysql / init
+      working-directory: ./terraform/kubernetes/mysql
       run: terraform init
 
-    - name: Build kubernetes deployment / plan
-      working-directory: ./terraform/kubernetes
+    - name: Build kubernetes deployment mysql / plan
+      working-directory: ./terraform/kubernetes/mysql
+      env:
+        TF_VAR_environment: $ENVIRONMENT
+        TF_VAR_gh-host: ${{ github.event.inputs.gh-host}}
+        DB_USER: ${{ secrets.WORDPRESS_DB_USER_PROD }}
+        DB_PASSWORD: ${{ secrets.WORDPRESS_DB_PASSWORD_PROD }}
+        DB_NAME: ${{ secrets.WORDPRESS_DB_NAME_PROD }}
+        NAMESPACE_EXTENDED_NUMBER: ${{ github.event.inputs.ns-extended-number}}
+      run: |
+        terraform workspace new ${ENVIRONMENT}
+        terraform plan --var-file="terraform.tfvars" -var "mysql-user=${DB_USER}" -var "mysql-password=${DB_PASSWORD}" -var "mysql-name=${DB_NAME}" -var "ns-extended-number=${NAMESPACE_EXTENDED_NUMBER}" -out=plan-${ENVIRONMENT} -lock=false
+
+    - name: Build kubernetes deployment mysql / apply
+      working-directory: ./terraform/kubernetes/mysql
+      env:
+        TF_VAR_environment: $ENVIRONMENT
+        TF_VAR_gh-host: ${{ github.event.inputs.gh-host}}
+        DB_USER: ${{ secrets.WORDPRESS_DB_USER_PROD }}
+        DB_PASSWORD: ${{ secrets.WORDPRESS_DB_PASSWORD_PROD }}
+        DB_NAME: ${{ secrets.WORDPRESS_DB_NAME_PROD }}
+        NAMESPACE_EXTENDED_NUMBER: ${{ github.event.inputs.ns-extended-number}}
+      run: |
+        terraform workspace select ${ENVIRONMENT}
+        terraform apply -auto-approve "plan-${ENVIRONMENT}"
+
+  environment_deploy_wordpress:
+    runs-on: ubuntu-latest
+    needs: [az-ghcr_login,environment_deploy_mysql]
+    steps:
+    - name: pre checkout
+      uses: actions/checkout@v3
+      
+    - name: Build kubernetes deployment wordpress / init
+      working-directory: ./terraform/kubernetes/wordpress
+      run: terraform init
+
+    - name: Build kubernetes deployment wordpress / plan
+      working-directory: ./terraform/kubernetes/wordpress
       env:
         TF_VAR_environment: $ENVIRONMENT
         TF_VAR_gh-host: ${{ github.event.inputs.gh-host}}
@@ -75,8 +119,8 @@ jobs:
         terraform workspace new ${ENVIRONMENT}
         terraform plan --var-file="terraform.tfvars" -var "mysql-user=${DB_USER}" -var "mysql-password=${DB_PASSWORD}" -var "mysql-name=${DB_NAME}" -var "gh-access-token=${GITHUB_CONNECT_TOKEN}" -var "docker-config-ghcr-auth=${DOCKER_CONFIG_GHCR_AUTH}" -var "ns-extended-number=${NAMESPACE_EXTENDED_NUMBER}" -out=plan-${ENVIRONMENT} -lock=false
 
-    - name: Build kubernetes deployment / apply
-      working-directory: ./terraform/kubernetes
+    - name: Build kubernetes deployment wordpress / apply
+      working-directory: ./terraform/kubernetes/wordpress
       env:
         TF_VAR_environment: $ENVIRONMENT
         TF_VAR_gh-host: ${{ github.event.inputs.gh-host}}
@@ -89,3 +133,39 @@ jobs:
       run: |
         terraform workspace select ${ENVIRONMENT}
         terraform apply -auto-approve "plan-${ENVIRONMENT}"
+
+  environment_deploy_front-end:
+    runs-on: ubuntu-latest
+    needs: [az-ghcr_login,environment_deploy_mysql,environment_deploy_wordpress]
+    steps:
+    - name: pre checkout
+      uses: actions/checkout@v3
+      
+    - name: Build kubernetes deployment front-end / init
+      working-directory: ./terraform/kubernetes/front-end
+      run: terraform init
+
+    - name: Build kubernetes deployment front-end / plan
+      working-directory: ./terraform/kubernetes/front-end
+      env:
+        TF_VAR_environment: $ENVIRONMENT
+        TF_VAR_gh-host: ${{ github.event.inputs.gh-host}}
+        GITHUB_CONNECT_TOKEN: ${{ secrets.MAXVRBTSK_GH_TOKEN }}
+        DOCKER_CONFIG_GHCR_AUTH: ${{ secrets.DOCKER_CONFIG_GHCR_AUTH }}
+        NAMESPACE_EXTENDED_NUMBER: ${{ github.event.inputs.ns-extended-number}}
+      run: |
+        terraform workspace new ${ENVIRONMENT}
+        terraform plan --var-file="terraform.tfvars" -var "gh-access-token=${GITHUB_CONNECT_TOKEN}" -var "docker-config-ghcr-auth=${DOCKER_CONFIG_GHCR_AUTH}" -var "ns-extended-number=${NAMESPACE_EXTENDED_NUMBER}" -out=plan-${ENVIRONMENT} -lock=false
+
+    - name: Build kubernetes deployment front-end / apply
+      working-directory: ./terraform/kubernetes/front-end
+      env:
+        TF_VAR_environment: $ENVIRONMENT
+        TF_VAR_gh-host: ${{ github.event.inputs.gh-host}}
+        GITHUB_CONNECT_TOKEN: ${{ secrets.MAXVRBTSK_GH_TOKEN }}
+        DOCKER_CONFIG_GHCR_AUTH: ${{ secrets.DOCKER_CONFIG_GHCR_AUTH }}
+        NAMESPACE_EXTENDED_NUMBER: ${{ github.event.inputs.ns-extended-number}}
+      run: |
+        terraform workspace select ${ENVIRONMENT}
+        terraform apply -auto-approve "plan-${ENVIRONMENT}"
+
