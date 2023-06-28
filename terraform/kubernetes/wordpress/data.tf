@@ -30,7 +30,7 @@ data "docker_registry_image" "wordpress" {
 data "kubernetes_service" "svc-wpdbjs-mysql" {
   metadata {
     name      = "svc-wpdbjs-mysql"
-    namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
+    namespace = data.kubernetes_namespace.ns-wpdbjs.metadata.0.name
   }
 }
 
