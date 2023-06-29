@@ -1,7 +1,7 @@
 #----------------- Local( dev/prod )------------------
 locals {
   name = "${terraform.workspace}"
-  mysql-host = data.kubernetes_service.svc-wpdbjs-mysql.metadata.0.name
+  mysql-address = data.kubernetes_service.svc-wpdbjs-mysql.status.0.load_balancer.0.ingress.0.ip
 }
 
 #----------------- Docker config for authentification --------------
@@ -98,7 +98,7 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-wordpress" {
             name = "WORDPRESS_DB_HOST"
             #value = "${kubernetes_service.svc-wpdbjs-mysql.kubernetes_namespace.ns-wpdbjs.svc.cluster.local}"
             #value = "${kubernetes_service.svc-wpdbjs-mysql.metadata.0.name}"
-            value = "${local.mysql-host}"
+            value = "http://${local.mysql-address}:${var.mysql-deploy-port}"
           }
           env {
             name = "WORDPRESS_DB_USER"

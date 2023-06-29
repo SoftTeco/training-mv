@@ -19,6 +19,8 @@ variable "wordpress-target-port" {}
 
 variable "wordpress-deploy-port" {}
 
+variable "mysql-deploy-port" {}
+
 
 variable "environment" {}
 
