@@ -98,7 +98,8 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-wordpress" {
             name = "WORDPRESS_DB_HOST"
             #value = "${kubernetes_service.svc-wpdbjs-mysql.kubernetes_namespace.ns-wpdbjs.svc.cluster.local}"
             #value = "${kubernetes_service.svc-wpdbjs-mysql.metadata.0.name}"
-            value = "http://${local.mysql-address}:${var.mysql-deploy-port}"
+            #value = "http://${local.mysql-address}:${var.mysql-deploy-port}"
+            value = "svc-wpdbjs-mysql"
           }
           env {
             name = "WORDPRESS_DB_USER"
