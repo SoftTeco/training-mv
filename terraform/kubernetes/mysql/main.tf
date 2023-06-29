@@ -76,11 +76,11 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-mysql" {
           resources {
             limits = {
               cpu = "15m"
-              memory = "256Mi"
+              memory = "1024Mi"
             }
             requests = {
               cpu = "6m"
-              memory = "256Mi"
+              memory = "1024Mi"
             }
           }
           env {
