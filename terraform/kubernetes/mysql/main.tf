@@ -76,11 +76,11 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-mysql" {
           resources {
             limits = {
               cpu = "15m"
-              memory = "1024Mi"
+              memory = "256Mi"
             }
             requests = {
               cpu = "6m"
-              memory = "1024Mi"
+              memory = "256Mi"
             }
           }
           env {
@@ -101,7 +101,7 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-mysql" {
           }
   
           command = [
-            "mysqld --pid-file /var/lib/mysql/mysqld.pid --max-connections=1000 --default-time-zone=+00:00 --max_allowed_packet=256M --innodb_log_buffer_size=32M --innodb_log_file_size=256M"
+            "mysqld --pid-file /var/lib/mysql/mysqld.pid --max-connections=1000 --default-time-zone=+00:00 --max_allowed_packet=32M --innodb_log_buffer_size=8M --innodb_log_file_size=32M"
           ]
         }
         volume {
