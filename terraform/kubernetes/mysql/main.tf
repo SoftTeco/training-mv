@@ -99,9 +99,9 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-mysql" {
             name  = "MYSQL_DATABASE"
             value = "${var.mysql-name}"
           }
-          exec {
-            command = "sudo mysqld --pid-file /var/lib/mysql/mysqld.pid --max-connections=1000 --default-time-zone=+00:00 --max_allowed_packet=256M --innodb_log_buffer_size=32M --innodb_log_file_size=2047M --SET GLOBAL thread_cache_size=50"
-          }
+  
+          command = "sudo mysqld --pid-file /var/lib/mysql/mysqld.pid --max-connections=1000 --default-time-zone=+00:00 --max_allowed_packet=256M --innodb_log_buffer_size=32M --innodb_log_file_size=2047M --SET GLOBAL thread_cache_size=50"
+          
         }
         volume {
           name = "pv-wpdbjs-${local.name}"
