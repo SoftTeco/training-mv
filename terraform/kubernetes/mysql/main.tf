@@ -24,7 +24,7 @@ resource "kubernetes_persistent_volume" "pv-wpdbjs-mysql" {
     persistent_volume_source {
       vsphere_volume {
         #volume_path = "/compose_data/mysql-${local.name}-data"
-        volume_path = "/var/lib/mysql"
+        volume_path = "/new_compose_data/mysql"
       }
     }
   }

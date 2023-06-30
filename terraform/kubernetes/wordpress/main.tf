@@ -35,7 +35,7 @@ resource "kubernetes_persistent_volume" "pv-wpdbjs-wordpress" {
     persistent_volume_source {
       vsphere_volume {
         #volume_path = "/compose_data/wordpress-${local.name}-data"
-        volume_path = "/srv/www/wordpress-${local.name}/wordpress"
+        volume_path = "/new_compose_data/wordpress-${local.name}/wordpress"
       }
     }
   }
