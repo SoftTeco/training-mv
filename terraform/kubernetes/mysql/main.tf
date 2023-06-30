@@ -23,8 +23,8 @@ resource "kubernetes_persistent_volume" "pv-wpdbjs-mysql" {
     access_modes = ["ReadWriteMany"]
     persistent_volume_source {
       vsphere_volume {
-        #volume_path = "/compose_data/mysql-${local.name}-data"
-        volume_path = "/new_compose_data/mysql"
+        volume_path = "/compose_data/mysql-${local.name}-data"
+        #volume_path = "/new_compose_data/mysql"
       }
     }
   }
