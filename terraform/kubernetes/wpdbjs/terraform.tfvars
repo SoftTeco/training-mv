@@ -1,0 +1,10 @@
+frontend-image          = "1.27.2"
+wordpress-image         = "v1.25.0"
+registry                = "ghcr.io"
+wordpress-target-port   = 8000
+wordpress-deploy-port   = 8000
+frontend-target-port    = 3000
+frontend-deploy-port    = 3000
+mysql-target-port       = 3306
+mysql-deploy-port       = 3306
+replicas-count          = 3

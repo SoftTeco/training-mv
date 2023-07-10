@@ -1,0 +1,37 @@
+name: azure-kubernetes-service-dev-cd
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "main"
+      - "feature/**"
+    paths:
+      - terraform/aks/**
+
+env:
+  ENVIRONMENT: 'dev'
+
+jobs:
+
+  environment_deploy:
+    runs-on:
+      - self-hosted
+    steps:
+    - uses: actions/checkout@v3
+      name: pre checkout
+
+    - name: Build kubernetes deployment / init
+      working-directory: ./terraform/aks
+      run: terraform init
+
+    - name: Creating terraform workspace
+      run: terraform workspace new ${ENVIRONMENT}
+
+    - name: Build kubernetes deployment / plan
+      working-directory: ./terraform/aks
+      run: terraform plan --var-file="terraform.tfvars" -var "environment=${ENVIRONMENT}" -out=plan-${ENVIRONMENT}
+
+    - name: Build kubernetes deployment / apply
+      working-directory: ./terraform/aks
+      run: terraform apply -auto-approve "plan-${ENVIRONMENT}"

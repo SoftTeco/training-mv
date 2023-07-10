@@ -1,4 +1,3 @@
-
 export async function getAllPosts(){
     const posts = postsGenerator()
     const response = {
