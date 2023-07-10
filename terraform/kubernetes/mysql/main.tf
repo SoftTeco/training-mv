@@ -72,7 +72,8 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-mysql" {
       }
       spec {
         container {
-          image = "mysql:5.7"
+          #image = "mysql:5.7"
+          image = "mysql:8.0.33"
           name  = "wpdbjs-mysql-${local.name}"
           resources {
             limits = {
@@ -102,7 +103,7 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-mysql" {
           }
   
           #command = [
-          #  "mysqld --initialize-insecure --pid-file /var/lib/mysql/mysqld.pid --max-connections=1000 --default-time-zone=+00:00 --max_allowed_packet=16M --innodb_log_buffer_size=4M --innodb_log_file_size=16M"
+          #  "mysqld --initialize --user=mysql --pid-file /var/lib/mysql/mysqld.pid --max-connections=1000 --default-time-zone=+00:00 --max_allowed_packet=16M --innodb_log_buffer_size=4M --innodb_log_file_size=16M --explicit_defaults_for_timestamp"
           #]
         }
         volume {
