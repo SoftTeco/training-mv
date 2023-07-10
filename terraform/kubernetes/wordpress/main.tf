@@ -34,7 +34,7 @@ resource "kubernetes_persistent_volume" "pv-wpdbjs-wordpress" {
     access_modes = ["ReadWriteMany"]
     persistent_volume_source {
       vsphere_volume {
-        volume_path = "/compose_data/wordpress-${local.name}-data"
+        volume_path = "/home/max_verbitskiy/compose_data/wordpress-${local.name}-data"
         #volume_path = "/new_compose_data/wordpress-${local.name}/wordpress"
       }
     }
