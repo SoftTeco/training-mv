@@ -5,6 +5,13 @@ locals {
 }
 
 #----------------- K8s secrets (docker cfg/storage secret) --------------
+#---------------------------------------------
+resource "azurerm_storage_share" "sshare_wpdbjs_wordpress" {
+  name                 = "sshare_wpdbjs_wordpress"
+  storage_account_name = "saterraformstatewpdbjs"
+  quota                = 50
+}
+#-------------------------------------------
 resource "kubernetes_secret" "ghcr-auth" {
   metadata {
     name = "ghcr-config-${var.ns-extended-number}"
@@ -199,7 +206,6 @@ resource "kubernetes_service" "svc-wpdbjs-wordpress" {
     }
   }
 }
-
 #---------------------------------------------
 resource "kubernetes_storage_class_v1" "sclass_wpdbjs" {
   metadata {
@@ -214,10 +220,3 @@ resource "kubernetes_storage_class_v1" "sclass_wpdbjs" {
   mount_options = ["file_mode=0777", "dir_mode=0777", "mfsymlinks", "uid=1000", "gid=1000", "nobrl", "cache=none"]
 }
 
-#---------------------------------------------
-resource "azurerm_storage_share" "sshare_wpdbjs_wordpress" {
-  name                 = "sshare_wpdbjs_wordpress"
-  storage_account_name = "saterraformstatewpdbjs"
-  quota                = 50
-}
-#-------------------------------------------
