@@ -7,7 +7,7 @@ locals {
 #----------------- K8s secrets (docker cfg/storage secret) --------------
 #---------------------------------------------
 resource "azurerm_storage_share" "sshare_wpdbjs_wordpress" {
-  name                 = "sshare_wpdbjs_wordpress"
+  name                 = "ssharewpdbjswordpress"
   storage_account_name = "saterraformstatewpdbjs"
   quota                = 50
 }
@@ -54,17 +54,19 @@ resource "kubernetes_persistent_volume" "pv-wpdbjs-wordpress" {
   }
   spec {
     storage_class_name = "azurefile-csi"
-    csi {
-      driver = "file.csi.azure.com"
-      read_only = false
-      volume_handle = "test_volumeHandle"
-      volume_attributes {
-        resource_group_name = "RG-WPDBJS-${local.name}"
-        share_name = azurerm_storage_share.sshare_wpdbjs_wordpress.name
-      }
-      node_stage_secret_ref {
-        name = kubernetes_secret.storage_wordpress_secret.metadata.0.name
-        namespace = kubernetes_secret.storage_wordpress_secret.metadata.0.namespace
+    persistent_volume_source {
+      csi {
+        driver = "file.csi.azure.com"
+        read_only = false
+        volume_handle = "test_volumeHandle"
+        volume_attributes {
+          resource_group_name = "RG-WPDBJS-${local.name}"
+          share_name = azurerm_storage_share.sshare_wpdbjs_wordpress.name
+        }
+        node_stage_secret_ref {
+          name = kubernetes_secret.storage_wordpress_secret.metadata.0.name
+          namespace = kubernetes_secret.storage_wordpress_secret.metadata.0.namespace
+        }
       }
     }
     capacity = {
@@ -143,7 +145,7 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-wordpress" {
             #value = "${kubernetes_service.svc-wpdbjs-mysql.kubernetes_namespace.ns-wpdbjs.svc.cluster.local}"
             #value = "${kubernetes_service.svc-wpdbjs-mysql.metadata.0.name}"
             #value = "http://${local.mysql-address}:${var.mysql-deploy-port}"
-            value = [data.azurerm_mysql_flexible_server.mysql-wpdbjs.fqdn]
+            value = "${data.azurerm_mysql_flexible_server.mysql-wpdbjs.fqdn}"
           }
           env {
             name = "WORDPRESS_DB_USER"
@@ -209,7 +211,7 @@ resource "kubernetes_service" "svc-wpdbjs-wordpress" {
 #---------------------------------------------
 resource "kubernetes_storage_class_v1" "sclass_wpdbjs" {
   metadata {
-    name = "sclass_wpdbjs"
+    name = "sclasswpdbjs"
   }
   storage_provisioner = "file.csi.azure.com"
   reclaim_policy      = "Retain"
