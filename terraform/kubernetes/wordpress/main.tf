@@ -4,7 +4,7 @@ locals {
   mysql-address = data.kubernetes_service.svc-wpdbjs-mysql.status.0.load_balancer.0.ingress.0.ip
 }
 
-#----------------- Docker config for authentification --------------
+#----------------- K8s secrets (docker cfg/storage secret) --------------
 resource "kubernetes_secret" "ghcr-auth" {
   metadata {
     name = "ghcr-config-${var.ns-extended-number}"
@@ -14,6 +14,25 @@ resource "kubernetes_secret" "ghcr-auth" {
     ".dockerconfigjson" = "${var.docker-config-ghcr-auth}"
   }
   type = "kubernetes.io/dockerconfigjson"
+}
+
+resource "kubernetes_secret" "storage_wordpress_secret" {
+  metadata {
+    name = "storage_wordpress_secret"
+    namespace = data.kubernetes_namespace.ns-wpdbjs.metadata.0.name
+  }
+
+  data = { "azure.json" = jsonencode({
+    tenantId        = data.azurerm_subscription.current.tenant_id
+    subscriptionId  = data.azurerm_subscription.current.subscription_id
+    resourceGroup   = data.azurerm_resource_group.rg-wpdbjs.name
+    aadClientId     = "${var.azure-client-id}"
+    aadClientSecret = "${var.azure-client-secret}"
+    azurestorageaccountname = "saterraformstatewpdbjs"
+    azurestorageaccountkey = "${var.azure-storageaccount-key}"
+    })
+
+  }
 }
 
 #------------------ Docker images from GitHub Container Registry (wp, js) ---------------
@@ -27,23 +46,39 @@ resource "kubernetes_persistent_volume" "pv-wpdbjs-wordpress" {
     name = "pv-wpdbjs-wordpress-${local.name}-${var.ns-extended-number}"
   }
   spec {
-    storage_class_name = "standard"
+    storage_class_name = "azurefile-csi"
+    csi {
+      driver = "file.csi.azure.com"
+      read_only = false
+      volume_handle = "test_volumeHandle"
+      volume_attributes {
+        resource_group_name = "RG-WPDBJS-${local.name}"
+        share_name = azurerm_storage_share.sshare_wpdbjs_wordpress.name
+      }
+      node_stage_secret_ref {
+        name = kubernetes_secret.storage_wordpress_secret.metadata.0.name
+        namespace = kubernetes_secret.storage_wordpress_secret.metadata.0.namespace
+      }
+    }
     capacity = {
       storage = "1Gi"
     }
     access_modes = ["ReadWriteMany"]
-    persistent_volume_source {
-      vsphere_volume {
-        volume_path = "/home/max_verbitskiy/compose_data/wordpress-${local.name}-data"
-        #volume_path = "/new_compose_data/wordpress-${local.name}/wordpress"
-      }
-    }
+    persistent_volume_reclaim_policy = "Retain"
+
+    #persistent_volume_source {
+     #vsphere_volume {
+        #volume_path = "/home/max_verbitskiy/compose_data/wordpress-${local.name}-data"
+        ##volume_path = "/new_compose_data/wordpress-${local.name}/wordpress"
+      #}
+    #}
   }
 }
 #------------------ K8s pvc creating (wp, db) ------------------------
 resource "kubernetes_persistent_volume_claim" "pvc-wpdbjs-wordpress" {
   metadata {
-    name      = "pvc-wpdbjs-wordpress"
+    #name      = "pvc-wpdbjs-wordpress"
+    name      = "pvc-wpdbjs-wordpress-azurefile"
     namespace = data.kubernetes_namespace.ns-wpdbjs.metadata.0.name
   }
   spec {
@@ -53,8 +88,8 @@ resource "kubernetes_persistent_volume_claim" "pvc-wpdbjs-wordpress" {
         storage = "1Gi"
       }
     }
-    storage_class_name = "standard"
-    volume_name = "${kubernetes_persistent_volume.pv-wpdbjs-wordpress.metadata.0.name}"
+    storage_class_name = "azurefile-csi"
+    #volume_name = "${kubernetes_persistent_volume.pv-wpdbjs-wordpress.metadata.0.name}"
   }
 }
 #------------- K8s deployments creating (wp, db, js) ---------------
@@ -79,6 +114,7 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-wordpress" {
         }
       }
       spec {
+
         image_pull_secrets {
           name = "${kubernetes_secret.ghcr-auth.metadata.0.name}"
         }
@@ -99,8 +135,8 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-wordpress" {
             name = "WORDPRESS_DB_HOST"
             #value = "${kubernetes_service.svc-wpdbjs-mysql.kubernetes_namespace.ns-wpdbjs.svc.cluster.local}"
             #value = "${kubernetes_service.svc-wpdbjs-mysql.metadata.0.name}"
-            value = "http://${local.mysql-address}:${var.mysql-deploy-port}"
-            #value = "svc-wpdbjs-mysql"
+            #value = "http://${local.mysql-address}:${var.mysql-deploy-port}"
+            value = [data.azurerm_mysql_flexible_server.mysql-wpdbjs.fqdn]
           }
           env {
             name = "WORDPRESS_DB_USER"
@@ -163,3 +199,25 @@ resource "kubernetes_service" "svc-wpdbjs-wordpress" {
     }
   }
 }
+
+#---------------------------------------------
+resource "kubernetes_storage_class_v1" "sclass_wpdbjs" {
+  metadata {
+    name = "sclass_wpdbjs"
+  }
+  storage_provisioner = "file.csi.azure.com"
+  reclaim_policy      = "Retain"
+  parameters = {
+    type = "pd-standard"
+    skuName = "Standart_LRS"
+  }
+  mount_options = ["file_mode=0777", "dir_mode=0777", "mfsymlinks", "uid=1000", "gid=1000", "nobrl", "cache=none"]
+}
+
+#---------------------------------------------
+resource "azurerm_storage_share" "sshare_wpdbjs_wordpress" {
+  name                 = "sshare_wpdbjs_wordpress"
+  storage_account_name = "saterraformstatewpdbjs"
+  quota                = 50
+}
+#-------------------------------------------

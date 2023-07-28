@@ -17,6 +17,15 @@ data "terraform_remote_state" "tfstatefile" {
   }
 }
 
+data "terraform_remote_state" "wordpressfiles" {
+  backend = "azurerm"
+  config = {
+    storage_account_name = "saterraformstatewpdbjs"
+    container_name       = "wpstoragewpdbjs"
+    key                  = "wordpress-${local.name}-data"
+    resource_group_name  = "RG-backend"
+  }
+}
 
 data "azurerm_storage_account" "saterraformstate" {
   name                = "saterraformstatewpdbjs"
@@ -39,3 +48,10 @@ data "kubernetes_namespace" "ns-wpdbjs" {
     name = "ns-wpdbjs-${local.name}-${var.ns-extended-number}"
   }
 }
+
+data "azurerm_mysql_flexible_server" "mysql-wpdbjs" {
+  name                = "mysql-wpdbjs-${local.name}"
+  resource_group_name = "RG-WPDBJS-${local.name}"
+}
+
+data "azurerm_subscription" "current" {}

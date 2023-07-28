@@ -27,3 +27,10 @@ variable "environment" {}
 variable "ns-extended-number" {}
 
 variable "registry" {}
+
+
+variable "azure-client-id" { sensensitive = true}
+
+variable "azure-client-secret" { sesensitive = true}
+
+variable "azure-storageaccount-key" { sensensitive = true }

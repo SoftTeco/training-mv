@@ -11,42 +11,42 @@ resource "kubernetes_namespace" "ns-wpdbjs" {
 }
 
 #-------------------- K8s pv creating (wp, db) -------------------------
-resource "kubernetes_persistent_volume" "pv-wpdbjs-mysql" {
-  metadata {
-    name = "pv-wpdbjs-mysql-${local.name}-${var.ns-extended-number}"
-  }
-  spec {
-    storage_class_name = "standard"
-    capacity = {
-      storage = "1Gi"
-    }
-    access_modes = ["ReadWriteMany"]
-    persistent_volume_source {
-      vsphere_volume {
-        volume_path = "/home/max_verbitskiy/compose_data/mysql-${local.name}-data/wordpress_${local.name}"
-        #volume_path = "/new_compose_data/mysql"
-      }
-    }
-  }
-}
+# resource "kubernetes_persistent_volume" "pv-wpdbjs-mysql" {
+#   metadata {
+#     name = "pv-wpdbjs-mysql-${local.name}-${var.ns-extended-number}"
+#   }
+#   spec {
+#     storage_class_name = "standard"
+#     capacity = {
+#       storage = "1Gi"
+#     }
+#     access_modes = ["ReadWriteMany"]
+#     persistent_volume_source {
+#       vsphere_volume {
+#         volume_path = "/compose_data/mysql-${local.name}-data/wordpress_${local.name}"
+#         #volume_path = "/new_compose_data/mysql"
+#       }
+#     }
+#   }
+# }
 
-#------------------ K8s pvc creating (wp, db) ------------------------
-resource "kubernetes_persistent_volume_claim" "pvc-wpdbjs-mysql" {
-  metadata {
-    name      = "pvc-wpdbjs-mysql"
-    namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
-  }
-  spec {
-    access_modes = ["ReadWriteMany"]
-    resources {
-      requests = {
-        storage = "1Gi"
-      }
-    }
-    storage_class_name = "standard"
-    volume_name = "${kubernetes_persistent_volume.pv-wpdbjs-mysql.metadata.0.name}"
-  }
-}
+# #------------------ K8s pvc creating (wp, db) ------------------------
+# resource "kubernetes_persistent_volume_claim" "pvc-wpdbjs-mysql" {
+#   metadata {
+#     name      = "pvc-wpdbjs-mysql"
+#     namespace = "${kubernetes_namespace.ns-wpdbjs.metadata.0.name}"
+#   }
+#   spec {
+#     access_modes = ["ReadWriteMany"]
+#     resources {
+#       requests = {
+#         storage = "1Gi"
+#       }
+#     }
+#     storage_class_name = "standard"
+#     volume_name = "${kubernetes_persistent_volume.pv-wpdbjs-mysql.metadata.0.name}"
+#   }
+# }
 
 
 #------------- K8s deployments creating (wp, db, js) ---------------
@@ -106,12 +106,12 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-mysql" {
           #  "mysqld --initialize --user=mysql --pid-file /var/lib/mysql/mysqld.pid --max-connections=1000 --default-time-zone=+00:00 --max_allowed_packet=16M --innodb_log_buffer_size=4M --innodb_log_file_size=16M --explicit_defaults_for_timestamp"
           #]
         }
-        volume {
-          name = "pv-wpdbjs-${local.name}"
-          persistent_volume_claim {
-            claim_name = "${kubernetes_persistent_volume_claim.pvc-wpdbjs-mysql.metadata.0.name}"
-          }
-        }
+        #volume {
+          #name = "pv-wpdbjs-${local.name}"
+          #persistent_volume_claim {
+            #claim_name = "${kubernetes_persistent_volume_claim.pvc-wpdbjs-mysql.metadata.0.name}"
+          #}
+        #}
       }
     }
   }
