@@ -180,7 +180,7 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-wordpress" {
 resource "kubernetes_horizontal_pod_autoscaler_v1" "ascale-wpdbjs-wordpress" {
   metadata {
     name = "ascale-wpdbjs-wordpress-${local.name}-${var.ns-extended-number}"
-    namespace = data.kubernetes_namespace.ns-wpdbjs.metadata.0.name
+    namespace = kubernetes_namespace.ns-wpdbjs.metadata.0.name
   }
 
   spec {
