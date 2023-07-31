@@ -20,7 +20,7 @@ resource "azurerm_storage_share" "sshare_wpdbjs_wordpress" {
 resource "kubernetes_secret" "ghcr-auth" {
   metadata {
     name = "ghcr-config-${var.ns-extended-number}"
-    namespace = data.kubernetes_namespace.ns-wpdbjs.metadata.0.name
+    namespace = kubernetes_namespace.ns-wpdbjs.metadata.0.name
   }
   data = {
     ".dockerconfigjson" = "${var.docker-config-ghcr-auth}"
@@ -31,7 +31,7 @@ resource "kubernetes_secret" "ghcr-auth" {
 resource "kubernetes_secret" "storage_wordpress_secret" {
   metadata {
     name = "storage_wordpress_secret"
-    namespace = data.kubernetes_namespace.ns-wpdbjs.metadata.0.name
+    namespace = kubernetes_namespace.ns-wpdbjs.metadata.0.name
   }
 
   data = { "azure.json" = jsonencode({
@@ -93,7 +93,7 @@ resource "kubernetes_persistent_volume_claim" "pvc-wpdbjs-wordpress" {
   metadata {
     #name      = "pvc-wpdbjs-wordpress"
     name      = "pvc-wpdbjs-wordpress-azurefile"
-    namespace = data.kubernetes_namespace.ns-wpdbjs.metadata.0.name
+    namespace = kubernetes_namespace.ns-wpdbjs.metadata.0.name
   }
   spec {
     access_modes = ["ReadWriteMany"]

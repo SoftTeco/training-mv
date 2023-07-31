@@ -36,12 +36,12 @@ data "docker_registry_image" "wordpress" {
   name = "${var.registry}/${var.gh-host}/wordpress:${var.wordpress-image}"
 }
 
-data "kubernetes_service" "svc-wpdbjs-mysql" {
-  metadata {
-    name      = "svc-wpdbjs-mysql"
-    namespace = data.kubernetes_namespace.ns-wpdbjs.metadata.0.name
-  }
-}
+#data "kubernetes_service" "svc-wpdbjs-mysql" {
+  #metadata {
+    #name      = "svc-wpdbjs-mysql"
+    #namespace = data.kubernetes_namespace.ns-wpdbjs.metadata.0.name
+  #}
+#}
 
 data "azurerm_mysql_flexible_server" "mysql-wpdbjs" {
   name                = "mysql-wpdbjs-${local.name}"
