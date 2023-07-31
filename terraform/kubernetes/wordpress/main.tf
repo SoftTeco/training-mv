@@ -1,7 +1,8 @@
 #----------------- Local( dev/prod )------------------
 locals {
   name = "${terraform.workspace}"
-  mysql-address = data.kubernetes_service.svc-wpdbjs-mysql.status.0.load_balancer.0.ingress.0.ip
+  #mysql-address = data.kubernetes_service.svc-wpdbjs-mysql.status.0.load_balancer.0.ingress.0.ip
+  mysql-address = data.azurerm_mysql_flexible_server.mysql-wpdbjs.fqdn
 }
 #-------------------- K8s namespace for each deploy --------------------
 resource "kubernetes_namespace" "ns-wpdbjs" {
@@ -113,7 +114,7 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-wordpress" {
     labels    = {
       project = "wpdbjs-wordpress-${local.name}-${var.ns-extended-number}"
     }
-    namespace = data.kubernetes_namespace.ns-wpdbjs.metadata.0.name
+    namespace = kubernetes_namespace.ns-wpdbjs.metadata.0.name
   }
   spec {
     selector {
@@ -199,7 +200,7 @@ resource "kubernetes_horizontal_pod_autoscaler_v1" "ascale-wpdbjs-wordpress" {
 resource "kubernetes_service" "svc-wpdbjs-wordpress" {
   metadata {
     name      = "svc-wpdbjs-wordpress"
-    namespace = data.kubernetes_namespace.ns-wpdbjs.metadata.0.name
+    namespace = kubernetes_namespace.ns-wpdbjs.metadata.0.name
   }
   spec {
     selector = {
