@@ -159,7 +159,10 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-wordpress" {
             value = "${var.mysql-name}"
           }
           #command = [ "echo", "ServerName 127.0.0.1", ">>", "/etc/apache2/apache2.conf" ]
-          command = [ "echo 'ServerName 127.0.0.1' >> /etc/apache2/apache2.conf", "service apache2 reload" ]
+          #command = [ "echo 'ServerName 127.0.0.1' >> /etc/apache2/apache2.conf", "service apache2 reload" ]
+          exec {
+            command = [ "echo 'ServerName 127.0.0.1' >> /etc/apache2/apache2.conf", "service apache2 reload" ]
+          }
         }
         volume {
           name = "pv-wpdbjs-wordpress-${local.name}"
