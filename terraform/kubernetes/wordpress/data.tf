@@ -43,12 +43,6 @@ data "kubernetes_service" "svc-wpdbjs-mysql" {
   }
 }
 
-data "kubernetes_namespace" "ns-wpdbjs" {
-  metadata {
-    name = "ns-wpdbjs-${local.name}-${var.ns-extended-number}"
-  }
-}
-
 data "azurerm_mysql_flexible_server" "mysql-wpdbjs" {
   name                = "mysql-wpdbjs-${local.name}"
   resource_group_name = "RG-WPDBJS-${local.name}"

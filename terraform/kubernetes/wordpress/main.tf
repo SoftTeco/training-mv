@@ -3,7 +3,12 @@ locals {
   name = "${terraform.workspace}"
   mysql-address = data.kubernetes_service.svc-wpdbjs-mysql.status.0.load_balancer.0.ingress.0.ip
 }
-
+#-------------------- K8s namespace for each deploy --------------------
+resource "kubernetes_namespace" "ns-wpdbjs" {
+  metadata {
+    name = "ns-wpdbjs-${local.name}-${var.ns-extended-number}"
+  }
+}
 #----------------- K8s secrets (docker cfg/storage secret) --------------
 #---------------------------------------------
 resource "azurerm_storage_share" "sshare_wpdbjs_wordpress" {
