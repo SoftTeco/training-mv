@@ -33,4 +33,4 @@ variable "azure-client-id" { sensitive = true}
 
 variable "azure-client-secret" { sensitive = true}
 
-variable "azure-storageaccount-key" {   sensitive = true }
+variable "azure-storageaccount-key" { sensitive = true }
