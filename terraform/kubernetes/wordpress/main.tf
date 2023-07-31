@@ -31,7 +31,7 @@ resource "kubernetes_secret" "ghcr-auth" {
 
 resource "kubernetes_secret" "storage_wordpress_secret" {
   metadata {
-    name = "storage_wordpress_secret"
+    name = "storage-wordpress-secret-${var.ns-extended-number}"
     namespace = kubernetes_namespace.ns-wpdbjs.metadata.0.name
   }
 
