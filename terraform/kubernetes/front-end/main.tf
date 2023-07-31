@@ -98,3 +98,4 @@ resource "kubernetes_service" "svc-wpdbjs-frontend" {
     }
   }
 }
+
