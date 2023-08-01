@@ -7,4 +7,6 @@ COPY plugins/any-hostname /var/www/html/wp-content/plugins/
 COPY plugins/wp-graphql /var/www/html/wp-content/plugins/
 COPY addition_files/.htaccess /var/www/html/
 
+RUN echo "ServerName 127.0.0.1" >> /etc/apache2/apache2.conf && \
+    service apache2 reload
 #-------------------------------------------
