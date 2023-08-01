@@ -10,7 +10,7 @@ COPY addition_files/.htaccess /var/www/html/
 COPY entrypoint-script.sh /var/www/
 RUN chmod +x /var/www/entrypoint-script.sh
 
-ENTRYPOINT [/var/www/entrypoint-script.sh]
+ENTRYPOINT [./entrypoint-script.sh]
 #ENTRYPOINT echo "ServerName 127.0.0.1" >> /etc/apache2/apache2.conf
 #ENTRYPOINT service apache2 reload
 #-------------------------------------------
