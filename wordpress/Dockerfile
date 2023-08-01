@@ -11,6 +11,4 @@ COPY entrypoint-script.sh /var/www/
 RUN chmod 777 /var/www/entrypoint-script.sh
 
 ENTRYPOINT ["./entrypoint-script.sh"]
-#ENTRYPOINT echo "ServerName 127.0.0.1" >> /etc/apache2/apache2.conf
-#ENTRYPOINT service apache2 reload
 #-------------------------------------------
