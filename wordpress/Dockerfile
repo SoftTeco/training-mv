@@ -9,6 +9,7 @@ COPY addition_files/.htaccess /var/www/html/
 #multi command script to run entrypoint
 COPY entrypoint-script.sh /var/www/
 RUN chmod +x /var/www/entrypoint-script.sh
+WORKDIR /var/www/
 
 ENTRYPOINT [./entrypoint-script.sh]
 #ENTRYPOINT echo "ServerName 127.0.0.1" >> /etc/apache2/apache2.conf
