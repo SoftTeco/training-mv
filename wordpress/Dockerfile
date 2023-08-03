@@ -3,8 +3,8 @@ FROM wordpress:php7.1-apache
 
 WORKDIR /var/www/html
 RUN apt-get update && \
-    apt-get install dialog apt-utils -y && \
-    apt-get install sudo -y
+    apt-get install sudo -y && \
+    sudo apt-get install dialog apt-utils -y
 RUN printf '#!/bin/sh\nexit 0' > /usr/sbin/policy-rc.d
 #ADD all dependence files and folders ( plugins and cors enabled )
 COPY addition_files/functions.php /var/www/html/wp-includes/
