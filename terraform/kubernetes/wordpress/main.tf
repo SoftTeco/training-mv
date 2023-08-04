@@ -159,10 +159,10 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-wordpress" {
             name = "WORDPRESS_DB_NAME"
             value = "${var.mysql-name}"
           }
-          env {
-            name = "WORDPRESS_CONFIG_EXTRA"
-            value = "define('MYSQL_CLIENT_FLAGS', MYSQLI_CLIENT_SSL)"
-          }
+          #env {
+            #name = "WORDPRESS_CONFIG_EXTRA"
+            #value = "define('MYSQL_CLIENT_FLAGS', MYSQLI_CLIENT_SSL)"
+          #}
           #command = [ "echo", "ServerName 127.0.0.1", ">>", "/etc/apache2/apache2.conf" ]
           #command = [ "echo 'ServerName 127.0.0.1' >> /etc/apache2/apache2.conf", "service apache2 reload" ]
         }
