@@ -4,6 +4,8 @@ variable "mysql-password" {sensitive = true}
 
 variable "mysql-name" {sensitive = true}
 
+variable "mysql-host" {sensitive = true}
+
 
 variable "gh-host" {}
 

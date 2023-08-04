@@ -144,7 +144,8 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-wordpress" {
             #value = "${kubernetes_service.svc-wpdbjs-mysql.kubernetes_namespace.ns-wpdbjs.svc.cluster.local}"
             #value = "${kubernetes_service.svc-wpdbjs-mysql.metadata.0.name}"
             #value = "http://${local.mysql-address}:${var.mysql-deploy-port}"
-            value = "${data.azurerm_mysql_flexible_server.mysql-wpdbjs.fqdn}"
+            #value = "${data.azurerm_mysql_flexible_server.mysql-wpdbjs.fqdn}"
+            value = "${var.mysql-host}"
           }
           env {
             name = "WORDPRESS_DB_USER"
@@ -157,6 +158,10 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-wordpress" {
           env {
             name = "WORDPRESS_DB_NAME"
             value = "${var.mysql-name}"
+          }
+          env {
+            name = "WORDPRESS_CONFIG_EXTRA"
+            value = "define('MYSQL_CLIENT_FLAGS', MYSQLI_CLIENT_SSL)"
           }
           #command = [ "echo", "ServerName 127.0.0.1", ">>", "/etc/apache2/apache2.conf" ]
           #command = [ "echo 'ServerName 127.0.0.1' >> /etc/apache2/apache2.conf", "service apache2 reload" ]
