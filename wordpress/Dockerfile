@@ -14,7 +14,6 @@ COPY plugins/wp-graphql /var/www/html/wp-content/plugins/
 COPY addition_files/.htaccess /var/www/html/
 COPY 000-default.conf /etc/apache2/sites-available/
 COPY wordpress.conf /etc/apache2/sites-available/
-RUN sed -i -e '6 s/^/Listen 8000\n/;' /etc/apache2/ports.conf
 #multi command script to run entrypoint
 COPY entrypoint-script.sh /usr/local/bin
 RUN chmod 777 /usr/local/bin/entrypoint-script.sh
