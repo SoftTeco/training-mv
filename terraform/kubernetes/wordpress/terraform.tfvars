@@ -1,4 +1,4 @@
-wordpress-image         = "1.28.8"
+wordpress-image         = "1.28.9"
 registry                = "ghcr.io"
 wordpress-target-port   = 8000
 wordpress-deploy-port   = 8000
