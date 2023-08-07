@@ -58,10 +58,10 @@ resource "kubernetes_persistent_volume" "pv-wpdbjs-wordpress" {
         driver = "file.csi.azure.com"
         read_only = false
         volume_handle = "test_volumeHandle"
-        #volume_attributes {
-        #  resource_group = "RG-WPDBJS-${local.name}"
-        #  share_name = "${azurerm_storage_share.sshare_wpdbjs_wordpress.name}"
-        #}
+        volume_attributes = {
+          "resourceGroup" = "RG-WPDBJS-${local.name}"
+          "shareName" = "${azurerm_storage_share.sshare_wpdbjs_wordpress.name}"
+        }
         node_stage_secret_ref {
           name = kubernetes_secret.storage_wordpress_secret.metadata.0.name
           namespace = kubernetes_secret.storage_wordpress_secret.metadata.0.namespace
