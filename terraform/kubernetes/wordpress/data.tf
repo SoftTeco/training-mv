@@ -51,7 +51,7 @@ data "azurerm_mysql_flexible_server" "mysql-wpdbjs" {
 data "azurerm_subscription" "current" {}
 
 data "azurerm_storage_share" "sshare_wpdbjs_wordpress" {
-  name                 = "${kubernetes_persistent_volume.pv-wpdbjs-wordpress.metadata.0.name}"
+  name                 = "sshare_wpdbjs_wordpress-${local.name}" #"${kubernetes_persistent_volume.pv-wpdbjs-wordpress.metadata.0.name}"
   storage_account_name = "data.azurerm_storage_account.sa${local.name}.name"
 }
 
