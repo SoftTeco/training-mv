@@ -57,10 +57,10 @@ data "azurerm_storage_share" "sshare_wpdbjs_wordpress" {
 
 data "azurerm_storage_account" "sadev" {
   name                = "f680fadad9c2449acb51e86"
-  resource_group_name = "mc_rg-wpdbjs-${local.name}_aks-wpdbjs-${local.name}_centralindia"
+  resource_group_name = "mc_rg-wpdbjs-dev_aks-wpdbjs-dev_centralindia"
 }
 
 data "azurerm_storage_account" "saprod" {
   name                = "fc223f71d8f9f4e94bb51a2"
-  resource_group_name = "mc_rg-wpdbjs-${local.name}_aks-wpdbjs-${local.name}_centralindia"
+  resource_group_name = "mc_rg-wpdbjs-prod_aks-wpdbjs-prod_centralindia"
 }
