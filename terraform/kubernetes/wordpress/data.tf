@@ -51,3 +51,4 @@ data "azurerm_storage_account" "sawordpressfiles" {
   name                = "sawordpressfiles${local.name}"
   resource_group_name = "RG-WPDBJS-${local.name}"
 }
+
