@@ -60,7 +60,7 @@ resource "kubernetes_persistent_volume" "pv-wpdbjs-wordpress" {
         volume_handle = "test_volumeHandle"
         volume_attributes = {
           resource_group = "RG-WPDBJS-${local.name}"
-          share_name = "${data.azurerm_storage_share.sshare_wpdbjs_wordpress.name}"
+          share_name = "${data.azurerm_storage_share.sshare-wpdbjs-wordpress.name}"
         }
         node_stage_secret_ref {
           name = kubernetes_secret.storage_wordpress_secret.metadata.0.name
@@ -85,7 +85,6 @@ resource "kubernetes_persistent_volume" "pv-wpdbjs-wordpress" {
 #------------------ K8s pvc creating (wp, db) ------------------------
 resource "kubernetes_persistent_volume_claim" "pvc-wpdbjs-wordpress" {
   metadata {
-    #name      = "pvc-wpdbjs-wordpress"
     name      = "pvc-wpdbjs-wordpress-azurefile"
     namespace = kubernetes_namespace.ns-wpdbjs.metadata.0.name
   }
