@@ -60,7 +60,7 @@ resource "kubernetes_persistent_volume" "pv-wpdbjs-wordpress" {
         volume_handle = "test_volumeHandle"
         volume_attributes = {
           "resourceGroup" = "RG-WPDBJS-${local.name}"
-          "shareName" = "${azurerm_storage_share.sshare_wpdbjs_wordpress.name}"
+          "shareName" = "${data.azurerm_storage_share.sshare_wpdbjs_wordpress.name}"
         }
         node_stage_secret_ref {
           name = kubernetes_secret.storage_wordpress_secret.metadata.0.name
