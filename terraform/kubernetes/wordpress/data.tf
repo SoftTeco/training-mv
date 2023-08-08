@@ -49,3 +49,18 @@ data "azurerm_mysql_flexible_server" "mysql-wpdbjs" {
 }
 
 data "azurerm_subscription" "current" {}
+
+data "azurerm_storage_share" "sshare_wpdbjs_wordpress" {
+  name                 = "${kubernetes_persistent_volume.pv-wpdbjs-wordpress.metadata.0.name}"
+  storage_account_name = "data.azurerm_storage_account.sa${local.name}.name"
+}
+
+data "azurerm_storage_account" "sadev" {
+  name                = "f680fadad9c2449acb51e86"
+  resource_group_name = "mc_rg-wpdbjs-${local.name}_aks-wpdbjs-${local.name}_centralindia"
+}
+
+data "azurerm_storage_account" "saprod" {
+  name                = "fc223f71d8f9f4e94bb51a2"
+  resource_group_name = "mc_rg-wpdbjs-${local.name}_aks-wpdbjs-${local.name}_centralindia"
+}
