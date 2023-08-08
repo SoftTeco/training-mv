@@ -50,17 +50,17 @@ data "azurerm_mysql_flexible_server" "mysql-wpdbjs" {
 
 data "azurerm_subscription" "current" {}
 
-data "azurerm_storage_share" "sshare_wpdbjs_wordpress" {
-  name                 = "sshare_wpdbjs_wordpress-${local.name}" #"${kubernetes_persistent_volume.pv-wpdbjs-wordpress.metadata.0.name}"
+data "azurerm_storage_share" "sshare-wpdbjs-wordpress" {
+  name                 = "sshare-wpdbjs-wordpress-${local.name}" #"${kubernetes_persistent_volume.pv-wpdbjs-wordpress.metadata.0.name}"
   storage_account_name = "data.azurerm_storage_account.sa${local.name}.name"
 }
 
 data "azurerm_storage_account" "sadev" {
-  name                = "f680fadad9c2449acb51e86"
+  name                = "fc223f71d8f9f4e94bb51a2"
   resource_group_name = "mc_rg-wpdbjs-dev_aks-wpdbjs-dev_centralindia"
 }
 
 data "azurerm_storage_account" "saprod" {
-  name                = "fc223f71d8f9f4e94bb51a2"
+  name                = "f680fadad9c2449acb51e86"
   resource_group_name = "mc_rg-wpdbjs-prod_aks-wpdbjs-prod_centralindia"
 }
