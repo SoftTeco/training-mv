@@ -19,9 +19,4 @@ COPY wordpress.conf /etc/apache2/sites-available/
 COPY entrypoint-script.sh /usr/local/bin
 RUN chmod 777 /usr/local/bin/entrypoint-script.sh
 RUN /usr/local/bin/entrypoint-script.sh
-#RUN ln -s /usr/local/bin/entrypoint-script.sh /var/www/html
-
-#CMD ["/bin/bash", "-c", "/usr/local/bin/entrypoint-script.sh"]
-#ENTRYPOINT ["/bin/bash", "-c", "/usr/local/bin/entrypoint-script.sh"]
-#ENTRYPOINT [ "echo", "123" ]
 #-------------------------------------------
