@@ -16,6 +16,7 @@ COPY plugins/wp-graphql /var/www/html/wp-content/plugins/
 COPY addition_files/.htaccess /var/www/html/
 COPY 000-default.conf /etc/apache2/sites-available/
 COPY wordpress.conf /etc/apache2/sites-available/
+RUN sudo chown www-data: /var/www/html
 
 #multi command script to run entrypoint
 COPY entrypoint-script.sh /usr/local/bin

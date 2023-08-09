@@ -158,6 +158,26 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-wordpress" {
             name = "WORDPRESS_DB_NAME"
             value = "${var.mysql-name}"
           }
+          env {
+            name = "DB_HOST"
+            #value = "${kubernetes_service.svc-wpdbjs-mysql.kubernetes_namespace.ns-wpdbjs.svc.cluster.local}"
+            #value = "${kubernetes_service.svc-wpdbjs-mysql.metadata.0.name}"
+            #value = "http://${local.mysql-address}:${var.mysql-deploy-port}"
+            #value = "${data.azurerm_mysql_flexible_server.mysql-wpdbjs.fqdn}"
+            value = "${var.mysql-host}"
+          }
+          env {
+            name = "DB_USER"
+            value = "${var.mysql-user}"
+          }
+          env {
+            name = "DB_PASSWORD"
+            value = "${var.mysql-password}"
+          }
+          env {
+            name = "DB_NAME"
+            value = "${var.mysql-name}"
+          }
           #env {
             #name = "WORDPRESS_CONFIG_EXTRA"
             #value = "define('MYSQL_CLIENT_FLAGS', MYSQLI_CLIENT_SSL)"
