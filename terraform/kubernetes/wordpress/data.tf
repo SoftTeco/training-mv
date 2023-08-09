@@ -17,15 +17,15 @@ data "terraform_remote_state" "tfstatefile" {
   }
 }
 
-data "terraform_remote_state" "wordpressfiles" {
-  backend = "azurerm"
-  config = {
-    storage_account_name = "saterraformstatewpdbjs"
-    container_name       = "wpstoragewpdbjs"
-    key                  = "wordpress-${local.name}-data"
-    resource_group_name  = "RG-backend"
-  }
-}
+#data "terraform_remote_state" "wordpressfiles" {
+  #backend = "azurerm"
+  #config = {
+    #storage_account_name = "saterraformstatewpdbjs"
+    #container_name       = "wpstoragewpdbjs"
+    #key                  = "wordpress-${local.name}-data"
+    #resource_group_name  = "RG-backend"
+  #}
+#}
 
 data "azurerm_storage_account" "saterraformstate" {
   name                = "saterraformstatewpdbjs"
