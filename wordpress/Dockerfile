@@ -6,7 +6,7 @@ RUN apt-get update && \
     apt-get install sudo -y && \
     sudo apt-get install dialog apt-utils -y && \
     sudo apt install net-tools -y && \
-    sudo apt-get install mysql-server -y 
+    sudo apt-get install default-mysql-server -y 
 RUN printf '#!/bin/sh\nexit 0' > /usr/sbin/policy-rc.d
 #ADD all dependence files and folders ( plugins and cors enabled )
 COPY addition_files/functions.php /var/www/html/wp-includes/
