@@ -10,8 +10,8 @@ sudo a2ensite wordpress
 sudo a2enmod rewrite
 sudo a2dissite 000-default
 
-sudo echo "define( 'WP_HOME', 'http://localhost:8000' );" >> /var/www/html/wp-config.php
-sudo echo "define( 'WP_SITEURL', 'http://localhost:8000' );" >> /var/www/html/wp-config.php
+sudo echo "define( 'WP_HOME', 'http://localhost:8000' );" >> wp-config.php
+sudo echo "define( 'WP_SITEURL', 'http://localhost:8000' );" >> wp-config.php
 
 sudo /etc/init.d/apache2 reload
 sudo /etc/init.d/apache2 restart
