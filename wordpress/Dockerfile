@@ -20,6 +20,10 @@ COPY wordpress.conf /etc/apache2/sites-available/
 #multi command script to run entrypoint
 COPY entrypoint-script.sh /usr/local/bin
 RUN chmod 777 /usr/local/bin/entrypoint-script.sh
-RUN /usr/local/bin/entrypoint-script.sh
+#RUN /usr/local/bin/entrypoint-script.sh
 RUN sudo chown www-data: /var/www/html
+#RUN cat /usr/local/bin/entrypoint-script.sh >> /usr/local/bin/docker-entrypoint.sh
+#RUN sudo echo "define( 'WP_HOME', 'http://localhost:8000' );" >> wp-config.php && \
+#    sudo echo "define( 'WP_SITEURL', 'http://localhost:8000' );" >> wp-config.php
+CMD /usr/local/bin/entrypoint-script.sh ; sleep infinity
 #-------------------------------------------
