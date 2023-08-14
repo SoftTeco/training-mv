@@ -13,7 +13,7 @@ RUN printf '#!/bin/sh\nexit 0' > /usr/sbin/policy-rc.d
 COPY addition_files/functions.php /var/www/html/wp-includes/
 COPY plugins/any-hostname /var/www/html/wp-content/plugins/
 COPY plugins/wp-graphql /var/www/html/wp-content/plugins/
-COPY addition_files/.htaccess /var/www/html/
+#COPY addition_files/.htaccess /var/www/html/
 COPY 000-default.conf /etc/apache2/sites-available/
 COPY wordpress.conf /etc/apache2/sites-available/
 RUN sudo chown www-data: /var/www/html
