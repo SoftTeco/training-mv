@@ -89,7 +89,7 @@ resource "kubernetes_persistent_volume_claim" "pvc-wpdbjs-wordpress" {
     namespace = kubernetes_namespace.ns-wpdbjs.metadata.0.name
   }
   spec {
-    access_modes = ["ReadWriteMany"]
+    access_modes = ["ReadWriteOnce"]
     resources {
       requests = {
         storage = "1Gi"
@@ -160,7 +160,7 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-wordpress" {
           }
           env {
             name = "WORDPRESS_CONFIG_EXTRA"
-            value = "define( 'WP_HOME', 'http://localhost:${var.wordpress-target-port}' ); \ndefine( 'WP_SITEURL', 'http://localhost:${var.wordpress-target-port}' );"
+            value = "define( 'WP_HOME', 'http://localhost:${var.wordpress-deploy-port}' ); \ndefine( 'WP_SITEURL', 'http://localhost:${var.wordpress-deploy-port}' ); \ndefine('MYSQL_CLIENT_FLAGS', MYSQLI_CLIENT_SSL);"
           }
           #command = [ "echo", "ServerName 127.0.0.1", ">>", "/etc/apache2/apache2.conf" ]
           #command = [ "echo 'ServerName 127.0.0.1' >> /etc/apache2/apache2.conf", "service apache2 reload" ]
