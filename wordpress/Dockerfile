@@ -16,14 +16,23 @@ COPY plugins/wp-graphql /var/www/html/wp-content/plugins/
 COPY addition_files/.htaccess /var/www/html/
 COPY 000-default.conf /etc/apache2/sites-available/
 COPY wordpress.conf /etc/apache2/sites-available/
+RUN sudo chown www-data: /var/www/html
+
+#apache commands execution
+RUN sudo ln -s /etc/apache2/sites-available/wordpress.conf /etc/apache2/sites-enabled/wordpress.conf && \
+    sudo a2ensite wordpress && \
+    sudo a2enmod rewrite && \
+    sudo a2dissite 000-default && \
+    sudo chmod 666 /etc/apache2/apache2.conf
+#RUN sudo echo "ServerName 127.0.0.1" >> /etc/apache2/apache2.conf 
 
 #multi command script to run entrypoint
-COPY entrypoint-script.sh /usr/local/bin
-RUN chmod 777 /usr/local/bin/entrypoint-script.sh
-#RUN /usr/local/bin/entrypoint-script.sh
-RUN sudo chown www-data: /var/www/html
+# COPY entrypoint-script.sh /usr/local/bin
+# RUN chmod 777 /usr/local/bin/entrypoint-script.sh
+# RUN sudo chown www-data: /var/www/html
+
 #RUN cat /usr/local/bin/entrypoint-script.sh >> /usr/local/bin/docker-entrypoint.sh
 #RUN sudo echo "define( 'WP_HOME', 'http://localhost:8000' );" >> wp-config.php && \
 #    sudo echo "define( 'WP_SITEURL', 'http://localhost:8000' );" >> wp-config.php
-CMD /usr/local/bin/entrypoint-script.sh ; sleep infinity
+#CMD /usr/local/bin/entrypoint-script.sh
 #-------------------------------------------
