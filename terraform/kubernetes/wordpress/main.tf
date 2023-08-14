@@ -160,11 +160,7 @@ resource "kubernetes_deployment_v1" "deploy-wpdbjs-wordpress" {
           }
           env {
             name = "WORDPRESS_CONFIG_EXTRA"
-            value = "define( 'WP_HOME', 'http://localhost:${var.wordpress-target-port}' );"
-          }
-          env {
-            name = "WORDPRESS_CONFIG_EXTRA"
-            value = "define( 'WP_SITEURL', 'http://localhost:${var.wordpress-target-port}' );"
+            value = "define( 'WP_HOME', 'http://localhost:${var.wordpress-target-port}' ); \ndefine( 'WP_SITEURL', 'http://localhost:${var.wordpress-target-port}' );"
           }
           #command = [ "echo", "ServerName 127.0.0.1", ">>", "/etc/apache2/apache2.conf" ]
           #command = [ "echo 'ServerName 127.0.0.1' >> /etc/apache2/apache2.conf", "service apache2 reload" ]
