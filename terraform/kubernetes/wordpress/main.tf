@@ -212,8 +212,8 @@ resource "kubernetes_service" "svc-wpdbjs-wordpress" {
     type = "LoadBalancer"
     port {
       name        = "wordpress-listener"
-      port        = "${var.wordpress-deploy-port}"
-      target_port = "${var.wordpress-target-port}"
+      port        = "${var.wordpress-deploy-port}" #8000
+      target_port = "${var.wordpress-target-port}" #80
     }
   }
 }
