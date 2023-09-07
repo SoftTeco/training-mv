@@ -16,6 +16,6 @@ sudo a2dissite 000-default
 sudo /etc/init.d/apache2 reload
 sudo /etc/init.d/apache2 restart
 
-sudo service mysql start
+#sudo service mysql start
 
 /bin/bash
