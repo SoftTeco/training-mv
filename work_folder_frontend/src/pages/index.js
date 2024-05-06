@@ -14,7 +14,6 @@ export default function Home({ posts }) {
     getResp();
   }, []);
   console.log(resp?.posts?.nodes);
-  console.log(process.env.NEXT_PUBLIC_API_URL);
   return (
     <div className="container">
       {
@@ -138,7 +137,6 @@ export default function Home({ posts }) {
     </div>
   )
 }
-
 
 export async function getStaticProps() {
   const response = await getAllPosts();

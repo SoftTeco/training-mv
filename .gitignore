@@ -31,3 +31,5 @@ override.tf.json
 # Ignore act files
 .secrets
 .env
+#Ignore MACOS folder
+__MACOSX
