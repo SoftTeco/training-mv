@@ -1,15 +1,15 @@
 name: Kubernetes pods CD prod
 on:
   workflow_dispatch:
-    inputs:
-      ns-extended-number:
-        required: true
-        type: string
-        default: '010000'
-      gh-host:
-        required: true
-        type: string
-        default: 'softteco'
+    # inputs:
+      # ns-extended-number:
+      #   required: true
+      #   type: string
+      #   default: '010000'
+      # gh-host:
+      #   required: true
+      #   type: string
+      #   default: 'softteco'
 
 permissions:
       contents: read
