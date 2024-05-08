@@ -9,3 +9,7 @@ variable "vm_size" { type = string }
 variable "node_count" { type = number }
 
 variable "spot_max_price" { type = number }
+
+variable "backend_rg_name" { type = string }
+
+variable "nodepool_name" { type = string }

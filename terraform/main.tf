@@ -6,6 +6,7 @@ module "aks" {
  vm_size        = var.vm_size
  node_count     = var.node_count
  spot_max_price = var.spot_max_price
+ nodepool_name  = var.nodepool_name
 }
 
 module "acr" {
@@ -14,6 +15,8 @@ module "acr" {
  project                    = var.project
  resource_group_name        = module.aks.resource_group_name
  resource_group_location    = module.aks.resource_group_location
+ #aks_object_id              = tonumber(module.aks.aks_object_id)
+ aks_object_id              = module.aks.aks_object_id
 }
 
 module "kv" {
@@ -22,4 +25,6 @@ module "kv" {
  project                    = var.project
  resource_group_name        = module.aks.resource_group_name
  resource_group_location    = module.aks.resource_group_location
+ #aks_object_id              = tonumber(module.aks.aks_object_id)
+ aks_object_id              = module.aks.aks_object_id
 }

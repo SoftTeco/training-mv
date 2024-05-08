@@ -4,13 +4,18 @@ resource "azurerm_resource_group" "RG-NewApplication" {
 }
 
 resource "azurerm_kubernetes_cluster" "AKS-NewApplication" {
-  name                = "AKS-${var.project}"
-  location            = azurerm_resource_group.RG-NewApplication.location
-  resource_group_name = azurerm_resource_group.RG-NewApplication.name
-  dns_prefix          = "aks${var.project}"
+  name                          = "AKS-${var.project}"
+  location                      = azurerm_resource_group.RG-NewApplication.location
+  resource_group_name           = azurerm_resource_group.RG-NewApplication.name
+  dns_prefix                    = "aks${var.project}"
+
+  network_profile {
+    network_plugin = "kubenet"
+    outbound_type = "loadBalancer"
+  }
 
   default_node_pool {
-    name                  = "newappzone1"
+    name                  = "${var.nodepool_name}1"
     vm_size               = var.vm_size
     node_count            = var.node_count
     zones                 = ["1"]
@@ -24,7 +29,7 @@ resource "azurerm_kubernetes_cluster" "AKS-NewApplication" {
 }
 
 resource "azurerm_kubernetes_cluster_node_pool" "NP-azone-2" {
-  name                  = "newappzone2"
+  name                  = "${var.nodepool_name}2"
   kubernetes_cluster_id = azurerm_kubernetes_cluster.AKS-NewApplication.id
   vm_size               = var.vm_size
   priority              = "Spot"

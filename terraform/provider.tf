@@ -14,7 +14,7 @@ terraform {
 }
 
 data "azurerm_resource_group" "rg-backend" {
-  name = "RG-Backend-2"
+  name = var.backend_rg_name
 }
 
 # Configure the Microsoft Azure Provider

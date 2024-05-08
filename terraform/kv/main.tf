@@ -13,14 +13,14 @@ resource "azurerm_key_vault" "KV-NewApplication" {
 
   access_policy {
     tenant_id = data.azurerm_client_config.current.tenant_id
-    object_id = data.azurerm_client_config.current.object_id
+    object_id = var.aks_object_id
 
     key_permissions = [
       "Get",
     ]
 
     secret_permissions = [
-      "Get",
+      "Get","List"
     ]
 
     storage_permissions = [
