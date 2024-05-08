@@ -1,6 +1,6 @@
 #General
-env		                = "dev"
-project		            = "MVnewApplication"
+env                     = "dev"
+project                 = "MVnewApplication"
 
 #for AKS
 RG_location             = "East US"
