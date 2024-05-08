@@ -31,3 +31,11 @@ override.tf.json
 # Ignore act files
 .secrets
 .env
+
+#frontend
+frontend/.env.local
+frontend/.next/
+frontend/node_modules/
+frontend/yarn-error.log
+__MACOSX/
+my-app/
