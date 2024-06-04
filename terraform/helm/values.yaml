@@ -1,0 +1,21 @@
+env: "dev"
+secrets:
+  - name: ""
+  - name: ""
+kv_tenant_id: ""
+kv_name: ""
+user_assigned_identity_id: ""
+user_assigned_client_id: "" 
+secrets-store-csi-driver:
+ enableSecretRotation: true
+secretObjects:
+  - data:
+    - key: ""
+      objectName: ""
+    secretName: ""
+    type: ""
+  - data:
+    - key: ""
+      objectName: ""
+    secretName: ""
+    type: ""

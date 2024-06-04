@@ -1,0 +1,4 @@
+apiVersion: v2
+name: kv-spc
+description: A Helm chart for deploying secret provider class.
+version: 0.1.0

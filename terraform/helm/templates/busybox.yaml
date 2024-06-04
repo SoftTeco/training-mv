@@ -1,0 +1,35 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: busybox
+  namespace: {{ .Values.env }}
+spec:
+  serviceAccountName: sa-aks-newapplication
+  containers:
+    - name: busybox
+      image: registry.k8s.io/e2e-test-images/busybox:1.29-1
+      command:
+        - "/bin/sleep"
+        - "10000"
+      volumeMounts:
+      - mountPath: "/mnt/secrets-store"
+        name: secrets-store-inline
+        readOnly: true
+      env:
+      - name: NEWAPPLICATIONSECRETUSER
+        valueFrom:
+          secretKeyRef:
+            name: newapplicationsecretuser
+            key: username
+      - name: NEWAPPLICATIONSECRETPASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: newapplicationsecretpassword
+            key: password 
+  volumes:
+  - name: secrets-store-inline
+    csi:
+      driver: secrets-store.csi.k8s.io
+      readOnly: true
+      volumeAttributes:
+        secretProviderClass: "azure-csi-kv"

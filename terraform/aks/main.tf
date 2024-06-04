@@ -1,17 +1,19 @@
-resource "azurerm_resource_group" "RG-NewApplication" {
-  name     = "RG-${var.project}"
-  location = var.RG_location
+resource "azurerm_resource_group" "rg_new_application" {
+  name     = "rg_${var.project}"
+  location = var.rg_location
 }
 
-resource "azurerm_kubernetes_cluster" "AKS-NewApplication" {
-  name                          = "AKS-${var.project}"
-  location                      = azurerm_resource_group.RG-NewApplication.location
-  resource_group_name           = azurerm_resource_group.RG-NewApplication.name
-  dns_prefix                    = "aks${var.project}"
+resource "azurerm_kubernetes_cluster" "aks_new_application" {
+  name                          = "aks_${var.project}"
+  location                      = var.rg_location
+  resource_group_name           = azurerm_resource_group.rg_new_application.name
+  dns_prefix                    = "aksnewapplication"
+  workload_identity_enabled     = true
+  oidc_issuer_enabled           = true
 
   network_profile {
-    network_plugin = "kubenet"
-    outbound_type = "loadBalancer"
+    network_plugin              = "kubenet"
+    outbound_type               = "loadBalancer"
   }
 
   default_node_pool {
@@ -19,18 +21,26 @@ resource "azurerm_kubernetes_cluster" "AKS-NewApplication" {
     vm_size               = var.vm_size
     node_count            = var.node_count
     zones                 = ["1"]
-
+    
     tags = { Environment = var.env }
   }
+  
 
-  identity { type = "SystemAssigned" }
+  identity { 
+    type = "UserAssigned" 
+    identity_ids = [var.aks_identity_id]  
+  }
+
+  key_vault_secrets_provider {
+    secret_rotation_enabled  = true
+  }
 
   tags = { Environment = var.env }
 }
 
-resource "azurerm_kubernetes_cluster_node_pool" "NP-azone-2" {
+resource "azurerm_kubernetes_cluster_node_pool" "nodepool_azone_2" {
   name                  = "${var.nodepool_name}2"
-  kubernetes_cluster_id = azurerm_kubernetes_cluster.AKS-NewApplication.id
+  kubernetes_cluster_id = azurerm_kubernetes_cluster.aks_new_application.id
   vm_size               = var.vm_size
   priority              = "Spot"
   eviction_policy       = "Deallocate"
@@ -40,3 +50,9 @@ resource "azurerm_kubernetes_cluster_node_pool" "NP-azone-2" {
 
   tags = { Environment = var.env }
 }
+
+# resource "kubernetes_namespace" "dev" {
+#   metadata {
+#     name = "${var.env}"
+#   }
+# }

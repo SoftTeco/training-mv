@@ -1,37 +1,51 @@
 output "client_certificate" {
-  value     = azurerm_kubernetes_cluster.AKS-NewApplication.kube_config[0].client_certificate
+  value     = azurerm_kubernetes_cluster.aks_new_application.kube_config[0].client_certificate
   sensitive = true
 }
 
 output "kube_config" {
-  value = azurerm_kubernetes_cluster.AKS-NewApplication.kube_config_raw
+  value = azurerm_kubernetes_cluster.aks_new_application.kube_config_raw
   sensitive = true
 }
 
-output "resource_group_name" {
-  value = azurerm_resource_group.RG-NewApplication.name
+output "rg_name" {
+  value = azurerm_resource_group.rg_new_application.name
 }
 
-output "resource_group_location" {
-  value = azurerm_resource_group.RG-NewApplication.location
+output "rg_id" {
+  value = azurerm_resource_group.rg_new_application.id
 }
 
 output "client_key" {
-  value     = azurerm_kubernetes_cluster.AKS-NewApplication.kube_config[0].client_key
+  value     = azurerm_kubernetes_cluster.aks_new_application.kube_config[0].client_key
   sensitive = true
 }
 
 output "cluster_ca_certificate" {
-  value     = azurerm_kubernetes_cluster.AKS-NewApplication.kube_config[0].cluster_ca_certificate
+  value     = azurerm_kubernetes_cluster.aks_new_application.kube_config[0].cluster_ca_certificate
   sensitive = true
 }
 
 output "host" {
-  value     = azurerm_kubernetes_cluster.AKS-NewApplication.kube_config[0].host
+  value     = azurerm_kubernetes_cluster.aks_new_application.kube_config[0].host
   sensitive = true
 }
 
-output "aks_object_id" {
-  value     = azurerm_kubernetes_cluster.AKS-NewApplication.identity[0].principal_id
+output "aks_assigned_identity_pid" {
+  value     = azurerm_kubernetes_cluster.aks_new_application.identity[0].principal_id
   sensitive = true
 }
+
+output "aks_id" {
+  value = azurerm_kubernetes_cluster.aks_new_application.id
+  sensitive = true
+}
+
+output "oidc_issuer_url" {
+  value     = azurerm_kubernetes_cluster.aks_new_application.oidc_issuer_url
+}
+
+output "aks_kubelet_identity_oid" {
+  value     = azurerm_kubernetes_cluster.aks_new_application.kubelet_identity[0].object_id
+}
+
