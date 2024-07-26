@@ -5,6 +5,10 @@ data "azuread_user" "Max_Verbitskiy" {
   user_principal_name = var.owner_email
 }
 
+data "external" "managed_identities" {
+  program = ["python3", "${path.module}/get_managed_identities.py", var.aks_node_resource_group, data.azurerm_client_config.current.subscription_id]
+}
+
 locals {
   namespace = "${var.env}"
   service_account_name = "sa-aks-${var.project}"
@@ -59,7 +63,7 @@ resource "azurerm_key_vault_access_policy" "access_policy_aks_identity" {
   ]
 
   storage_permissions = [
-      "Get",
+      "Get", "List", "Set", "Delete", "Update", "RegenerateKey", "SetSAS", "ListSAS", "GetSAS", "DeleteSAS"
   ]
 }
 
@@ -158,6 +162,7 @@ resource "azurerm_role_assignment" "assignment_max_verbtskiy" {
   role_definition_name = "Key Vault Administrator"
   principal_id         = azurerm_user_assigned_identity.identity_user_MaxVerbitskiy.principal_id
 }
+
 resource "azurerm_federated_identity_credential" "federeated_identity_creds_newapplication" {
   name                = azurerm_user_assigned_identity.identity_aks_workload.name
   resource_group_name = azurerm_user_assigned_identity.identity_aks_workload.resource_group_name
@@ -165,4 +170,34 @@ resource "azurerm_federated_identity_credential" "federeated_identity_creds_newa
   issuer              = var.oidc_issuer_url
   parent_id           = azurerm_user_assigned_identity.identity_aks_workload.id
   subject             = "system:serviceaccount:${local.namespace}:${local.service_account_name}"
+}
+
+# should be commented before create whole infra (dynamic values)
+locals {
+  aks_managed_identity_names = split(",", data.external.managed_identities.result.identity_names)
+}
+
+
+data "azurerm_user_assigned_identity" "aks_managed_identities" {
+  for_each            = toset(local.aks_managed_identity_names)
+  name                = each.value
+  resource_group_name = var.aks_node_resource_group
+}
+resource "azurerm_key_vault_access_policy" "access_policy_to_identity_created_by_aks" {
+  for_each     = data.azurerm_user_assigned_identity.aks_managed_identities
+  key_vault_id = azurerm_key_vault.kv_new_application.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = each.value.principal_id
+
+  key_permissions = [
+      "Get","List","Update","Create","Import","Delete","Recover","Backup","Restore"
+  ]
+
+  secret_permissions = [
+      "Get","List","Set","Delete","Recover","Backup","Restore","Purge"
+  ]
+
+  storage_permissions = [
+      "Get",
+  ]
 }

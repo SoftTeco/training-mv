@@ -19,3 +19,7 @@ variable "address_space" { type = list(string) }
 variable "address_prefixes" { type = list(string) }
 
 variable "owner_email" { type = string }
+
+variable "personal_fqdn" { type = string }
+
+variable "deployment_app_replicas_count" { type = number }

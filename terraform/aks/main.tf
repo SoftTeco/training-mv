@@ -3,6 +3,11 @@ resource "azurerm_resource_group" "rg_new_application" {
   location = var.rg_location
 }
 
+data "azurerm_resource_group" "rg2" {
+  name     = azurerm_kubernetes_cluster.aks_new_application.node_resource_group
+  #location = var.rg_location
+}
+
 resource "azurerm_kubernetes_cluster" "aks_new_application" {
   name                          = "aks_${var.project}"
   location                      = var.rg_location
@@ -51,8 +56,19 @@ resource "azurerm_kubernetes_cluster_node_pool" "nodepool_azone_2" {
   tags = { Environment = var.env }
 }
 
-# resource "kubernetes_namespace" "dev" {
-#   metadata {
-#     name = "${var.env}"
-#   }
-# }
+resource "azurerm_role_assignment" "assignment_to_aks" {
+  scope                = azurerm_kubernetes_cluster.aks_new_application.id
+  role_definition_name = "Azure Kubernetes Service Cluster Admin Role"
+  principal_id         = var.aks_identity_principal_id
+}
+
+resource "azurerm_role_assignment" "assignment_to_aks_2" {
+  scope                = azurerm_kubernetes_cluster.aks_new_application.id
+  role_definition_name = "Azure Kubernetes Service Contributor Role"
+  principal_id         = var.aks_identity_principal_id
+}
+
+data "azurerm_lb" "aks_lb" {
+  name                = "kubernetes"
+  resource_group_name = azurerm_kubernetes_cluster.aks_new_application.node_resource_group
+}

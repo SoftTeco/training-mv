@@ -16,4 +16,6 @@ variable "kv_id" { type = string }
 
 variable "aks_identity_id" { type = string }
 
+variable "aks_identity_principal_id" { type = string }
+
 variable "maxverbitskiy_identity_id" { type = string }

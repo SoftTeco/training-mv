@@ -18,3 +18,8 @@ address_prefixes        = ["10.0.1.0/24"]
 
 #for access to myself to azure KV in Azure.com
 owner_email             = "m.verbitskiyy@softteco.com"
+
+#my domain
+personal_fqdn           = "mv-newapplication2.ignorelist.com"
+
+deployment_app_replicas_count = 1

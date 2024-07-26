@@ -2,38 +2,46 @@
 # Manual edits may be lost in future updates.
 
 provider "registry.terraform.io/hashicorp/azuread" {
-  version = "2.50.0"
+  version = "2.53.1"
   hashes = [
-    "h1:bP4M0Qxdulv3kzTkFRDeGAnlzHbL0BO/phBgxNjnyLg=",
+    "h1:0z/718jtR2TJHQQMMqi4nvd6XFPV/iA1jb/5fyAcn5o=",
   ]
 }
 
 provider "registry.terraform.io/hashicorp/azurerm" {
-  version     = "3.104.2"
+  version     = "3.113.0"
   constraints = ">= 3.0.0"
   hashes = [
-    "h1:aC/jL4Tbq/dEduDIw2fMWV+jHIrBJ5YwLjcGAyF5SPA=",
+    "h1:eEUtt0lrLdpVaF6FiDq8BGQPgEcykmhj0aNIL7hTOGw=",
+  ]
+}
+
+provider "registry.terraform.io/hashicorp/external" {
+  version = "2.3.3"
+  hashes = [
+    "h1:H+3QlVPs/7CDa3I4KU/a23wYeGeJxeBlgvR7bfK1t1w=",
   ]
 }
 
 provider "registry.terraform.io/hashicorp/helm" {
-  version = "2.13.2"
+  version     = "2.14.0"
+  constraints = ">= 2.14.0"
   hashes = [
-    "h1:nlSqCo0PajJzjSlx0lXNUq1YcOr8p9b3ahcUUYN2pEg=",
+    "h1:MCwlHF214XoAqJ11wR1SQuZmjJyAagKOqgSzl9hHrPg=",
   ]
 }
 
 provider "registry.terraform.io/hashicorp/kubernetes" {
-  version     = "2.11.0"
-  constraints = "~> 2.11.0"
+  version     = "2.14.0"
+  constraints = "~> 2.14.0"
   hashes = [
-    "h1:pJiAJwZKUaoAJ4x+3ONJkwEVkjrwGROCGFgj7noPO58=",
+    "h1:FFeFf2j2ipbMlrbhmIv8M7bzX3Zq8SQHeFkkQGALh1k=",
   ]
 }
 
 provider "registry.terraform.io/hashicorp/random" {
-  version = "3.6.1"
+  version = "3.6.2"
   hashes = [
-    "h1:1OlP753r4lOKlBprL0HdZGWerm5DCabD5Mli8k8lWAg=",
+    "h1:wmG0QFjQ2OfyPy6BB7mQ57WtoZZGGV07uAPQeDmIrAE=",
   ]
 }

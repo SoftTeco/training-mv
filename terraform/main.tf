@@ -9,6 +9,7 @@ module "aks" {
  nodepool_name              = var.nodepool_name
  kv_id                      = module.kv.kv_id
  aks_identity_id            = module.kv.aks_identity_id
+ aks_identity_principal_id  = module.kv.aks_identity_principal_id
  maxverbitskiy_identity_id  = module.kv.maxverbitskiy_identity_id
 }
 
@@ -35,6 +36,8 @@ module "kv" {
  aks_id                     = module.aks.aks_id
  rg_id                      = module.aks.rg_id
  owner_email                = var.owner_email 
+ aks_name                   = module.aks.aks_name
+ aks_node_resource_group    = module.aks.aks_node_resource_group
 }
 
 module "virtual_network" {

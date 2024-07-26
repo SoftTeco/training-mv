@@ -19,3 +19,8 @@ variable "rg_id" { type = string }
 variable "owner_email" { type = string }
 
 variable "aks_identity_id" { type = string }
+
+variable "aks_name" { type = string }
+
+variable "aks_node_resource_group" { type = string }
+

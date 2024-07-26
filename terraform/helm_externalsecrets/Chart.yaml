@@ -1,0 +1,4 @@
+apiVersion: v2
+name: helm-external-secrets
+description: A Helm chart for deploying external secrets from kv.
+version: 0.1.0

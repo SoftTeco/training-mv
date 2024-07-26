@@ -42,3 +42,4 @@ my-app/
 
 #terraform.lock
 terraform/.terraform.lock
+terraform/.terraform.lock.hcl

@@ -49,3 +49,22 @@ output "aks_kubelet_identity_oid" {
   value     = azurerm_kubernetes_cluster.aks_new_application.kubelet_identity[0].object_id
 }
 
+output "aks_name" {
+  value     = azurerm_kubernetes_cluster.aks_new_application.name
+}
+
+output "aks_node_resource_group" {
+  value     = azurerm_kubernetes_cluster.aks_new_application.node_resource_group
+}
+
+output "aks_fqdn" {
+  value     = azurerm_kubernetes_cluster.aks_new_application.fqdn
+}
+
+# output "aks_public_ip" {
+#   value = data.azurerm_public_ip.aks_public_ip.ip_address
+# }
+
+# output "aks_public_ip" {
+#   value = [for ip in data.azurerm_public_ip.aks_public_ip : ip.ip_address]
+# }

@@ -1,0 +1,4 @@
+apiVersion: v2
+name: helm-ingress-certs
+description: A Helm chart for deploying ingress and certs to app.
+version: 0.1.0

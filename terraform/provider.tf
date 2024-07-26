@@ -1,12 +1,16 @@
 terraform {
   required_providers {
+    helm = {
+      source  = "hashicorp/helm"
+      version = ">=2.14.0"
+    }
     azurerm = {
       source  = "hashicorp/azurerm"
       version = ">=3.0.0"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "~> 2.11.0"
+      version = "~> 2.14.0"
     }
   }
   backend "azurerm" {
