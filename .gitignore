@@ -41,5 +41,7 @@ __MACOSX/
 my-app/
 
 #terraform.lock
-terraform/.terraform.lock
-terraform/.terraform.lock.hcl
+terraform/stage-1/.terraform.lock
+terraform/stage-1/.terraform.lock.hcl
+terraform/stage-2/.terraform.lock
+terraform/stage-2/.terraform.lock.hcl
