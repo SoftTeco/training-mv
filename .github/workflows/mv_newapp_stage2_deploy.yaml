@@ -1,0 +1,34 @@
+name: stage2 infrastructure deploy
+
+on:
+  workflow_dispatch:
+
+env:
+  ARM_CLIENT_ID: ${{ secrets.AZURE_MV_NEWAPPLICATION_CLIENT_ID }}
+  ARM_CLIENT_SECRET: ${{ secrets.AZURE_MV_NEWAPPLICATION_CLIENT_SECRET }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_MV_NEWAPPLICATION_SUBSCRIPTION_ID }}
+  ARM_TENANT_ID: ${{ secrets.AZURE_MV_NEWAPPLICATION_TENANT_ID }}
+
+jobs:
+  stage2_deploy:
+    name: stage2_deploy
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: 'Set up Terraform'
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: 1.9.3
+
+    - name: 'Terraform Init'
+      run: terraform init
+      working-directory: ./terraform/stage-2
+
+    - name: 'Terraform Plan'
+      run: terraform plan
+      working-directory: ./terraform/stage-2
+
+    - name: 'Terraform Apply'
+      run: terraform apply -auto-approve
+      working-directory: ./terraform/stage-2

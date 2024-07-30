@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: mv-certificate
+  namespace: {{ .Values.env }}
+spec:
+  secretName: mv-tls-secret-key-and-crt
+  duration: 8760h
+  renewBefore: 240h
+  issuerRef:
+    name: letsencrypt-mv
+    kind: ClusterIssuer
+  commonName: {{ .Values.personal_fqdn }}
+  dnsNames:
+  - {{ .Values.personal_fqdn }}

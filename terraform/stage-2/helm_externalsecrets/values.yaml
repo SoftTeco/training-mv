@@ -1,0 +1,3 @@
+env: "dev"
+kv_uri: ""
+managed_identity_created_by_aks_client_id: ""

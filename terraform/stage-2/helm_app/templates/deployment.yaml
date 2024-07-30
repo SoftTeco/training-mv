@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: docker-vue
+  namespace: {{ .Values.env }}
+  labels:
+    app: docker-vue
+spec:
+  replicas: {{ .Values.replicas_count }}
+  selector:
+    matchLabels:
+      app: docker-vue
+  template:
+    metadata:
+      labels:
+        app: docker-vue
+    spec:
+      containers:
+      - name: docker-vue
+        image: mvrbtsk/mv-newapplication:1.1.1 
