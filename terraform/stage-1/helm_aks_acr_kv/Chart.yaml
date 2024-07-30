@@ -1,4 +1,0 @@
-apiVersion: v2
-name: helm-aks-acr-kv
-description: A Helm chart for deploying secret provider class.
-version: 0.1.0

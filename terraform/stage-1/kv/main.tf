@@ -171,33 +171,3 @@ resource "azurerm_federated_identity_credential" "federeated_identity_creds_newa
   parent_id           = azurerm_user_assigned_identity.identity_aks_workload.id
   subject             = "system:serviceaccount:${local.namespace}:${local.service_account_name}"
 }
-
-# should be commented before create whole infra (dynamic values)
-# locals {
-#   aks_managed_identity_names = split(",", data.external.managed_identities.result.identity_names)
-# }
-
-
-# data "azurerm_user_assigned_identity" "aks_managed_identities" {
-#   for_each            = toset(local.aks_managed_identity_names)
-#   name                = each.value
-#   resource_group_name = var.aks_node_resource_group
-# }
-# resource "azurerm_key_vault_access_policy" "access_policy_to_identity_created_by_aks" {
-#   for_each     = data.azurerm_user_assigned_identity.aks_managed_identities
-#   key_vault_id = azurerm_key_vault.kv_new_application.id
-#   tenant_id    = data.azurerm_client_config.current.tenant_id
-#   object_id    = each.value.principal_id
-
-#   key_permissions = [
-#       "Get","List","Update","Create","Import","Delete","Recover","Backup","Restore"
-#   ]
-
-#   secret_permissions = [
-#       "Get","List","Set","Delete","Recover","Backup","Restore","Purge"
-#   ]
-
-#   storage_permissions = [
-#       "Get",
-#   ]
-# }
