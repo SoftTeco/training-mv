@@ -10,10 +10,12 @@ output "kube_config" {
 
 output "rg_name" {
   value = azurerm_resource_group.rg_new_application.name
+  sensitive = true
 }
 
 output "rg_id" {
   value = azurerm_resource_group.rg_new_application.id
+  sensitive = true
 }
 
 output "client_key" {
@@ -43,22 +45,27 @@ output "aks_id" {
 
 output "oidc_issuer_url" {
   value     = azurerm_kubernetes_cluster.aks_new_application.oidc_issuer_url
+  sensitive = true
 }
 
 output "aks_kubelet_identity_oid" {
   value     = azurerm_kubernetes_cluster.aks_new_application.kubelet_identity[0].object_id
+  sensitive = true
 }
 
 output "aks_name" {
   value     = azurerm_kubernetes_cluster.aks_new_application.name
+  sensitive = true
 }
 
 output "aks_node_resource_group" {
   value     = azurerm_kubernetes_cluster.aks_new_application.node_resource_group
+  sensitive = true
 }
 
 output "aks_fqdn" {
   value     = azurerm_kubernetes_cluster.aks_new_application.fqdn
+  sensitive = true
 }
 
 # output "aks_public_ip" {

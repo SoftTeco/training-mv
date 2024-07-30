@@ -14,10 +14,10 @@ terraform {
     }
   }
   backend "azurerm" {
-      resource_group_name  = "RG-Backend-2"
-      storage_account_name = "saterraformstatenewapp"
-      container_name       = "scterraformstatenewapp"
-      key                  = "terraform.tfstate"
+    resource_group_name  = "RG-Backend-2"
+    storage_account_name = "saterraformstatenewapp"
+    container_name       = "scterraformstatenewapp"
+    key                  = "stage1.terraform.tfstate"
   }
 }
 
@@ -27,7 +27,7 @@ data "azurerm_resource_group" "rg_backend" {
 
 provider "azurerm" {
   skip_provider_registration = true
-  
+
   features {
     key_vault {
       purge_soft_delete_on_destroy    = true
